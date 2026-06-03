@@ -1,57 +1,40 @@
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
+<script>
+async function gerarPagamentoPix() {
+    const playerId = document.getElementById('player-id').value;
+    const valorSelecionado = document.getElementById('pacote-diamante').value;
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Pega o Token do Asaas cadastrado no painel do Render
-const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
-
-const apiAsaas = axios.create({
-    baseURL: 'https://www.asaas.com/api/v3', // URL Oficial do Asaas
-    headers: {
-        'access_token': ASAAS_TOKEN,
-        'Content-Type': 'application/json'
+    if (!playerId) {
+        alert("Por favor, digite seu ID do jogo primeiro!");
+        return;
     }
-});
 
-// 1. ROTA QUE GERA O PIX AUTOMÁTICO
-app.post('/gerar-pix', async (req, res) => {
-    const { pacote, Nick } = req.body;
-
-    // Configura os valores dos pacotes
-    let valorReais = 5.00;
-    if (pacote === "pacote2") valorReais = 20.00;
+    alert("Gerando seu Pix... Aguarde alguns segundos.");
 
     try {
-        // Criando a cobrança via Pix no Asaas
-        const resposta = await apiAsaas.post('/payments', {
-            customer: 'cus_000000000000', 
-            billingType: 'PIX',
-            value: valorReais,
-            dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Vence em 1 dia
-            externalReference: `DIAMANTES-${Nick}-${Date.now()}`
+        const resposta = await fetch('https://eliasx7.onrender.com/gerar-pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pacote: valorSelecionado, Nick: playerId })
         });
 
-        const paymentId = resposta.data.id;
+        const dados = await resposta.json();
 
-        // Pegando o QR Code e a chave Copia e Cola do Pix criado
-        const qrCodeResposta = await apiAsaas.get(`/payments/${paymentId}/pixQrCode`);
-
-        res.json({
-            sucesso: true,
-            copia_e_cola: qrCodeResposta.data.payload,
-            imagem_base64: qrCodeResposta.data.encodedImage
-        });
-
+        if (dados.copia_e_cola) {
+            document.getElementById('copia-e-cola').value = dados.copia_e_cola;
+            document.getElementById('area-pix').style.display = 'block';
+        } else {
+            alert("Erro ao gerar o Pix. Verifique os logs do seu Render.");
+        }
     } catch (erro) {
-        console.error("Erro ao gerar Pix no Asaas:", erro.response ? erro.response.data : erro.message);
-        res.status(500).json({ sucesso: false, erro: "Não foi possível gerar o Pix." });
+        console.error(erro);
+        alert("Não foi possível conectar ao servidor do jogo.");
     }
-});
+}
 
-// Mantém o servidor ligado na porta certa
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+function copiarPix() {
+    const campoTexto = document.getElementById('copia-e-cola');
+    campoTexto.select();
+    document.execCommand('copy');
+    alert("Código Pix copiado!");
+}
+</script>
