@@ -6,15 +6,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// COLOQUE SEU TOKEN DO ASAAS AQUI
-const ASAAS_API_KEY = '$a3w1.0000000000000000000000000000000000000000000000000000000000000000'; 
+// Puxa o token direto da variável ASAAS_TOKEN que você configurou no Render
+const ASAAS_API_KEY = process.env.ASAAS_TOKEN; 
 
 const asaasInstance = axios.create({
-    baseURL: 'https://www.asaas.com/api/v3', // Se for conta real. Se for teste, use: https://sandbox.asaas.com/api/v3
+    baseURL: 'https://www.asaas.com/api/v3', 
     headers: { 'access_token': ASAAS_API_KEY }
 });
 
-app.post('/gerar-pix', async (req, { status, json }) => {
+app.post('/gerar-pix', async (req, res) => {
     const { pacote, Nick } = req.body;
 
     // Define o valor com base no pacote selecionado
@@ -22,7 +22,7 @@ app.post('/gerar-pix', async (req, { status, json }) => {
     if (pacote === 'pacote2') valor = 20.00;
 
     try {
-        // Criando uma cobrança do tipo PIX avulsa (Sem exigir cadastro prévio de Customer)
+        // Criando uma cobrança do tipo PIX avulsa (Sem exigir cadastro prévio de cliente)
         const cobranca = await asaasInstance.post('/payments', {
             billingType: 'PIX',
             value: valor,
@@ -35,13 +35,13 @@ app.post('/gerar-pix', async (req, { status, json }) => {
         // Busca o código Copia e Cola do Pix dessa cobrança
         const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
 
-        return json({
+        return res.json({
             copia_e_cola: qrCodeResponse.data.payload
         });
 
     } catch (error) {
         console.error("Erro detalhado do Asaas:", error.response ? error.response.data : error.message);
-        return status(500).json({ erro: "Erro ao gerar o Pix no Asaas" });
+        return res.status(500).json({ erro: "Erro ao gerar o Pix no Asaas" });
     }
 });
 
