@@ -1,87 +1,51 @@
 const express = require('express');
-const cors = require('cors');
 const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-// Pega o Token do Asaas cadastrado no painel do Render
-const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
+// COLOQUE SEU TOKEN DO ASAAS AQUI
+const ASAAS_API_KEY = '$a3w1.0000000000000000000000000000000000000000000000000000000000000000'; 
 
-const apiAsaas = axios.create({
-    baseURL: 'https://www.asaas.com/api/v3', // URL Oficial do Asaas
-    headers: {
-        'access_token': ASAAS_TOKEN,
-        'Content-Type': 'application/json'
-    }
+const asaasInstance = axios.create({
+    baseURL: 'https://www.asaas.com/api/v3', // Se for conta real. Se for teste, use: https://sandbox.asaas.com/api/v3
+    headers: { 'access_token': ASAAS_API_KEY }
 });
 
-// 1. ROTA QUE GERA O PIX AUTOMÁTICO
-app.post('/gerar-pix', async (req, res) => {
+app.post('/gerar-pix', async (req, { status, json }) => {
     const { pacote, Nick } = req.body;
 
-    // Configura os valores dos pacotes
-    let valorReais = 5.00;
-    if (pacote === "pacote2") valorReais = 20.00;
+    // Define o valor com base no pacote selecionado
+    let valor = 5.00;
+    if (pacote === 'pacote2') valor = 20.00;
 
     try {
-        // Criando a cobrança via Pix no Asaas
-        const resposta = await apiAsaas.post('/payments', {
-            customer: 'cus_000000000000', // Substitua pelo ID do cliente padrão do seu Asaas
+        // Criando uma cobrança do tipo PIX avulsa (Sem exigir cadastro prévio de Customer)
+        const cobranca = await asaasInstance.post('/payments', {
             billingType: 'PIX',
-            value: valorReais,
-            dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // 1 dia de vencimento
-            externalReference: `DIAMANTES-${Nick}-${Date.now()}`
+            value: valor,
+            dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Vence em 1 dia
+            description: `Compra de Diamantes - Nick: ${Nick}`
         });
 
-        const pagamentoId = resposta.data.id;
+        const paymentId = cobranca.data.id;
 
-        // Pegando o QR Code e a chave Copia e Cola do Pix criado
-        const respostaQr = await apiAsaas.get(`/payments/${pagamentoId}/pixQrCode`);
+        // Busca o código Copia e Cola do Pix dessa cobrança
+        const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
 
-        res.json({
-            sucesso: true,
-            copia_e_cola: respostaQr.data.payload,
-            imagem_base64: respostaQr.data.encodedImage
+        return json({
+            copia_e_cola: qrCodeResponse.data.payload
         });
 
-    } catch (erro) {
-        console.error("Erro ao gerar Pix no Asaas:", erro.response ? erro.response.data : erro.message);
-        res.status(500).json({ sucesso: false, erro: "Não foi possível gerar o Pix." });
+    } catch (error) {
+        console.error("Erro detalhado do Asaas:", error.response ? error.response.data : error.message);
+        return status(500).json({ erro: "Erro ao gerar o Pix no Asaas" });
     }
 });
 
-// 2. ROTA WEBHOOK (RECEBE O AVISO DE PAGAMENTO DO ASAAS)
-app.post('/webhook', async (req, res) => {
-    // Responde ao Asaas imediatamente para confirmar o recebimento
-    res.status(200).json({ recebido: true });
-
-    const { event, payment } = req.body;
-
-    // Se o pagamento foi recebido ou confirmado
-    if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
-        const referencia = payment.externalReference;
-        
-        if (referencia && referencia.startsWith('DIAMANTES-')) {
-            const partes = referencia.split('-');
-            const nickJogador = partes[1]; // Pega o Nick do jogador
-            
-            let diamantes = 0;
-            if (payment.value === 5.00) diamantes = 100;
-            if (payment.value === 20.00) diamantes = 500;
-
-            console.log(`PAGAMENTO APROVADO: Enviando ${diamantes} diamantes para ${nickJogador}`);
-
-            try {
-                // O código para colocar os diamantes no seu banco de dados entrará aqui no futuro
-            } catch (erroBanco) {
-                console.error("Erro ao salvar no banco:", erroBanco);
-            }
-        }
-    }
-});
-
-// Mantém o servidor conectado na porta certa
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
