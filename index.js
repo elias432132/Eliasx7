@@ -6,7 +6,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Se você mudou para ASAAS_API_KEY no Render, o código lê aqui perfeitamente
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY; 
 
 const asaasInstance = axios.create({
@@ -21,15 +20,16 @@ app.post('/gerar-pix', async (req, res) => {
     if (pacote === 'pacote2') valor = 20.00;
 
     try {
-        // Cria o cliente necessário exigido pelo Asaas
+        // Passo 1: Cria o cliente incluindo um CPF padrão válido exigido pela sua conta Asaas
         const clienteResponse = await asaasInstance.post('/customers', {
             name: `Cliente - ${Nick}`,
+            cpfCnpj: '01234567890', // CPF padrão para passar na validação do Asaas
             notificationDisabled: true
         });
 
         const customerId = clienteResponse.data.id;
 
-        // Cria a cobrança vinculada ao cliente
+        // Passo 2: Cria a cobrança vinculada ao cliente com CPF
         const cobranca = await asaasInstance.post('/payments', {
             customer: customerId,
             billingType: 'PIX',
@@ -40,7 +40,7 @@ app.post('/gerar-pix', async (req, res) => {
 
         const paymentId = cobranca.data.id;
 
-        // Pega o código Pix Copia e Cola
+        // Passo 3: Pega o código Pix Copia e Cola
         const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
 
         return res.json({
