@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Diamantes</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; margin-top: 20px; }
+        input, select, button { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; }
+        button { background-color: #007bff; color: white; font-weight: bold; cursor: pointer; }
+        #area-pix { display: none; background: #2a2a2a; padding: 15px; margin-top: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>💎 Loja de Diamantes 💎</h1>
+    
+    <div class="box">
+        <label>Digite seu ID / Nick do Jogo:</label>
+        <input type="text" id="player-id" placeholder="Ex: Elias123">
+
+        <label>Escolha o Pacote:</label>
+        <select id="pacote-diamante">
+            <option value="pacote1">100 Diamantes - R$ 5,00</option>
+            <option value="pacote2">500 Diamantes - R$ 20,00</option>
+        </select>
+
+        <button onclick="gerarPagamentoPix()">Gerar Pix Automático</button>
+
+        <div id="area-pix">
+            <p>Pix Gerado! Copie o código abaixo:</p>
+            <input type="text" id="copia-e-cola" readonly>
+            <button onclick="copiarPix()" style="background-color: #28a745;">Copiar Código Pix</button>
+        </div>
+    </div>
+
+    <script>
+    async function gerarPagamentoPix() {
+        const playerId = document.getElementById('player-id').value;
+        const valorSelecionado = document.getElementById('pacote-diamante').value;
+
+        if (!playerId) {
+            alert("Por favor, digite seu ID do jogo primeiro!");
+            return;
+        }
+
+        alert("Gerando seu Pix... Aguarde alguns segundos.");
+
+        try {
+            const resposta = await fetch('https://eliasx7.onrender.com/gerar-pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacote: valorSelecionado, Nick: playerId })
+            });
+
+            const dados = await resposta.json();
+
+            if (dados.copia_e_cola) {
+                document.getElementById('copia-e-cola').value = dados.copia_e_cola;
+                document.getElementById('area-pix').style.display = 'block';
+            } else {
+                alert("Erro ao gerar o Pix. Verifique os logs do seu Render.");
+            }
+        } catch (erro) {
+            console.error(erro);
+            alert("Não foi possível conectar ao servidor do jogo.");
+        }
+    }
+
+    function copiarPix() {
+        const campoTexto = document.getElementById('copia-e-cola');
+        campoTexto.select();
+        document.execCommand('copy');
+        alert("Código Pix copiado!");
+    }
+    </script>
+</body>
+</html>
