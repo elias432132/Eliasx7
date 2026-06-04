@@ -1,15 +1,14 @@
 const express = require('express');
-const http = require('http'); // Adicionado para o Chat
-const { Server } = require('socket.io'); // Adicionado para o Chat
+const http = require('http');
+const { Server } = require('socket.io');
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-const server = http.createServer(app); // Necessário para o Chat funcionar junto com as rotas
+const server = http.createServer(app);
 
-// Configura o servidor de Chat Global (WebSockets)
 const io = new Server(server, {
-    cors: { origin: '*' } // Permite que seu jogo conecte de qualquer lugar
+    cors: { origin: '*' }
 });
 
 app.use(express.json());
@@ -22,38 +21,93 @@ const asaasInstance = axios.create({
     headers: { 'access_token': ASAAS_API_KEY }
 });
 
-// --- SISTEMA DE CHAT GLOBAL AO VIVO ---
-const historicoChat = []; // Memória fofoqueira: guarda as últimas mensagens
+// --- BANCO DE DADOS EM MEMÓRIA ---
+const historicoChat = []; 
+const codigosDisponiveis = {}; // Guarda os códigos de diamantes criados por você
 
+// SUA SENHA MESTRE PARA ENTRAR NO PAINEL E GERAR CÓDIGOS (Pode mudar se quiser)
+const SENHA_DONO = "elias123"; 
+
+// --- SISTEMA DE CHAT GLOBAL ---
 io.on('connection', (socket) => {
-    // 1. Quando o jogador entra, mandamos o histórico de mensagens
     socket.emit('historico_chat', historicoChat);
-
-    // 2. Quando o jogador envia uma mensagem nova
     socket.on('enviar_mensagem', (dados) => {
         const mensagem = {
             nick: dados.nick,
             texto: dados.texto,
-            // Pega a hora atual do Brasil para mostrar no chat
             hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
         };
-        
         historicoChat.push(mensagem);
-        // Apaga a mensagem mais velha se passar de 30 mensagens (para não pesar o servidor)
         if(historicoChat.length > 30) historicoChat.shift(); 
-        
-        // 3. Fofoca a mensagem nova para TODOS os jogadores conectados na mesma hora!
         io.emit('nova_mensagem', mensagem);
     });
 });
 
-// --- ROTA 1: GERAR O PIX ---
+// --- PAINEL DO DONO: ROTAS DO CÓDIGO PREMIADO ---
+
+// 1. Rota para o Elias gerar os códigos
+app.post('/painel/gerar-codigo', (req, res) => {
+    const { senha, tetoDiamantes } = req.body;
+
+    if (senha !== SENHA_DONO) {
+        return res.status(403).json({ erro: "Senha do painel incorreta!" });
+    }
+
+    if (!tetoDiamantes || tetoDiamantes < 25) {
+        return res.status(400).json({ erro: "O valor teto precisa ser de pelo menos 25 diamantes." });
+    }
+
+    // Gera um código aleatório tipo X7-123456
+    const novoCodigo = "X7-" + Math.floor(100000 + Math.random() * 900000);
+    
+    // Salva no banco de dados do servidor
+    codigosDisponiveis[novoCodigo] = {
+        teto: parseInt(tetoDiamantes),
+        usado: false
+    };
+
+    console.log(`👑 Elias gerou o código ${novoCodigo} com valor máximo de ${tetoDiamantes} dimas!`);
+    return res.json({ sucesso: true, codigoGerado: novoCodigo });
+});
+
+// 2. Rota para o Jogador resgatar o código dentro do jogo
+app.post('/jogo/resgatar-codigo', (req, res) => {
+    const { codigo } = req.body;
+    const codigoFormatado = codigo.trim().toUpperCase();
+
+    // Verifica se o código existe ou se já foi usado
+    if (!codigosDisponiveis[codigoFormatado]) {
+        return res.status(404).json({ erro: "Código inválido ou inexistente!" });
+    }
+    if (codigosDisponiveis[codigoFormatado].usado) {
+        return res.status(400).json({ erro: "Este código já foi resgatado por outro jogador!" });
+    }
+
+    const teto = codigosDisponiveis[codigoFormatado].teto;
+    let min = 25;
+
+    // Regra matemática: Se o teto for 1000, o mínimo vira 100. Se for 100, o mínimo é 25.
+    if (teto >= 1000) min = 100;
+    else if (teto >= 500) min = 50;
+
+    // Sorteio do valor exato que o jogador vai ganhar (Variado entre o mínimo e o teto)
+    const dimasGanhos = Math.floor(Math.random() * (teto - min + 1)) + min;
+
+    // Queima o código para ninguém mais usar
+    codigosDisponiveis[codigoFormatado].usado = true;
+    delete codigosDisponiveis[codigoFormatado]; // Remove para economizar memória
+
+    console.log(`🎁 Código ${codigoFormatado} resgatado! Jogador levou ${dimasGanhos} diamantes (Sorteio entre ${min} e ${teto}).`);
+    return res.json({ sucesso: true, diamantesGanhos: dimasGanhos });
+});
+
+
+// --- ROTA 1: GERAR O PIX (ASAAS) ---
 app.post('/gerar-pix', async (req, res) => {
     console.log(`\n💸 Jogo pediu para gerar um PIX de ${req.body.diamantes} diamantes para ${req.body.Nick}!`);
     const { Nick, valor, diamantes } = req.body;
 
     if (!valor || valor <= 0) {
-        console.log("❌ Erro: Jogo mandou valor zerado ou negativo.");
         return res.status(400).json({ erro: "Valor inválido enviado pelo jogo." });
     }
 
@@ -75,43 +129,34 @@ app.post('/gerar-pix', async (req, res) => {
         const paymentId = cobranca.data.id;
         const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
 
-        console.log(`✅ PIX gerado com sucesso! ID do Pagamento: ${paymentId}`);
         return res.json({
             copia_e_cola: qrCodeResponse.data.payload,
             paymentId: paymentId 
         });
 
     } catch (error) {
-        console.error("❌ Erro ao gerar Pix no Asaas:", error.response ? error.response.data : error.message);
         return res.status(500).json({ erro: "Erro ao gerar o Pix no Asaas" });
     }
 });
 
-// --- ROTA 2: O ESPIÃO QUE VERIFICA SE FOI PAGO ---
+// --- ROTA 2: VERIFICA SE FOI PAGO ---
 app.get('/conferir-pagamento/:id', async (req, res) => {
     const idDoPagamento = req.params.id;
-    console.log(`🔍 Jogo perguntando se o PIX ${idDoPagamento} foi pago...`);
-    
     try {
         const response = await asaasInstance.get(`/payments/${idDoPagamento}`);
         const statusPagamento = response.data.status;
         
-        console.log(`📊 Status lá no Asaas: ${statusPagamento}`);
-        
         if (statusPagamento === 'RECEIVED' || statusPagamento === 'CONFIRMED') {
-            console.log("💎 PAGAMENTO CONFIRMADO! Avisando o jogo para liberar os Dimas!");
             return res.json({ pago: true });
         } else {
             return res.json({ pago: false });
         }
     } catch (error) {
-        console.error("❌ Erro ao consultar o Asaas:", error.message);
         return res.status(500).json({ erro: "Erro ao consultar o Asaas" });
     }
 });
 
 const PORT = process.env.PORT || 10000;
-// ATENÇÃO: Mudou de app.listen para server.listen para o chat funcionar!
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor Fofoqueiro e Chat Global rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Fofoqueiro, Chat e Painel de Códigos rodando na porta ${PORT}`);
 });
