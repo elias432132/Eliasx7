@@ -13,11 +13,13 @@ const asaasInstance = axios.create({
     headers: { 'access_token': ASAAS_API_KEY }
 });
 
-// --- ROTA 1: GERAR O PIX COM O VALOR EXATO DO JOGO ---
+// --- ROTA 1: GERAR O PIX ---
 app.post('/gerar-pix', async (req, res) => {
+    console.log(`\n💸 Jogo pediu para gerar um PIX de ${req.body.diamantes} diamantes para ${req.body.Nick}!`);
     const { Nick, valor, diamantes } = req.body;
 
     if (!valor || valor <= 0) {
+        console.log("❌ Erro: Jogo mandou valor zerado ou negativo.");
         return res.status(400).json({ erro: "Valor inválido enviado pelo jogo." });
     }
 
@@ -28,10 +30,8 @@ app.post('/gerar-pix', async (req, res) => {
             notificationDisabled: true
         });
 
-        const customerId = clienteResponse.data.id;
-
         const cobranca = await asaasInstance.post('/payments', {
-            customer: customerId,
+            customer: clienteResponse.data.id,
             billingType: 'PIX',
             value: valor,
             dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
@@ -39,38 +39,44 @@ app.post('/gerar-pix', async (req, res) => {
         });
 
         const paymentId = cobranca.data.id;
-
         const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
 
+        console.log(`✅ PIX gerado com sucesso! ID do Pagamento: ${paymentId}`);
         return res.json({
             copia_e_cola: qrCodeResponse.data.payload,
             paymentId: paymentId 
         });
 
     } catch (error) {
-        console.error("Erro no Asaas:", error.response ? error.response.data : error.message);
+        console.error("❌ Erro ao gerar Pix no Asaas:", error.response ? error.response.data : error.message);
         return res.status(500).json({ erro: "Erro ao gerar o Pix no Asaas" });
     }
 });
 
 // --- ROTA 2: O ESPIÃO QUE VERIFICA SE FOI PAGO ---
 app.get('/conferir-pagamento/:id', async (req, res) => {
+    const idDoPagamento = req.params.id;
+    console.log(`🔍 Jogo perguntando se o PIX ${idDoPagamento} foi pago...`);
+    
     try {
-        const idDoPagamento = req.params.id;
         const response = await asaasInstance.get(`/payments/${idDoPagamento}`);
+        const statusPagamento = response.data.status;
         
-        if (response.data.status === 'RECEIVED' || response.data.status === 'CONFIRMED') {
+        console.log(`📊 Status lá no Asaas: ${statusPagamento}`);
+        
+        if (statusPagamento === 'RECEIVED' || statusPagamento === 'CONFIRMED') {
+            console.log("💎 PAGAMENTO CONFIRMADO! Avisando o jogo para liberar os Dimas!");
             return res.json({ pago: true });
         } else {
             return res.json({ pago: false });
         }
     } catch (error) {
-        console.error("Erro ao conferir pagamento:", error.message);
+        console.error("❌ Erro ao consultar o Asaas:", error.message);
         return res.status(500).json({ erro: "Erro ao consultar o Asaas" });
     }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Fofoqueiro rodando na porta ${PORT}`);
 });
