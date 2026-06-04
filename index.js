@@ -1,8 +1,17 @@
 const express = require('express');
+const http = require('http'); // Adicionado para o Chat
+const { Server } = require('socket.io'); // Adicionado para o Chat
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
+const server = http.createServer(app); // Necessário para o Chat funcionar junto com as rotas
+
+// Configura o servidor de Chat Global (WebSockets)
+const io = new Server(server, {
+    cors: { origin: '*' } // Permite que seu jogo conecte de qualquer lugar
+});
+
 app.use(express.json());
 app.use(cors());
 
@@ -11,6 +20,31 @@ const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
 const asaasInstance = axios.create({
     baseURL: 'https://www.asaas.com/api/v3', 
     headers: { 'access_token': ASAAS_API_KEY }
+});
+
+// --- SISTEMA DE CHAT GLOBAL AO VIVO ---
+const historicoChat = []; // Memória fofoqueira: guarda as últimas mensagens
+
+io.on('connection', (socket) => {
+    // 1. Quando o jogador entra, mandamos o histórico de mensagens
+    socket.emit('historico_chat', historicoChat);
+
+    // 2. Quando o jogador envia uma mensagem nova
+    socket.on('enviar_mensagem', (dados) => {
+        const mensagem = {
+            nick: dados.nick,
+            texto: dados.texto,
+            // Pega a hora atual do Brasil para mostrar no chat
+            hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
+        };
+        
+        historicoChat.push(mensagem);
+        // Apaga a mensagem mais velha se passar de 30 mensagens (para não pesar o servidor)
+        if(historicoChat.length > 30) historicoChat.shift(); 
+        
+        // 3. Fofoca a mensagem nova para TODOS os jogadores conectados na mesma hora!
+        io.emit('nova_mensagem', mensagem);
+    });
 });
 
 // --- ROTA 1: GERAR O PIX ---
@@ -77,6 +111,7 @@ app.get('/conferir-pagamento/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor Fofoqueiro rodando na porta ${PORT}`);
+// ATENÇÃO: Mudou de app.listen para server.listen para o chat funcionar!
+server.listen(PORT, () => {
+    console.log(`🚀 Servidor Fofoqueiro e Chat Global rodando na porta ${PORT}`);
 });
