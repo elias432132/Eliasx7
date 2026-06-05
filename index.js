@@ -95,18 +95,27 @@ app.post('/admin/comando', (req, res) => {
 });
 
 
-// --- SISTEMA DE CHAT GLOBAL INTOCADO ---
+// --- SISTEMA DE CHAT GLOBAL ATUALIZADO PARA VIP ---
 io.on('connection', (socket) => {
     socket.emit('historico_chat', historicoChat);
+    
     socket.on('enviar_mensagem', (dados) => {
+        // Busca o jogador no banco para verificar se é VIP
+        let jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === dados.nick.toLowerCase());
+        let jogadorEVip = jogadorEncontrado ? jogadorEncontrado.isVIP : false;
+
         const mensagem = {
             nick: dados.nick,
             texto: dados.texto,
+            isVip: jogadorEVip, // Adiciona o status VIP aqui
             hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
         };
+        
         historicoChat.push(mensagem);
         if(historicoChat.length > 30) historicoChat.shift(); 
-        io.emit('nova_mensagem', message => io.emit('nova_mensagem', mensagem)); // Segurança Socket.io
+        
+        // Mantido exatamente como o seu original para não quebrar a mecânica
+        io.emit('nova_mensagem', message => io.emit('nova_mensagem', mensagem)); 
         io.emit('nova_mensagem', mensagem);
     });
 });
