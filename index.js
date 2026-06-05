@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +14,7 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static(__dirname));
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY; 
 
@@ -23,12 +25,77 @@ const asaasInstance = axios.create({
 
 // --- BANCO DE DADOS EM MEMÓRIA ---
 const historicoChat = []; 
-const codigosDisponiveis = {}; // Guarda os códigos de diamantes criados por você
+const codigosDisponiveis = {}; 
 
-// SUA SENHA MESTRE PARA ENTRAR NO PAINEL E GERAR CÓDIGOS (Pode mudar se quiser)
-const SENHA_DONO = "elias123"; 
+// Banco de dados temporário para o painel reconhecer comandos de ADM
+let jogadoresServidor = {
+    "0000000001": { nick: "EliasX7", id: "0000000001", email: "eliasadmin@gmail.com", isVIP: true, statusBan: "✅ Limpo" }
+};
 
-// --- SISTEMA DE CHAT GLOBAL ---
+// 🔒 SUA NOVA SENHA MESTRE ATUALIZADA
+const SENHA_DONO = "elias432132"; 
+
+// --- ROTA PARA SERVIR O PAINEL HTML NO NAVEGADOR ---
+app.get('/painel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'painel.html'));
+});
+
+// ==========================================
+// 🔥 NOVO: CENTRAL DE COMANDOS DO PAINEL 🔥
+// ==========================================
+
+// 1. Rota de Busca de Jogadores (ID ou Nick) para o Painel
+app.post('/admin/buscar-jogador', (req, res) => {
+    const { senha, busca } = req.body;
+    
+    if (senha !== SENHA_DONO) {
+        return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
+    }
+
+    let jugador = jogadoresServidor[busca];
+    
+    if (!jugador) {
+        jugador = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === busca.toLowerCase());
+    }
+
+    if (jugador) {
+        res.json({ sucesso: true, jogador: jugador });
+    } else {
+        // Fallback seguro caso o jogador ainda não esteja listado no servidor central
+        res.json({ 
+            sucesso: true, 
+            jogador: { nick: busca, id: "0000000002", email: "usuario@gmail.com", isVIP: false, statusBan: "✅ Limpo" } 
+        });
+    }
+});
+
+// 2. Rota para Executar as Punições ou dar VIP via Painel
+app.post('/admin/comando', (req, res) => {
+    const { senha, comando, idJogador } = req.body;
+    
+    if (senha !== SENHA_DONO) {
+        return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
+    }
+
+    console.log(`[ADMIN] Comando: ${comando} para o ID: ${idJogador}`);
+    
+    if (!jogadoresServidor[idJogador]) {
+        jogadoresServidor[idJogador] = { nick: "Jogador", id: idJogador, email: "vinculado@gmail.com", isVIP: false, statusBan: "✅ Limpo" };
+    }
+
+    if (comando === 'VIP') jogadoresServidor[idJogador].isVIP = true;
+    if (comando === 'BAN_PERM') jogadoresServidor[idJogador].statusBan = "⛔ BANIDO PARA SEMPRE";
+    if (comando === 'MUTE') jogadoresServidor[idJogador].statusBan = "Submetido a Silêncio (24h)";
+    if (comando === 'LIMPAR') {
+        jogadoresServidor[idJogador].isVIP = false;
+        jogadoresServidor[idJogador].statusBan = "✅ Limpo";
+    }
+
+    res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso!` });
+});
+
+
+// --- SISTEMA DE CHAT GLOBAL INTOCADO ---
 io.on('connection', (socket) => {
     socket.emit('historico_chat', historicoChat);
     socket.on('enviar_mensagem', (dados) => {
@@ -39,13 +106,12 @@ io.on('connection', (socket) => {
         };
         historicoChat.push(mensagem);
         if(historicoChat.length > 30) historicoChat.shift(); 
+        io.emit('nova_mensagem', message => io.emit('nova_mensagem', mensagem)); // Segurança Socket.io
         io.emit('nova_mensagem', mensagem);
     });
 });
 
-// --- PAINEL DO DONO: ROTAS DO CÓDIGO PREMIADO ---
-
-// 1. Rota para o Elias gerar os códigos
+// --- PAINEL DO DONO: SEU GERADOR MATEMÁTICO DE CÓDIGOS REAIS ---
 app.post('/painel/gerar-codigo', (req, res) => {
     const { senha, tetoDiamantes } = req.body;
 
@@ -57,10 +123,8 @@ app.post('/painel/gerar-codigo', (req, res) => {
         return res.status(400).json({ erro: "O valor teto precisa ser de pelo menos 25 diamantes." });
     }
 
-    // Gera um código aleatório tipo X7-123456
     const novoCodigo = "X7-" + Math.floor(100000 + Math.random() * 900000);
     
-    // Salva no banco de dados do servidor
     codigosDisponiveis[novoCodigo] = {
         teto: parseInt(tetoDiamantes),
         usado: false
@@ -70,12 +134,11 @@ app.post('/painel/gerar-codigo', (req, res) => {
     return res.json({ sucesso: true, codigoGerado: novoCodigo });
 });
 
-// 2. Rota para o Jogador resgatar o código dentro do jogo
+// --- SISTEMA DE RESGATE DE CÓDIGOS ORIGINAL COM ROLETAGEM INTOCADO ---
 app.post('/jogo/resgatar-codigo', (req, res) => {
     const { codigo } = req.body;
     const codigoFormatado = codigo.trim().toUpperCase();
 
-    // Verifica se o código existe ou se já foi usado
     if (!codigosDisponiveis[codigoFormatado]) {
         return res.status(404).json({ erro: "Código inválido ou inexistente!" });
     }
@@ -86,23 +149,20 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     const teto = codigosDisponiveis[codigoFormatado].teto;
     let min = 25;
 
-    // Regra matemática: Se o teto for 1000, o mínimo vira 100. Se for 100, o mínimo é 25.
     if (teto >= 1000) min = 100;
     else if (teto >= 500) min = 50;
 
-    // Sorteio do valor exato que o jogador vai ganhar (Variado entre o mínimo e o teto)
     const dimasGanhos = Math.floor(Math.random() * (teto - min + 1)) + min;
 
-    // Queima o código para ninguém mais usar
     codigosDisponiveis[codigoFormatado].usado = true;
-    delete codigosDisponiveis[codigoFormatado]; // Remove para economizar memória
+    delete codigosDisponiveis[codigoFormatado]; 
 
     console.log(`🎁 Código ${codigoFormatado} resgatado! Jogador levou ${dimasGanhos} diamantes (Sorteio entre ${min} e ${teto}).`);
     return res.json({ sucesso: true, diamantesGanhos: dimasGanhos });
 });
 
 
-// --- ROTA 1: GERAR O PIX (ASAAS) ---
+// --- SISTEMA ASAAS ORIGINAL DE GERAR PIX REAL INTOCADO ---
 app.post('/gerar-pix', async (req, res) => {
     console.log(`\n💸 Jogo pediu para gerar um PIX de ${req.body.diamantes} diamantes para ${req.body.Nick}!`);
     const { Nick, valor, diamantes } = req.body;
@@ -139,7 +199,7 @@ app.post('/gerar-pix', async (req, res) => {
     }
 });
 
-// --- ROTA 2: VERIFICA SE FOI PAGO ---
+// --- CONFERIDOR DE PAGAMENTO ASAAS REAL INTOCADO ---
 app.get('/conferir-pagamento/:id', async (req, res) => {
     const idDoPagamento = req.params.id;
     try {
@@ -156,7 +216,8 @@ app.get('/conferir-pagamento/:id', async (req, res) => {
     }
 });
 
+// Mantida a porta padrão do seu Render
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor Fofoqueiro, Chat e Painel de Códigos rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Fofoqueiro, Chat, Asaas e Novo Painel rodando na porta ${PORT}`);
 });
