@@ -41,7 +41,7 @@ app.get('/painel', (req, res) => {
 });
 
 // ==========================================
-// 🔥 NOVO: CENTRAL DE COMANDOS DO PAINEL 🔥
+// 🔥 CENTRAL DE COMANDOS DO PAINEL 🔥
 // ==========================================
 
 // 1. Rota de Busca de Jogadores (ID ou Nick) para o Painel
@@ -94,6 +94,27 @@ app.post('/admin/comando', (req, res) => {
     res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso!` });
 });
 
+// ==========================================
+// 🔥 NOVO: SINCRONIZAÇÃO DE JOGADORES REAIS 🔥
+// ==========================================
+app.post('/jogo/sincronizar', (req, res) => {
+    const { id, nick, email } = req.body;
+    
+    if (id && nick) {
+        // Se o jogador não existe no Render, cria ele com os dados reais
+        if (!jogadoresServidor[id]) {
+            jogadoresServidor[id] = { nick: nick, id: id, email: email, isVIP: false, statusBan: "✅ Limpo" };
+        } else {
+            // Se já existe, apenas atualiza caso o nick ou email tenham mudado
+            jogadoresServidor[id].nick = nick;
+            if(email) jogadoresServidor[id].email = email;
+        }
+        console.log(`[SYNC] Jogador Sincronizado: ${nick} (ID: ${id})`);
+        res.json({ sucesso: true });
+    } else {
+        res.status(400).json({ erro: "Dados incompletos" });
+    }
+});
 
 // --- SISTEMA DE CHAT GLOBAL ATUALIZADO PARA VIP ---
 io.on('connection', (socket) => {
@@ -169,7 +190,6 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     console.log(`🎁 Código ${codigoFormatado} resgatado! Jogador levou ${dimasGanhos} diamantes (Sorteio entre ${min} e ${teto}).`);
     return res.json({ sucesso: true, diamantesGanhos: dimasGanhos });
 });
-
 
 // --- SISTEMA ASAAS ORIGINAL DE GERAR PIX REAL INTOCADO ---
 app.post('/gerar-pix', async (req, res) => {
