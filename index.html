@@ -45,6 +45,8 @@
         .tab-btn { background: #444; color: #fff; border: none; padding: 8px 15px; font-weight: bold; border-radius: 5px; cursor: pointer;}
         .tab-btn.active { background: #e67e22; }
         .shop-container { display: flex; gap: 10px; overflow-x: auto; width: 90%; padding: 10px; background: #222; border-radius: 8px; border: 2px solid #444; margin-bottom: 10px; }
+        .shop-container::-webkit-scrollbar { height: 8px; }
+        .shop-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         .shop-item { background: #333; border: 2px solid #555; padding: 10px; border-radius: 6px; text-align: center; min-width: 150px; flex-shrink: 0; }
         .shop-item h3 { margin: 0 0 5px 0; font-size: 13px; color: #fff; }
         .shop-item button { background: #e67e22; color: #fff; border: none; padding: 5px; font-size: 11px; font-weight: bold; width: 100%; border-radius: 4px; cursor: pointer;}
@@ -116,7 +118,6 @@
         </div>
     </div>
 
-    <!-- TELA DO PAINEL DE GERAR CÓDIGOS DO ELIAS -->
     <div id="painel-dono-menu">
         <h2 style="color: #c0392b; margin-bottom: 5px;">PAINEL EXCLUSIVO DO CRIADOR</h2>
         <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Insira a senha mestra para fabricar códigos premiados variáveis.</p>
@@ -157,7 +158,6 @@
         </div>
     </div>
 
-    <!-- TELA DE RESGATAR CÓDIGO DO JOGADOR -->
     <div id="resgatar-codigo-menu">
         <h2 style="color: #2ecc71; margin-bottom: 10px;">RESGATAR CÓDIGO PREMIADO</h2>
         <p style="font-size: 13px; color: #ccc; margin-bottom: 15px; max-width: 450px;">Cole o código do evento aqui embaixo para ganhar uma quantia surpresa de diamantes!</p>
@@ -401,7 +401,7 @@
 
                 if(resultado.sucesso) {
                     let dimasGanhos = resultado.diamantesGanhos;
-                    userFrags += dimasGanhos; // Injeta os dimas sorteados na conta
+                    userFrags += dimasGanhos; 
                     saveProgress();
                     updateMenus();
                     alert(`🎁 RECOMPENSA RESGATADA!\nVocê deu sorte e faturou +${dimasGanhos} Diamantes na roleta variável!`);
@@ -464,7 +464,7 @@
             logarSucesso(nick);
         }
 
-        function executarRecuperacaoSenha() {
+        function executingRecuperacaoSenha() {
             sfx.init();
             let nick = document.getElementById('input-recup-nick').value.trim().toLowerCase();
             let codigo = document.getElementById('input-recup-codigo').value.trim();
@@ -718,7 +718,7 @@
         const playerSprites = []; for (let i = 1; i <= 72; i++) { const img = new Image(); img.src = `img/sprite_${String(i).padStart(2, '0')}.png`; playerSprites.push(img); }
 
         const BOSS1_ANIM_CONFIG = { WALK: {start:5, end:9, speed:5}, SHOOT: {start:14, end:17, speed:4}, IDLE: {start:1, end:4, speed:6}, SPECIAL: {start:14, end:17, speed:4} }; const nomesBoss1 = ["mtf_nick_sprite_01.png", "mtf_nick_sprite_02.png", "mtf_nick_sprite_03.png", "mtf_nick_sprite_04.png", "mtf_nick_sprite_06.png", "mtf_nick_sprite_07.png", "mtf_nick_sprite_08.png", "mtf_nick_sprite_09.png", "mtf_nick_sprite_10.png", "mtf_nick_sprite_11.png", "mtf_nick_sprite_12.png", "mtf_nick_sprite_13.png", "mtf_nick_sprite_14.png", "mtf_nick_sprite_15.png", "mtf_nick_sprite_16.png", "mtf_nick_sprite_18.png", "mtf_nick_sprite_19.png", "mtf_nick_sprite_20.png", "mtf_nick_sprite_21.png", "mtf_nick_sprite_22.png", "mtf_nick_sprite_23.png", "mtf_nick_sprite_24.png", "mtf_nick_sprite_25.png", "mtf_nick_sprite_26.png", "mtf_nick_sprite_27.png", "mtf_nick_sprite_28.png", "mtf_nick_sprite_29.png"]; const boss1Sprites = []; nomesBoss1.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss1Sprites.push(img); });
-        const BOSS2_ANIM_CONFIG = { WALK: {start:1, end:6, speed:5}, RUN: {start:7, end:12, speed:4}, SHOOT: {start:13, end:18, speed:4}, SPECIAL: {start:19, end:22, speed:4}, FIRE: {start:23, end:24, speed:4}, DEATH: {start:25, end:36, speed:6}, IDLE: {start:1, end:1, speed:6} }; const boss2Sprites = []; for (let i = 1; i <= 36; i++) { const img = new Image(); img.src = `img/x${i}.png`; boss2Sprites.push(img); }
+        const BOSS2_ANIM_CONFIG = { WALK: {start:1, end:6, speed:5}, RUN: {start:7, end:12, speed:4}, SHOOT: {start:13, end:18, speed:4}, SPECIAL: {start:19, end:22, speed:4}, FIRE: {start:23, border:24, speed:4}, DEATH: {start:25, end:36, speed:6}, IDLE: {start:1, end:1, speed:6} }; const boss2Sprites = []; for (let i = 1; i <= 36; i++) { const img = new Image(); img.src = `img/x${i}.png`; boss2Sprites.push(img); }
         const BOSS3_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:7, speed:4}, SPECIAL: {start:8, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss3Sprites = []; const nomesBoss3 = ["t_fogo_frame_01.png", "t_fogo_frame_02.png", "t_fogo_frame_03.png", "t_fogo_frame_04.png", "t_fogo_frame_05.png", "t_fogo_frame_06.png", "t_fogo_frame_12.png", "t_fogo_frame_07.png", "t_fogo_frame_08.png", "t_fogo_frame_09.png", "t_fogo_frame_10.png", "t_fogo_frame_11.png"]; nomesBoss3.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss3Sprites.push(img); });
         const BOSS4_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:7, speed:4}, SPECIAL: {start:8, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss4Sprites = []; const nomesBoss4 = ["t_gelo_frame_01.png", "t_gelo_frame_02.png", "t_gelo_frame_03.png", "t_gelo_frame_04.png", "t_gelo_frame_05.png", "t_gelo_frame_06.png", "t_gelo_frame_12.png", "t_gelo_frame_07.png", "t_gelo_frame_08.png", "t_gelo_frame_09.png", "t_gelo_frame_10.png", "t_gelo_frame_11.png"]; nomesBoss4.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss4Sprites.push(img); });
         const BOSS5_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:8, speed:4}, SPECIAL: {start:9, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss5Sprites = []; const nomesBoss5 = ["t_lava_frame_01.png", "t_lava_frame_02.png", "t_lava_frame_03.png", "t_lava_frame_04.png", "t_lava_frame_05.png", "t_lava_frame_06.png", "t_lava_frame_11.png", "t_lava_frame_12.png", "t_lava_frame_07.png", "t_lava_frame_08.png", "t_lava_frame_09.png", "t_lava_frame_10.png"]; nomesBoss5.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss5Sprites.push(img); });
@@ -727,6 +727,7 @@
         const enemySprites = []; for (let i = 1; i <= 28; i++) { const img = new Image(); img.src = `img/sprite_${String(i).padStart(3, '0')}.png`; enemySprites.push(img); }
         const ENEMY_ANIM_CONFIG = { WALK:{start:1,end:8,speed:6}, SHOOT:{start:9,end:12,speed:5}, COMBAT:{start:13,end:16,speed:6}, SHOOT2:{start:17,end:20,speed:5}, COMBAT2:{start:21,end:28,speed:6} };
 
+        // --- CORREÇÃO DO CAMINHO DOS SPRITES DE FUNDO AQUI ---
         const backgroundImages = {}; for (let i = 1; i <= 50; i++) { const bgImg = new Image(); bgImg.src = `img/Sprite_X${i}.png`; backgroundImages[i] = bgImg; }
         const nomesObstaculos = ["obstacle_01_caixa_militar_pequena.png", "obstacle_02_caixa_militar_reforcada.png", "obstacle_03_barril_metalico.png", "obstacle_04_barril_explosivo.png", "obstacle_05_saco_areia_baixo.png", "obstacle_06_saco_areia_alto.png", "obstacle_07_barricada_metal.png", "obstacle_08_barreira_futurista.png", "obstacle_09_pedra_escura_pequena.png", "obstacle_10_pedra_escura_grande.png", "obstacle_11_caixote_tecnologico.png", "obstacle_12_gerador_danificado.png", "obstacle_13_mina_terrestre.png", "obstacle_14_espinhos_metalicos.png", "obstacle_15_placa_quebrada.png", "obstacle_16_poste_destruido.png", "obstacle_17_plataforma_curta.png", "obstacle_18_plataforma_media.png", "obstacle_19_plataforma_alta.png", "obstacle_20_container_pequeno.png"];
         const imagensObstaculos = []; nomesObstaculos.forEach(nome => { let img = new Image(); img.src = `img/${nome}`; imagensObstaculos.push(img); });
