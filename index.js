@@ -52,20 +52,19 @@ app.post('/admin/buscar-jogador', (req, res) => {
         return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
     }
 
+    // Tenta achar pelo ID exato
     let jugador = jogadoresServidor[busca];
     
+    // Se não achou pelo ID, tenta achar pelo Nick (comparando letras minúsculas)
     if (!jugador) {
-        jugador = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === busca.toLowerCase());
+        jugador = Object.values(jogadoresServidor).find(j => j.nick && j.nick.toLowerCase() === busca.toLowerCase());
     }
 
     if (jugador) {
         res.json({ sucesso: true, jogador: jugador });
     } else {
-        // Fallback seguro caso o jogador ainda não esteja listado no servidor central
-        res.json({ 
-            sucesso: true, 
-            jogador: { nick: busca, id: "0000000002", email: "usuario@gmail.com", isVIP: false, statusBan: "✅ Limpo" } 
-        });
+        // AQUI ESTÁ A MUDANÇA: Em vez de criar um falso, retornamos erro 404!
+        res.status(404).json({ sucesso: false, erro: "Jogador não encontrado no servidor! Peça para ele fazer login no jogo para sincronizar os dados." });
     }
 });
 
