@@ -73,10 +73,8 @@
 </head>
 <body>
 
-<!-- AVISO TELA -->
 <div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
 
-<!-- TELA LOGIN -->
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
         <h1>FREE X7<br><span style="color:#f1c40f;font-size:16px;">LOGIN DO SOBREVIVENTE</span></h1>
@@ -90,7 +88,6 @@
     </div>
 </div>
 
-<!-- LOBBY PRINCIPAL -->
 <div id="start-menu" class="fullscreen-menu hidden">
     <button class="btn-sub" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR JOGO</button>
     <h1>FREE X7 <span style="color:#f1c40f;font-size:16px;">ONLINE</span></h1>
@@ -105,6 +102,7 @@
     <div class="menu-buttons">
         <button class="btn-main" style="font-size:18px;padding:14px 30px;" onclick="abrirServidores()">⚔️ JOGAR MULTIPLAYER</button>
         <button class="btn-sub" onclick="abrirMenu('shop-menu')">🛒 LOJA DE DIAMANTES</button>
+        <button class="btn-sub" style="color:#2ecc71; border-color:#27ae60;" onclick="abrirMenu('resgatar-codigo-menu')">🎁 RESGATAR CÓDIGO</button>
         <button class="btn-sub" style="color:#ff9f43; border-color:#ff9f43;" onclick="abrirMenu('settings-menu')">⚙️ CONFIGURAÇÕES (HUD)</button>
         <button class="btn-sub" style="color:#9b59b6;border-color:#8e44ad;" onclick="abrirMenu('chat-global-menu')">💬 CHAT GLOBAL</button>
         <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
@@ -113,7 +111,16 @@
     </div>
 </div>
 
-<!-- MENU CONFIGURAÇÕES (HUD E CONTROLES) -->
+<div id="resgatar-codigo-menu" class="fullscreen-menu hidden">
+    <h2 style="color:#2ecc71;">🎁 RESGATAR CÓDIGO</h2>
+    <div style="background:rgba(0,0,0,0.8); padding:20px; border-radius:10px; border:2px solid #2ecc71; width:90%; max-width:400px; text-align:center;">
+        <p style="font-size:13px; color:#ccc; margin-bottom:15px;">Cole o códiguinho fornecido pelos influenciadores para ganhar prêmios!</p>
+        <input type="text" id="input-codigo-resgate" placeholder="Cole o código aqui" style="width:100%; padding:12px; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:bold; font-size:16px; border-radius:5px; touch-action:auto;">
+        <button class="btn-main" style="width:100%; background:#2ecc71; border-color:#27ae60;" onclick="processarResgate()">RESGATAR PREMIO</button>
+    </div>
+    <button class="btn-sub btn-danger" style="margin-top:15px;" onclick="fecharMenu('resgatar-codigo-menu')">VOLTAR</button>
+</div>
+
 <div id="settings-menu" class="fullscreen-menu hidden">
     <h2 style="color:#ff9f43;">⚙️ CONFIGURAÇÕES</h2>
     <div style="background:rgba(0,0,0,0.6); padding:20px; border-radius:10px; border:2px solid #ff9f43; width:90%; max-width:400px; text-align:center;">
@@ -130,7 +137,6 @@
     <button class="btn-sub btn-danger" style="margin-top:20px;" onclick="fecharMenu('settings-menu')">VOLTAR</button>
 </div>
 
-<!-- LOJA COM PIX ARRUMADO -->
 <div id="shop-menu" class="fullscreen-menu hidden">
     <h2 style="color:#f1c40f;">LOJA DO SERVIDOR</h2>
     <div class="shop-tabs">
@@ -146,7 +152,7 @@
         <input type="number" id="input-qtd-dimas" placeholder="Ex: 250" min="250" style="touch-action:auto; margin-bottom:5px;" oninput="calcularPrecoDimaReal()">
         <div id="label-preco-dima" style="color:#2ecc71;font-weight:bold;margin:5px 0;height:20px; font-size:18px;">Valor Cobrado: R$ 0,00</div>
         
-        <button class="btn-main" onclick="gerarPix(event)" style="background:#2ecc71;border-color:#27ae60;width:100%;">⚡ GERAR PIX</button>
+        <button id="btn-gerar-pix" class="btn-main" onclick="gerarPix(event)" style="background:#2ecc71;border-color:#27ae60;width:100%;">⚡ GERAR PIX</button>
         
         <textarea id="pix-code-display" style="width:100%; height:60px; margin-top:15px; background:#111; color:#2ecc71; border:2px dashed #2ecc71; border-radius:5px; padding:5px; display:none; resize:none;" readonly></textarea>
         <button id="btn-copy-pix" class="btn-main" style="display:none; width:100%; margin-top:5px; background:#f1c40f; border-color:#f39c12; color:#000;" onclick="copiarCodigoPix()">📋 COPIAR CÓDIGO PIX</button>
@@ -154,7 +160,6 @@
     <button class="btn-sub btn-danger" onclick="fecharMenu('shop-menu')">VOLTAR</button>
 </div>
 
-<!-- DEMAIS MENUS (CHAT, UPGRADE, SALVAR) -->
 <div id="chat-global-menu" class="fullscreen-menu hidden">
     <h2>CHAT GLOBAL</h2>
     <div id="chat-mensagens"></div>
@@ -181,7 +186,6 @@
     <button class="btn-sub btn-danger" onclick="fecharMenu('saveload-menu')" style="margin-top:10px;">VOLTAR</button>
 </div>
 
-<!-- SERVIDORES E MODOS OFICIAIS -->
 <div id="server-menu" class="fullscreen-menu hidden">
     <h2>SERVIDORES MULTIPLAYER</h2>
     <div class="server-bar bar-classic" onclick="abrirModos('classico')">🎮 SERVIDOR CLÁSSICO</div>
@@ -208,15 +212,12 @@
     <button class="btn-sub btn-danger" onclick="cancelarBusca()">CANCELAR</button>
 </div>
 
-<!-- MENSAGEM DO EDITOR HUD -->
 <div id="hud-editor-msg">MODO EDIÇÃO: Arraste os botões. Clique no fundo da tela para SALVAR!</div>
 
-<!-- ARENA COM SUPORTE A ANALÓGICO, BOTÕES E MENU INTERNO -->
 <div id="game-ui">
     <div id="hud-top">
         <span class="hud-item" style="color:#3498db;" id="arena-modo">🌐 PVP</span>
         <span class="hud-item" style="color:#e74c3c;" id="arena-hp">❤️ 100</span>
-        <!-- NOVO BOTÃO DE MENU DENTRO DA PARTIDA -->
         <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
     </div>
     
@@ -234,7 +235,6 @@
         <div class="ctrl-btn" id="btn-fire" style="background:#e67e22;">TIRO</div>
     </div>
 
-    <!-- OVERLAY DO MENU DA PARTIDA (PAUSA/QUITAR) -->
     <div id="menu-partida-overlay" class="hidden">
         <h2 style="color:#f1c40f; margin-bottom: 20px;">MENU DA PARTIDA</h2>
         <div style="display:flex; flex-direction:column; gap:10px; width:80%; max-width:300px;">
@@ -247,7 +247,7 @@
 
 <script>
 // ============================================
-// CONEXÃO
+// CONEXÃO E VARIAVEIS GERAIS
 // ============================================
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -257,6 +257,7 @@ let dbUsuarios   = JSON.parse(localStorage.getItem('ff2d_users_db'))  || {};
 let meuEmail     = localStorage.getItem('ff2d_current_user')          || null;
 let meuPerfil    = null;
 let currentShopTab = 'skins';
+let meuTime = 'A'; // Adicionado lógica de times
 
 // ============================================
 // CONFIGURAÇÃO HUD E ANALÓGICO
@@ -306,7 +307,6 @@ function entrarModoEdicaoHUD(origem) {
     origemEdicaoHUD = origem || 'lobby';
     modoEdicaoHUDActive = true;
     
-    // Esconde todos os menus para focar no jogo
     document.querySelectorAll('.fullscreen-menu').forEach(el => el.classList.add('hidden'));
     document.getElementById('menu-partida-overlay').classList.add('hidden');
     
@@ -357,7 +357,6 @@ function salvarConfiguracaoHUD() {
     
     alert("⚙️ Layout salvo com sucesso!");
 
-    // Retorna para o lugar de onde veio
     if (origemEdicaoHUD === 'lobby') {
         document.getElementById('game-ui').style.display = 'none';
         document.getElementById('settings-menu').classList.remove('hidden');
@@ -366,27 +365,18 @@ function salvarConfiguracaoHUD() {
     }
 }
 
-// ============================================
-// MENU DA PARTIDA (NOVO)
-// ============================================
-function abrirMenuPartida() {
-    document.getElementById('menu-partida-overlay').classList.remove('hidden');
-}
-
-function fecharMenuPartida() {
-    document.getElementById('menu-partida-overlay').classList.add('hidden');
-}
-
+function abrirMenuPartida() { document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
+function fecharMenuPartida() { document.getElementById('menu-partida-overlay').classList.add('hidden'); }
 function sairDaPartida() {
     gameRunning = false;
-    if (socket) socket.emit('cancelar_busca'); // Sai da sala/servidor
+    if (socket) socket.emit('cancelar_busca'); 
     document.getElementById('menu-partida-overlay').classList.add('hidden');
     document.getElementById('game-ui').style.display = 'none';
     document.getElementById('start-menu').classList.remove('hidden');
 }
 
 // ============================================
-// SISTEMA DE CONTROLE DURANTE O JOGO (TOUCH)
+// SISTEMA DE CONTROLE (TOUCH)
 // ============================================
 let keys = { left: false, right: false, jump: false, fire: false };
 
@@ -426,7 +416,7 @@ function handleJoyMove(touch) {
 }
 
 // ============================================
-// LOGIN E CADASTRO
+// LOGIN, CADASTRO E RESGATE
 // ============================================
 let pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
 
@@ -463,6 +453,7 @@ async function cadastrarConta() {
         let resp = await fetch(`${URL_SERVIDOR}/jogo/gerar-id-unico`, { method: 'POST' });
         let dados = await resp.json();
         if (dados.sucesso) {
+            // isVIP: false garantido aqui na criação de contas
             dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, id: dados.idGerado, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 } };
             localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
             alert(`ID GERADO: ${dados.idGerado}`); 
@@ -505,8 +496,30 @@ function fazerLogout() {
     document.getElementById('login-screen').classList.remove('hidden'); 
 }
 
+function processarResgate() {
+    let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase();
+    if(!input) return alert("Digite um código!");
+    
+    // Lista de Códigos (Você pode adicionar mais depois)
+    if(input === "DIAMANTE500" || input === "FREEX7") {
+        meuPerfil.dimas += 500;
+        localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+        loadUserGameProgress(meuEmail);
+        alert("🎉 PARABÉNS! Você resgatou 500 Diamantes!");
+        document.getElementById('input-codigo-resgate').value = '';
+        fecharMenu('resgatar-codigo-menu');
+    } else {
+        alert("❌ Código inválido ou expirado.");
+    }
+}
+
+function verificarAtualizacaoDoJogo() { 
+    alert("🔄 Buscando atualização no servidor... O jogo será recarregado para limpar o cache."); 
+    window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime();
+}
+
 // ============================================
-// SISTEMA DE PIX E LOJA
+// SISTEMA DE PIX E LOJA (COM CORREÇÕES DE ERRO)
 // ============================================
 const skinsDB = [{ id: 'padrao', name: '👕 Padrão', price: 0, aura: 'transparent' }, { id: 'dourado', name: '🌟 Lendário', price: 800, aura: 'rgba(241,196,15,0.5)' }];
 const weaponsDB = [{ id: 'pistola', name: '🔫 Pistola', price: 0 }];
@@ -550,7 +563,8 @@ async function gerarPix(event) {
     if (!qtd || qtd < 250) return alert("Coloque no mínimo 250 diamantes!");
     
     let btnGerar = event.target;
-    btnGerar.innerText = "⏳ GERANDO PIX...";
+    btnGerar.innerText = "⏳ CONECTANDO... (Aguarde)";
+    btnGerar.disabled = true;
     
     try {
         let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, valor: (qtd * 0.02), diamantes: qtd }) });
@@ -560,9 +574,14 @@ async function gerarPix(event) {
             document.getElementById('btn-copy-pix').style.display = "block";
             document.getElementById('pix-code-display').value = dados.copia_e_cola;
             alert("✅ PIX Gerado com sucesso! Clique em COPIAR e pague no seu banco.");
-        } else { alert("Erro na API de Pagamento."); }
-    } catch(e) { alert("Servidor Indisponível"); }
+        } else { 
+            alert("❌ Erro na API de Pagamento. Tente novamente."); 
+        }
+    } catch(e) { 
+        alert("❌ O servidor de pagamento está ligando ou ocupado. Aguarde 20 segundos e aperte para gerar de novo!"); 
+    }
     btnGerar.innerText = "⚡ GERAR PIX";
+    btnGerar.disabled = false;
 }
 
 function copiarCodigoPix() {
@@ -615,19 +634,25 @@ function procurarPartida(modo) {
 function cancelarBusca() { clearInterval(intervaloBusca); if (socket) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
 
 // ============================================
-// RENDERIZAÇÃO DA ARENA E SPRITES
+// RENDERIZAÇÃO DA ARENA E SPRITES (COM LÓGICA DE TIMES)
 // ============================================
 const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
 let gameRunning = false, loopAtivo = false, jogadoresOnline = {}, salaAtual = "";
 let player = { x: 400, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: true };
 
+// LOGICA DE SPAWN - SEPARA TIME A E TIME B
 function iniciarArena(idSala) {
     clearInterval(intervaloBusca); salaAtual = idSala; document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; gameRunning = true;
+    
+    // Fallback: se o servidor não enviar Time, define por random pra não nascer grudado
+    meuTime = Math.random() > 0.5 ? 'A' : 'B';
+    player.x = meuTime === 'A' ? 100 : window.innerWidth - 100;
+    player.facing = meuTime === 'A' ? 1 : -1;
+
     if (!loopAtivo) { loopAtivo = true; requestAnimationFrame(gameLoop); }
 }
 
-// ⚠️ CARREGAMENTO DOS SPRITES DO SEU SERVIDOR
 const playerSprites = []; 
 for (let i = 1; i <= 88; i++) { 
     const img = new Image(); 
@@ -654,20 +679,27 @@ function gameLoop() {
 
     contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % animacaoSprites[playerState].length; contadorAnim = 0; }
 
-    if (socket && Math.random() > 0.5) socket.emit('movimento_pvp', { sala: salaAtual, x: player.x, y: player.y, facing: player.facing, hp: player.hp, nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, skinId: meuPerfil.equippedSkin, frameIndex: animacaoSprites[playerState][frameAtual] });
+    if (socket && Math.random() > 0.5) socket.emit('movimento_pvp', { sala: salaAtual, x: player.x, y: player.y, facing: player.facing, hp: player.hp, nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, skinId: meuPerfil.equippedSkin, frameIndex: animacaoSprites[playerState][frameAtual], time: meuTime });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
 
-    Object.entries(jogadoresOnline).forEach(([id, p]) => { if(id !== socket.id) desJogador(p.x, gy+p.y, p.facing, p.nick, p.isVIP, p.skinId, p.frameIndex); });
-    desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animacaoSprites[playerState][frameAtual]);
+    // Desenha inimigos e parceiros
+    Object.entries(jogadoresOnline).forEach(([id, p]) => { 
+        if(id !== socket.id) {
+            let isInimigo = p.time !== meuTime; // Se o time dele for diferente do seu, ele é inimigo
+            desJogador(p.x, gy+p.y, p.facing, p.nick, p.isVIP, p.skinId, p.frameIndex, isInimigo); 
+        }
+    });
+    // Desenha você mesmo
+    desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animacaoSprites[playerState][frameAtual], false);
 }
 
-function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx) {
+// ATUALIZADO: Cor do Nome e Posição do V arrumados
+function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo) {
     ctx.save(); ctx.translate(x, baseY);
     
-    // TENTA DESENHAR A IMAGEM. SE ELA EXISTIR NO SERVIDOR, ELA VAI APARECER!
     let idx = fIdx || animacaoSprites['IDLE'][0]; 
     let img = playerSprites[idx];
     
@@ -675,7 +707,6 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx) {
         ctx.scale(facing, 1); 
         ctx.drawImage(img, -37.5, -75, 75, 75); 
     } else { 
-        // Se a imagem não for encontrada, ele coloca um quadrado azul para o jogo não quebrar
         ctx.fillStyle = '#3498db'; 
         ctx.fillRect(-15, -65, 30, 65); 
     }
@@ -683,21 +714,27 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx) {
     if (isVIP) {
         let neon = ['#3498db', '#2ecc71', '#9b59b6', '#f1c40f'];
         ctx.fillStyle = "#000"; ctx.strokeStyle = neon[Math.floor((Date.now()/150)%4)]; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.roundRect(-10, -112, 20, 20, 4); ctx.fill(); ctx.stroke();
-        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 14px Arial"; ctx.fillStyle = "#f1c40f"; ctx.fillText("V", 0, -102);
+        ctx.beginPath(); ctx.roundRect(-10, -125, 20, 20, 4); ctx.fill(); ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 14px Arial"; ctx.fillStyle = "#f1c40f"; ctx.fillText("V", 0, -115); // Subi o V para não amontoar
     }
-    ctx.textAlign = "center"; ctx.font = "bold 12px Arial"; ctx.fillStyle = isVIP ? "#f1c40f" : "#fff"; ctx.fillText(nick, 0, -75);
+    
+    // Cor do Nick - Vermelho pra inimigo, Branco pra aliado, e Amarelo se for VIP do seu time
+    let corNick = isInimigo ? "#ff0000" : (isVIP ? "#f1c40f" : "#ffffff");
+    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = corNick; ctx.fillText(nick, 0, -90); // Ajustado para ficar embaixo do V
     ctx.restore();
 }
 
 window.onload = () => { if (meuEmail && dbUsuarios[meuEmail]) carregarLobby(); };
 if (socket) { 
-    socket.on('partida_encontrada', (dados) => iniciarArena(dados.sala)); 
+    // Captura o time do servidor (se o server.js enviar, senao usa o nosso fallback acima)
+    socket.on('partida_encontrada', (dados) => {
+        if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
+        else if(dados.timeB && dados.timeB.includes(socket.id)) { meuTime = 'B'; player.x = window.innerWidth - 100; player.facing = -1; }
+        iniciarArena(dados.sala);
+    }); 
     socket.on('posicoes_jogadores', (dados) => { jogadoresOnline = dados; }); 
     socket.on('promover_vip', (emailDoVip) => { if (dbUsuarios[emailDoVip]) { dbUsuarios[emailDoVip].isVIP = true; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); if (meuEmail === emailDoVip) { alert("🎉 Você recebeu o V de Verificado!"); carregarLobby(); } } });
 }
-
-function verificarAtualizacaoDoJogo() { alert("🔄 Buscando arquivos no GitHub..."); window.location.reload(true); }
 </script>
 </body>
 </html>
