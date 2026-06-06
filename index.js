@@ -29,27 +29,21 @@ const codigosDisponiveis = {};
 let filaMatchmaking = []; 
 let salasPvP = {};        
 
-// 🔥 CONTADOR GLOBAL DE IDs AUTOMÁTICOS
 let proximoIdDisponivel = 1;
 
-// Banco de dados em memória para os jogadores
 let jogadoresServidor = {
     "0000000001": { nick: "EliasX7", id: "0000000001", email: "eliasadmin@gmail.com", isVIP: true, statusBan: "✅ Limpo" }
 };
 
-// 🔒 SENHA MESTRE DO PAINEL
 const SENHA_DONO = "080907"; 
 
-// --- ROTA PARA SERVIR O PAINEL HTML ---
 app.get('/painel', (req, res) => {
     res.sendFile(path.join(__dirname, 'painel.html'));
 });
 
 // ==========================================
-// 🔥 CENTRAL DE COMANDOS DO PAINEL 🔥
+// 🔥 CENTRAL DE COMANDOS DO PAINEL (CORRIGIDA) 🔥
 // ==========================================
-
-// 1. Rota de Busca de Jogadores (ID ou Nick)
 app.post('/admin/buscar-jogador', (req, res) => {
     const { senha, busca } = req.body;
     
@@ -57,20 +51,19 @@ app.post('/admin/buscar-jogador', (req, res) => {
         return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
     }
 
-    let jugador = jogadoresServidor[busca];
-    
-    if (!jugador) {
-        jugador = Object.values(jogadoresServidor).find(j => j.nick && j.nick.toLowerCase() === busca.toLowerCase());
+    // Procura por ID ou por NICK (ignorando letras maiúsculas/minúsculas)
+    let jogadorEncontrado = jogadoresServidor[busca];
+    if (!jogadorEncontrado) {
+        jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick && j.nick.toLowerCase() === busca.toLowerCase());
     }
 
-    if (jugador) {
-        res.json({ sucesso: true, jogador: jugador });
+    if (jogadorEncontrado) {
+        res.json({ sucesso: true, jogador: jogadorEncontrado });
     } else {
-        res.status(404).json({ sucesso: false, erro: "Jogador não encontrado no servidor! Peça para ele fazer login no jogo primeiro." });
+        res.status(404).json({ sucesso: false, erro: "Jogador não encontrado! Peça para ele entrar na tela de servidores do jogo primeiro." });
     }
 });
 
-// 2. Rota para Executar as Punições ou dar VIP via Painel
 app.post('/admin/comando', (req, res) => {
     const { senha, comando, idJogador } = req.body;
     
@@ -78,14 +71,13 @@ app.post('/admin/comando', (req, res) => {
         return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
     }
 
-    console.log(`[ADMIN] Comando: ${command} para o ID: ${idJogador}`);
-    
     if (!jogadoresServidor[idJogador]) {
-        jogadoresServidor[idJogador] = { nick: "Jogador", id: idJogador, email: "vinculado@gmail.com", isVIP: false, statusBan: "✅ Limpo" };
+        return res.status(404).json({ sucesso: false, erro: "ID não encontrado na memória do servidor." });
     }
 
     if (comando === 'VIP') {
         jogadoresServidor[idJogador].isVIP = true;
+        // Manda o aviso direto pro celular do jogador pra tela dele brilhar
         io.emit('promover_vip', jogadoresServidor[idJogador].email);
     }
     if (comando === 'BAN_PERM') jogadoresServidor[idJogador].statusBan = "⛔ BANIDO PARA SEMPRE";
@@ -95,21 +87,16 @@ app.post('/admin/comando', (req, res) => {
         jogadoresServidor[idJogador].statusBan = "✅ Limpo";
     }
 
-    res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso!` });
+    console.log(`[PAINEL] ${comando} aplicado no jogador: ${jogadoresServidor[idJogador].nick}`);
+    res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso no jogador ${jogadoresServidor[idJogador].nick}!` });
 });
 
-// ==========================================
-// 🔥 GERADOR DE ID ÚNICO PARA NOVAS CONTAS 🔥
-// ==========================================
 app.post('/jogo/gerar-id-unico', (req, res) => {
     proximoIdDisponivel++;
     let idFormatado = String(proximoIdDisponivel).padStart(10, '0');
     res.json({ sucesso: true, idGerado: idFormatado });
 });
 
-// ==========================================
-// 🔥 SINCRONIZAÇÃO DO JOGO COM O RENDER 🔥
-// ==========================================
 app.post('/jogo/sincronizar', (req, res) => {
     const { id, nick, email } = req.body;
     
@@ -120,85 +107,71 @@ app.post('/jogo/sincronizar', (req, res) => {
             jogadoresServidor[id].nick = nick; 
             if(email) jogadoresServidor[id].email = email;
         }
-        
-        console.log(`[SYNC] Jogador Conectado: ${nick} (ID: ${id}) - VIP: ${jogadoresServidor[id].isVIP}`);
-        
-        res.json({ 
-            sucesso: true, 
-            isVIP: jogadoresServidor[id].isVIP,
-            statusBan: jogadoresServidor[id].statusBan
-        });
+        res.json({ sucesso: true });
     } else {
         res.status(400).json({ erro: "Dados incompletos" });
     }
 });
 
 // ==========================================
-// 🔥 SISTEMA MULTIPLAYER E CHAT (SOCKET.IO) 🔥
+// 🔥 MATCHMAKING E SALAS (CORRIGIDO PARA 2x2 E 4x4) 🔥
 // ==========================================
 io.on('connection', (socket) => {
-    console.log(`📡 Aparelho conectado na rede: ${socket.id}`);
     socket.emit('historico_chat', historicoChat);
     
     socket.on('sincronizar_dados', (dadosUser) => {
-        if (dadosUser && dadosUser.id) {
-            if (jogadoresServidor[dadosUser.id]) {
-                jogadoresServidor[dadosUser.id].socketId = socket.id;
-            }
+        if (dadosUser && dadosUser.id && jogadoresServidor[dadosUser.id]) {
+            jogadoresServidor[dadosUser.id].socketId = socket.id;
         }
     });
 
     socket.on('enviar_mensagem', (dados) => {
         let jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === dados.nick.toLowerCase());
-        
-        if (jogadorEncontrado && jogadorEncontrado.statusBan !== "✅ Limpo") {
-            return; 
-        }
+        if (jogadorEncontrado && jogadorEncontrado.statusBan !== "✅ Limpo") return; 
 
         let jogadorEVip = jogadorEncontrado ? jogadorEncontrado.isVIP : false;
-
-        const mensagem = {
-            nick: dados.nick,
-            texto: dados.texto,
-            isVIP: jogadorEVip,
-            hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
-        };
+        const mensagem = { nick: dados.nick, texto: dados.texto, isVIP: jogadorEVip, hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' }) };
         
+        console.log(`💬 [CHAT] ${mensagem.hora} - ${mensagem.nick}: ${mensagem.texto}`);
         historicoChat.push(mensagem);
         if(historicoChat.length > 30) historicoChat.shift(); 
-        
         io.emit('nova_mensagem', mensagem);
     });
 
     socket.on('buscar_partida', (dados) => {
-        console.log(`🔍 Fila PvP: ${dados.nick} está procurando partida no modo ${dados.modo}`);
+        console.log(`🔍 Fila: ${dados.nick} buscando modo ${dados.modo.toUpperCase()}`);
         
         filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
         filaMatchmaking.push({
-            id: socket.id,
-            nick: dados.nick,
-            isVIP: dados.isVIP,
-            patente: dados.patente,
-            servidor: dados.servidor,
-            modo: dados.modo
+            id: socket.id, nick: dados.nick, isVIP: dados.isVIP, servidor: dados.servidor, modo: dados.modo
         });
 
         let candidatos = filaMatchmaking.filter(p => p.servidor === dados.servidor && p.modo === dados.modo);
 
-        if (candidatos.length >= 2) {
-            let p1 = candidatos[0];
-            let p2 = candidatos[1];
+        // 🔥 REGRA INTELIGENTE DE EQUIPES
+        let qtdNecessaria = 2; // Solo (1x1)
+        if (dados.modo === 'duo') qtdNecessaria = 4; // Duo (2x2)
+        if (dados.modo === 'squad') qtdNecessaria = 8; // Squad (4x4)
 
-            filaMatchmaking = filaMatchmaking.filter(p => p.id !== p1.id && p.id !== p2.id);
+        if (candidatos.length >= qtdNecessaria) {
+            let jogadoresSelecionados = candidatos.slice(0, qtdNecessaria);
+            
+            // Remove os selecionados da fila global
+            filaMatchmaking = filaMatchmaking.filter(p => !jogadoresSelecionados.map(j => j.id).includes(p.id));
 
-            let nomeSala = `SALA_PVP_${p1.id.slice(0, 4)}_${p2.id.slice(0, 4)}`;
-            salasPvP[nomeSala] = { jogadores: {}, tempo: 300 };
+            let idDaSala = `SALA_${dados.modo.toUpperCase()}_${Date.now()}`;
+            salasPvP[idDaSala] = { jogadores: {}, modo: dados.modo };
 
-            io.sockets.sockets.get(p1.id)?.join(nomeSala);
-            io.sockets.sockets.get(p2.id)?.join(nomeSala);
+            // Coloca os jogadores na mesma sala virtual
+            jogadoresSelecionados.forEach((jogadorDaVez, index) => {
+                io.sockets.sockets.get(jogadorDaVez.id)?.join(idDaSala);
+                // Define as equipes (A e B)
+                let equipeDele = (index % 2 === 0) ? 'A' : 'B';
+                console.log(`🎮 ${jogadorDaVez.nick} entrou na sala ${idDaSala} - EQUIPE ${equipeDele}`);
+            });
 
-            io.to(nomeSala).emit('partida_encontrada', { sala: nomeSala });
-            console.log(`🎮 Partida montada com sucesso na sala: ${nomeSala}`);
+            io.to(idDaSala).emit('partida_encontrada', { sala: idDaSala });
+            console.log(`🚀 Partida iniciada! MODO: ${dados.modo.toUpperCase()} | Sala: ${idDaSala}`);
         }
     });
 
@@ -210,14 +183,7 @@ io.on('connection', (socket) => {
         const sala = dados.sala;
         if (salasPvP[sala]) {
             salasPvP[sala].jogadores[socket.id] = {
-                x: dados.x,
-                y: dados.y,
-                facing: dados.facing,
-                hp: dados.hp,
-                nick: dados.nick,
-                isVIP: dados.isVIP,
-                frameIndex: dados.frameIndex,
-                skinId: dados.skinId
+                x: dados.x, y: dados.y, facing: dados.facing, hp: dados.hp, nick: dados.nick, isVIP: dados.isVIP, frameIndex: dados.frameIndex, skinId: dados.skinId
             };
             io.to(sala).emit('posicoes_jogadores', salasPvP[sala].jogadores);
         }
@@ -234,110 +200,47 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- GERADOR DE CÓDIGOS REAIS DO PAINEL ---
 app.post('/painel/gerar-codigo', (req, res) => {
     const { senha, tetoDiamantes } = req.body;
-
-    if (senha !== SENHA_DONO) {
-        return res.status(403).json({ erro: "Senha do painel incorreta!" });
-    }
-
-    if (!tetoDiamantes || tetoDiamantes < 25) {
-        return res.status(400).json({ erro: "O valor teto precisa ser de pelo menos 25 diamantes." });
-    }
+    if (senha !== SENHA_DONO) return res.status(403).json({ erro: "Senha do painel incorreta!" });
+    if (!tetoDiamantes || tetoDiamantes < 25) return res.status(400).json({ erro: "Mínimo de 25 diamantes." });
 
     const novoCodigo = "X7-" + Math.floor(100000 + Math.random() * 900000);
-    
-    codigosDisponiveis[novoCodigo] = {
-        teto: parseInt(tetoDiamantes),
-        usado: false
-    };
-
-    console.log(`👑 Admin gerou o código ${novoCodigo} (Teto: ${tetoDiamantes} dimas)`);
-    return res.json({ sucesso: true, codigoGerado: novoCodigo });
+    codigosDisponiveis[novoCodigo] = { teto: parseInt(tetoDiamantes), usado: false };
+    res.json({ sucesso: true, codigoGerado: novoCodigo });
 });
 
-// --- RESGATE DE CÓDIGOS PELO JOGO ---
 app.post('/jogo/resgatar-codigo', (req, res) => {
     const { codigo } = req.body;
     const codigoFormatado = codigo.trim().toUpperCase();
 
-    if (!codigosDisponiveis[codigoFormatado]) {
-        return res.status(404).json({ erro: "Código inválido ou inexistente!" });
-    }
-    if (codigosDisponiveis[codigoFormatado].usado) {
-        return res.status(400).json({ erro: "Este código já foi resgatado!" });
-    }
+    if (!codigosDisponiveis[codigoFormatado]) return res.status(404).json({ erro: "Código inválido!" });
+    if (codigosDisponiveis[codigoFormatado].usado) return res.status(400).json({ erro: "Código já resgatado!" });
 
     const teto = codigosDisponiveis[codigoFormatado].teto;
     let min = 25;
-
-    if (teto >= 1000) min = 100;
-    else if (teto >= 500) min = 50;
+    if (teto >= 1000) min = 100; else if (teto >= 500) min = 50;
 
     const dimasGanhos = Math.floor(Math.random() * (teto - min + 1)) + min;
-
     codigosDisponiveis[codigoFormatado].usado = true;
     delete codigosDisponiveis[codigoFormatado]; 
 
-    console.log(`🎁 Código ${codigoFormatado} resgatado! Sorteado: ${dimasGanhos} diamantes.`);
-    return res.json({ sucesso: true, diamantesGanhos: dimasGanhos });
+    res.json({ sucesso: true, diamantesGanhos: dimasGanhos });
 });
 
-// --- SISTEMA PIX AUTOMÁTICO (ASAAS) ---
 app.post('/gerar-pix', async (req, res) => {
-    console.log(`\n💸 Pedido de PIX de ${req.body.diamantes} dimas para ${req.body.Nick}`);
     const { Nick, valor, diamantes } = req.body;
-
-    if (!valor || valor <= 0) {
-        return res.status(400).json({ erro: "Valor inválido." });
-    }
+    if (!valor || valor <= 0) return res.status(400).json({ erro: "Valor inválido." });
 
     try {
-        const clienteResponse = await asaasInstance.post('/customers', {
-            name: `Jogador: ${Nick}`,
-            cpfCnpj: '01234567890',
-            notificationDisabled: true
-        });
-
-        const cobranca = await asaasInstance.post('/payments', {
-            customer: clienteResponse.data.id,
-            billingType: 'PIX',
-            value: valor,
-            dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-            description: `Compra de ${diamantes} Diamantes - Free X7`
-        });
-
-        const paymentId = cobranca.data.id;
-        const qrCodeResponse = await asaasInstance.get(`/payments/${paymentId}/pixQrCode`);
-
-        return res.json({
-            copia_e_cola: qrCodeResponse.data.payload,
-            paymentId: paymentId 
-        });
-
-    } catch (error) {
-        return res.status(500).json({ erro: "Erro Asaas API." });
-    }
-});
-
-app.get('/conferir-pagamento/:id', async (req, res) => {
-    const idDoPagamento = req.params.id;
-    try {
-        const response = await asaasInstance.get(`/payments/${idDoPagamento}`);
-        const statusPagamento = response.data.status;
-        
-        if (statusPagamento === 'RECEIVED' || statusPagamento === 'CONFIRMED') {
-            return res.json({ pago: true });
-        } else {
-            return res.json({ pago: false });
-        }
-    } catch (error) {
-        return res.status(500).json({ erro: "Erro ao consultar Asaas." });
-    }
+        const clienteResponse = await asaasInstance.post('/customers', { name: `Jogador: ${Nick}`, cpfCnpj: '01234567890', notificationDisabled: true });
+        const cobranca = await asaasInstance.post('/payments', { customer: clienteResponse.data.id, billingType: 'PIX', value: valor, dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], description: `Free X7 - ${diamantes} Dimas` });
+        const qrCodeResponse = await asaasInstance.get(`/payments/${cobranca.data.id}/pixQrCode`);
+        res.json({ copia_e_cola: qrCodeResponse.data.payload, paymentId: cobranca.data.id });
+    } catch (error) { res.status(500).json({ erro: "Erro Asaas API." }); }
 });
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-    console.log(`🚀 Motor do Free X7 ligado e operando na porta ${PORT}!`);
+    console.log(`🚀 Motor do Free X7 ligado na porta ${PORT}!`);
 });
