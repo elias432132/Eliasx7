@@ -23,11 +23,14 @@ const asaasInstance = axios.create({
     headers: { 'access_token': ASAAS_API_KEY }
 });
 
-// --- BANCO DE DADOS EM MEMÓRIA ---
+// --- BANCO DE DADOS EM MEMÓRIA E CONTADORES ---
 const historicoChat = []; 
 const codigosDisponiveis = {}; 
-let filaMatchmaking = []; // Fila para juntar os amigos no PvP
-let salasPvP = {};        // Controla as partidas rodando ao vivo
+let filaMatchmaking = []; 
+let salasPvP = {};        
+
+// 🔥 CONTADOR GLOBAL DE IDs AUTOMÁTICOS
+let proximoIdDisponivel = 1;
 
 // Banco de dados em memória para os jogadores
 let jogadoresServidor = {
@@ -75,7 +78,7 @@ app.post('/admin/comando', (req, res) => {
         return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
     }
 
-    console.log(`[ADMIN] Comando: ${comando} para o ID: ${idJogador}`);
+    console.log(`[ADMIN] Comando: ${command} para o ID: ${idJogador}`);
     
     if (!jogadoresServidor[idJogador]) {
         jogadoresServidor[idJogador] = { nick: "Jogador", id: idJogador, email: "vinculado@gmail.com", isVIP: false, statusBan: "✅ Limpo" };
@@ -83,7 +86,6 @@ app.post('/admin/comando', (req, res) => {
 
     if (comando === 'VIP') {
         jogadoresServidor[idJogador].isVIP = true;
-        // 🚀 AQUI ESTÁ O SEGREDO: Grita pro jogo em tempo real que esse e-mail agora é VIP!
         io.emit('promover_vip', jogadoresServidor[idJogador].email);
     }
     if (comando === 'BAN_PERM') jogadoresServidor[idJogador].statusBan = "⛔ BANIDO PARA SEMPRE";
@@ -94,6 +96,15 @@ app.post('/admin/comando', (req, res) => {
     }
 
     res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso!` });
+});
+
+// ==========================================
+// 🔥 GERADOR DE ID ÚNICO PARA NOVAS CONTAS 🔥
+// ==========================================
+app.post('/jogo/gerar-id-unico', (req, res) => {
+    proximoIdDisponivel++;
+    let idFormatado = String(proximoIdDisponivel).padStart(10, '0');
+    res.json({ sucesso: true, idGerado: idFormatado });
 });
 
 // ==========================================
@@ -129,17 +140,14 @@ io.on('connection', (socket) => {
     console.log(`📡 Aparelho conectado na rede: ${socket.id}`);
     socket.emit('historico_chat', historicoChat);
     
-    // Sincroniza o WebSocket quando o jogador loga
     socket.on('sincronizar_dados', (dadosUser) => {
         if (dadosUser && dadosUser.id) {
-            // Vincula o socket.id atual com o cadastro dele
             if (jogadoresServidor[dadosUser.id]) {
                 jogadoresServidor[dadosUser.id].socketId = socket.id;
             }
         }
     });
 
-    // Envio de mensagens com verificação de Mute/Ban
     socket.on('enviar_mensagem', (dados) => {
         let jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === dados.nick.toLowerCase());
         
@@ -152,7 +160,7 @@ io.on('connection', (socket) => {
         const mensagem = {
             nick: dados.nick,
             texto: dados.texto,
-            isVIP: jogadorEVip, // Ajustado para bater com o HTML novo (isVIP)
+            isVIP: jogadorEVip,
             hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
         };
         
@@ -162,7 +170,6 @@ io.on('connection', (socket) => {
         io.emit('nova_mensagem', mensagem);
     });
 
-    // ⚔️ MOTOR DE MATCHMAKING (PROCURAR PARTIDA PVP)
     socket.on('buscar_partida', (dados) => {
         console.log(`🔍 Fila PvP: ${dados.nick} está procurando partida no modo ${dados.modo}`);
         
@@ -176,7 +183,6 @@ io.on('connection', (socket) => {
             modo: dados.modo
         });
 
-        // Tenta juntar os jogadores do mesmo servidor e modo
         let candidatos = filaMatchmaking.filter(p => p.servidor === dados.servidor && p.modo === dados.modo);
 
         if (candidatos.length >= 2) {
@@ -200,7 +206,6 @@ io.on('connection', (socket) => {
         filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
     });
 
-    // 🚀 MOVIMENTAÇÃO MULTIPLAYER EM TEMPO REAL NA ARENA
     socket.on('movimento_pvp', (dados) => {
         const sala = dados.sala;
         if (salasPvP[sala]) {
@@ -214,7 +219,6 @@ io.on('connection', (socket) => {
                 frameIndex: dados.frameIndex,
                 skinId: dados.skinId
             };
-            // Devolve a posição de todo mundo para quem está dentro da sala
             io.to(sala).emit('posicoes_jogadores', salasPvP[sala].jogadores);
         }
     });
