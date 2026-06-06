@@ -42,16 +42,12 @@ app.get('/painel', (req, res) => {
 });
 
 // ==========================================
-// 🔥 CENTRAL DE COMANDOS DO PAINEL (CORRIGIDA) 🔥
+// 🔥 CENTRAL DE COMANDOS DO PAINEL 🔥
 // ==========================================
 app.post('/admin/buscar-jogador', (req, res) => {
     const { senha, busca } = req.body;
-    
-    if (senha !== SENHA_DONO) {
-        return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
-    }
+    if (senha !== SENHA_DONO) return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
 
-    // Procura por ID ou por NICK (ignorando letras maiúsculas/minúsculas)
     let jogadorEncontrado = jogadoresServidor[busca];
     if (!jogadorEncontrado) {
         jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick && j.nick.toLowerCase() === busca.toLowerCase());
@@ -60,24 +56,17 @@ app.post('/admin/buscar-jogador', (req, res) => {
     if (jogadorEncontrado) {
         res.json({ sucesso: true, jogador: jogadorEncontrado });
     } else {
-        res.status(404).json({ sucesso: false, erro: "Jogador não encontrado! Peça para ele entrar na tela de servidores do jogo primeiro." });
+        res.status(404).json({ sucesso: false, erro: "Jogador não encontrado!" });
     }
 });
 
 app.post('/admin/comando', (req, res) => {
     const { senha, comando, idJogador } = req.body;
-    
-    if (senha !== SENHA_DONO) {
-        return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
-    }
-
-    if (!jogadoresServidor[idJogador]) {
-        return res.status(404).json({ sucesso: false, erro: "ID não encontrado na memória do servidor." });
-    }
+    if (senha !== SENHA_DONO) return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
+    if (!jogadoresServidor[idJogador]) return res.status(404).json({ sucesso: false, erro: "ID não encontrado." });
 
     if (comando === 'VIP') {
         jogadoresServidor[idJogador].isVIP = true;
-        // Manda o aviso direto pro celular do jogador pra tela dele brilhar
         io.emit('promover_vip', jogadoresServidor[idJogador].email);
     }
     if (comando === 'BAN_PERM') jogadoresServidor[idJogador].statusBan = "⛔ BANIDO PARA SEMPRE";
@@ -87,8 +76,8 @@ app.post('/admin/comando', (req, res) => {
         jogadoresServidor[idJogador].statusBan = "✅ Limpo";
     }
 
-    console.log(`[PAINEL] ${comando} aplicado no jogador: ${jogadoresServidor[idJogador].nick}`);
-    res.json({ sucesso: true, mensagem: `Operação [${comando}] aplicada com sucesso no jogador ${jogadoresServidor[idJogador].nick}!` });
+    console.log(`[PAINEL] ${comando} aplicado em: ${jogadoresServidor[idJogador].nick}`);
+    res.json({ sucesso: true, mensagem: `Comando ${comando} aplicado!` });
 });
 
 app.post('/jogo/gerar-id-unico', (req, res) => {
@@ -99,22 +88,15 @@ app.post('/jogo/gerar-id-unico', (req, res) => {
 
 app.post('/jogo/sincronizar', (req, res) => {
     const { id, nick, email } = req.body;
-    
     if (id && nick) {
-        if (!jogadoresServidor[id]) {
-            jogadoresServidor[id] = { nick: nick, id: id, email: email || "", isVIP: false, statusBan: "✅ Limpo" };
-        } else {
-            jogadoresServidor[id].nick = nick; 
-            if(email) jogadoresServidor[id].email = email;
-        }
+        if (!jogadoresServidor[id]) jogadoresServidor[id] = { nick: nick, id: id, email: email || "", isVIP: false, statusBan: "✅ Limpo" };
+        else { jogadoresServidor[id].nick = nick; if(email) jogadoresServidor[id].email = email; }
         res.json({ sucesso: true });
-    } else {
-        res.status(400).json({ erro: "Dados incompletos" });
-    }
+    } else res.status(400).json({ erro: "Dados incompletos" });
 });
 
 // ==========================================
-// 🔥 MATCHMAKING E SALAS (CORRIGIDO PARA 2x2 E 4x4) 🔥
+// 🔥 MATCHMAKING COM TIMES A/B E ANTI-TRAVAMENTO 🔥
 // ==========================================
 io.on('connection', (socket) => {
     socket.emit('historico_chat', historicoChat);
@@ -129,62 +111,42 @@ io.on('connection', (socket) => {
         let jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === dados.nick.toLowerCase());
         if (jogadorEncontrado && jogadorEncontrado.statusBan !== "✅ Limpo") return; 
 
-        let jogadorEVip = jogadorEncontrado ? jogadorEncontrado.isVIP : false;
-        const mensagem = { nick: dados.nick, texto: dados.texto, isVIP: jogadorEVip, hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' }) };
-        
-        console.log(`💬 [CHAT] ${mensagem.hora} - ${mensagem.nick}: ${mensagem.texto}`);
+        const mensagem = { nick: dados.nick, texto: dados.texto, isVIP: jogadorEncontrado ? jogadorEncontrado.isVIP : false, hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' }) };
         historicoChat.push(mensagem);
         if(historicoChat.length > 30) historicoChat.shift(); 
         io.emit('nova_mensagem', mensagem);
     });
 
     socket.on('buscar_partida', (dados) => {
-        console.log(`🔍 Fila: ${dados.nick} buscando modo ${dados.modo.toUpperCase()}`);
+        console.log(`🔍 Fila: ${dados.nick} buscando ${dados.modo.toUpperCase()}`);
         
         filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
-        filaMatchmaking.push({
-            id: socket.id, nick: dados.nick, isVIP: dados.isVIP, servidor: dados.servidor, modo: dados.modo
-        });
+        filaMatchmaking.push({ id: socket.id, nick: dados.nick, isVIP: dados.isVIP, servidor: dados.servidor, modo: dados.modo });
 
         let candidatos = filaMatchmaking.filter(p => p.servidor === dados.servidor && p.modo === dados.modo);
+        let qtdNecessaria = dados.modo === 'duo' ? 4 : (dados.modo === 'squad' ? 8 : 2); // Solo = 2
 
-        // 🔥 REGRA INTELIGENTE DE EQUIPES
-        let qtdNecessaria = 2; // Solo (1x1)
-        if (dados.modo === 'duo') qtdNecessaria = 4; // Duo (2x2)
-        if (dados.modo === 'squad') qtdNecessaria = 8; // Squad (4x4)
-
+        // Se tem gente suficiente, inicia a partida!
         if (candidatos.length >= qtdNecessaria) {
-            let jogadoresSelecionados = candidatos.slice(0, qtdNecessaria);
-            
-            // Remove os selecionados da fila global
-            filaMatchmaking = filaMatchmaking.filter(p => !jogadoresSelecionados.map(j => j.id).includes(p.id));
-
-            let idDaSala = `SALA_${dados.modo.toUpperCase()}_${Date.now()}`;
-            salasPvP[idDaSala] = { jogadores: {}, modo: dados.modo };
-
-            // Coloca os jogadores na mesma sala virtual
-            jogadoresSelecionados.forEach((jogadorDaVez, index) => {
-                io.sockets.sockets.get(jogadorDaVez.id)?.join(idDaSala);
-                // Define as equipes (A e B)
-                let equipeDele = (index % 2 === 0) ? 'A' : 'B';
-                console.log(`🎮 ${jogadorDaVez.nick} entrou na sala ${idDaSala} - EQUIPE ${equipeDele}`);
-            });
-
-            io.to(idDaSala).emit('partida_encontrada', { sala: idDaSala });
-            console.log(`🚀 Partida iniciada! MODO: ${dados.modo.toUpperCase()} | Sala: ${idDaSala}`);
+            iniciarPartida(candidatos.slice(0, qtdNecessaria), dados.modo);
+        } else {
+            // ANTI-TRAVAMENTO: Se você ficar 15 segundos sozinho na fila, ele te joga na arena para treinar
+            setTimeout(() => {
+                let aindaNaFila = filaMatchmaking.filter(p => p.id === socket.id);
+                if (aindaNaFila.length > 0) {
+                    console.log(`⏱️ Iniciando modo Treino (sozinho) para ${dados.nick}`);
+                    iniciarPartida([aindaNaFila[0]], dados.modo);
+                }
+            }, 15000); // 15 segundos de espera
         }
     });
 
-    socket.on('cancelar_busca', () => {
-        filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
-    });
+    socket.on('cancelar_busca', () => { filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id); });
 
     socket.on('movimento_pvp', (dados) => {
         const sala = dados.sala;
         if (salasPvP[sala]) {
-            salasPvP[sala].jogadores[socket.id] = {
-                x: dados.x, y: dados.y, facing: dados.facing, hp: dados.hp, nick: dados.nick, isVIP: dados.isVIP, frameIndex: dados.frameIndex, skinId: dados.skinId
-            };
+            salasPvP[sala].jogadores[socket.id] = { x: dados.x, y: dados.y, facing: dados.facing, hp: dados.hp, nick: dados.nick, isVIP: dados.isVIP, frameIndex: dados.frameIndex, skinId: dados.skinId, time: dados.time };
             io.to(sala).emit('posicoes_jogadores', salasPvP[sala].jogadores);
         }
     });
@@ -200,9 +162,35 @@ io.on('connection', (socket) => {
     });
 });
 
+// FUNÇÃO PARA CRIAR SALA E SEPARAR OS TIMES
+function iniciarPartida(jogadoresSelecionados, modo) {
+    filaMatchmaking = filaMatchmaking.filter(p => !jogadoresSelecionados.map(j => j.id).includes(p.id));
+    let idDaSala = `SALA_${modo.toUpperCase()}_${Date.now()}`;
+    salasPvP[idDaSala] = { jogadores: {}, modo: modo };
+
+    let timeA = [];
+    let timeB = [];
+
+    jogadoresSelecionados.forEach((jogador, index) => {
+        let s = io.sockets.sockets.get(jogador.id);
+        if(s) s.join(idDaSala);
+        
+        // Define os times ímpar/par (1x1 fica 1 no A, 1 no B)
+        if (index % 2 === 0) timeA.push(jogador.id);
+        else timeB.push(jogador.id);
+    });
+
+    // Manda pro HTML quem é Time A e Time B (Isso resolve a cor Vermelha e nascer de frente)
+    io.to(idDaSala).emit('partida_encontrada', { sala: idDaSala, timeA: timeA, timeB: timeB });
+    console.log(`🚀 MODO: ${modo.toUpperCase()} | Sala: ${idDaSala} | TimeA: ${timeA.length} | TimeB: ${timeB.length}`);
+}
+
+// ==========================================
+// 🔥 LOJA E PIX 🔥
+// ==========================================
 app.post('/painel/gerar-codigo', (req, res) => {
     const { senha, tetoDiamantes } = req.body;
-    if (senha !== SENHA_DONO) return res.status(403).json({ erro: "Senha do painel incorreta!" });
+    if (senha !== SENHA_DONO) return res.status(403).json({ erro: "Senha incorreta!" });
     if (!tetoDiamantes || tetoDiamantes < 25) return res.status(400).json({ erro: "Mínimo de 25 diamantes." });
 
     const novoCodigo = "X7-" + Math.floor(100000 + Math.random() * 900000);
