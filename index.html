@@ -25,8 +25,8 @@
         .login-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 5px; }
 
         /* --- MENUS PRINCIPAIS --- */
-        #start-menu, #shop-menu, #upgrade-menu, #tutorial-menu, #save-load-menu, #chat-global-menu, #resgatar-codigo-menu, #painel-dono-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e272e, #0f0f0f); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; }
-        #shop-menu, #upgrade-menu, #tutorial-menu, #save-load-menu, #chat-global-menu, #resgatar-codigo-menu, #painel-dono-menu { display: none; background: rgba(0,0,0,0.95); z-index: 150; }
+        #start-menu, #shop-menu, #upgrade-menu, #tutorial-menu, #save-load-menu, #chat-global-menu, #resgatar-codigo-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e272e, #0f0f0f); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; }
+        #shop-menu, #upgrade-menu, #tutorial-menu, #save-load-menu, #chat-global-menu, #resgatar-codigo-menu { display: none; background: rgba(0,0,0,0.95); z-index: 150; }
         #pause-menu { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 
         h1 { color: #ff3f34; font-size: 32px; text-transform: uppercase; text-shadow: 2px 2px 0px #000, 4px 4px 0px #800000; margin: 0 0 5px 0; }
@@ -93,22 +93,20 @@
     <div id="login-screen">
         <div class="login-box" id="box-login-main">
             <h1 style="font-size: 28px; margin-bottom: 20px;">FREE X7<br><span style="color:#f1c40f; font-size: 18px;">LOGIN DO SOBREVIVENTE</span></h1>
-            <input type="text" id="input-nick" placeholder="Digite seu Nick (Nome)" maxlength="15">
+            <input type="email" id="input-email" placeholder="Digite seu E-mail" maxlength="40">
             <input type="password" id="input-senha" placeholder="Digite sua Senha" maxlength="12">
             <div class="login-buttons">
                 <button class="btn-main" onclick="entrarConta()" style="width: 50%;">ENTRAR</button>
                 <button class="btn-sub" onclick="cadastrarConta()" style="width: 50%; background: #2ecc71; border-color: #27ae60;">CADASTRAR</button>
             </div>
             <button class="btn-sub" onclick="abrirSubTelaLogin('recuperar')" style="background: #555; width: 100%; font-size: 12px; margin-top: 5px;">ESQUECI MINHA SENHA</button>
-            <button class="btn-sub" onclick="abrirPainelDono()" style="background: #8e44ad; width: 100%; font-size: 11px; margin-top: 10px; border-color: #732d91;">⭐ ACESSAR PAINEL DO DONO</button>
             <p id="login-msg" style="color: #e74c3c; font-size: 14px; margin-top: 10px; font-weight: bold; height: 15px; margin-bottom: 0;"></p>
         </div>
 
         <div class="login-box" id="box-login-recuperar" style="display: none; border-color: #3498db; box-shadow: 0 0 20px #3498db;">
             <h1 style="font-size: 24px; color: #3498db; margin-bottom: 10px;">RECUPERAR SENHA</h1>
-            <p style="font-size: 12px; color: #ccc; margin-bottom: 15px;">Informe seu Nick e o código de segurança gerado no cadastro para mudar sua senha.</p>
-            <input type="text" id="input-recup-nick" placeholder="Digite seu Nick">
-            <input type="text" id="input-recup-codigo" placeholder="Código Mestre (Ex: REC-123456)">
+            <p style="font-size: 12px; color: #ccc; margin-bottom: 15px;">Informe o e-mail da sua conta para mudar sua senha.</p>
+            <input type="email" id="input-recup-codigo" placeholder="Digite seu E-mail cadastrado">
             <input type="password" id="input-recup-nova-senha" placeholder="Digite a Nova Senha">
             <div class="login-buttons">
                 <button class="btn-main" onclick="executarRecuperacaoSenha()" style="background: #2ecc71; border-color: #27ae60; width: 60%;">ALTERAR SENHA</button>
@@ -118,27 +116,11 @@
         </div>
     </div>
 
-    <div id="painel-dono-menu">
-        <h2 style="color: #c0392b; margin-bottom: 5px;">PAINEL EXCLUSIVO DO CRIADOR</h2>
-        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Insira a senha mestra para fabricar códigos premiados variáveis.</p>
-        <div class="login-box" style="box-shadow: 0 0 15px #c0392b; border-color: #c0392b;">
-            <input type="password" id="painel-senha-dono" placeholder="Senha do Painel">
-            <input type="number" id="painel-teto-diamantes" placeholder="Quantidade Máxima (Ex: 100 ou 1000)">
-            <button class="btn-main" onclick="solicitarGerarCodigoGlobal()" style="background: #c0392b; border-color: #962d22; width: 100%;">⚡ FABRICAR CÓDIGO</button>
-            
-            <div style="margin-top: 15px; color: #f1c40f; font-weight: bold; font-size: 14px;">Código Fabricado:</div>
-            <input type="text" id="output-codigo-gerado" readonly placeholder="Nenhum código gerado ainda" style="color: #2ecc71; border-color: #2ecc71; font-family: monospace;" onclick="this.select(); document.execCommand('copy');">
-            <p style="font-size: 10px; color: #888; margin-top: -5px;">(Clique no código acima para copiar)</p>
-
-            <button class="btn-sub" onclick="document.getElementById('painel-dono-menu').style.display='none'" style="width: 100%; margin-top: 10px;">VOLTAR PRO LOGIN</button>
-        </div>
-    </div>
-
     <div id="start-menu" style="display: none;">
         <h1>free X7 Esporte</h1>
         <p id="player-welcome" style="color: #2ecc71; font-weight: bold; margin-top: -5px; margin-bottom: 15px;"></p>
         <div class="currency-display">
-            <span>🪙 <span id="menu-gold">0</span></span>
+            <span>🪙 Ouro: <span id="menu-gold">0</span></span>
             <span>💎 Diamantes: <span id="menu-frags">0</span></span>
         </div>
         <div class="menu-buttons">
@@ -224,8 +206,8 @@
     <div id="shop-menu">
         <h2 style="color: #f1c40f;">LOJA DE SKINS, ARMAS E DIAMANTES</h2>
         <div class="shop-tabs">
-            <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS</button>
-            <button class="tab-btn" id="tab-weapons" onclick="switchTab('weapons')">🔫 ARMAS</button>
+            <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS (DIAMANTES)</button>
+            <button class="tab-btn" id="tab-weapons" onclick="switchTab('weapons')">🔫 ARMAS (OURO)</button>
             <button class="tab-btn" id="tab-diamonds" onclick="switchTab('diamonds')" style="background: #3498db;">💎 COMPRAR DIAMANTES</button>
         </div>
         
@@ -254,13 +236,13 @@
 
     <div id="upgrade-menu">
         <h2 style="color: #2ecc71;">UPGRADE DE ATRIBUTOS</h2>
-        <div class="currency-display"><span>🪙 <span id="upg-gold">0</span></span><span>💎 <span id="upg-frags">0</span></span></div>
+        <div class="currency-display"><span>🪙 Ouro: <span id="upg-gold">0</span></span><span>💎 Diamantes: <span id="upg-frags">0</span></span></div>
         <div class="shop-container" style="flex-direction: column; width: 300px;">
-            <div class="shop-item"><h3>⚔️ DANO BASE (Nv.<span id="lvl-dmg">1</span>)</h3><button onclick="upgradeStat('dmg')">UPAR: 500🪙 + 5💎</button></div>
-            <div class="shop-item"><h3>🛡️ DEFESA BASE (Nv.<span id="lvl-def">1</span>)</h3><button onclick="upgradeStat('def')">UPAR: 400🪙 + 4💎</button></div>
-            <div class="shop-item"><h3>❤️ VIDA MÁXIMA (Nv.<span id="lvl-hp">1</span>)</h3><button onclick="upgradeStat('hp')">UPAR: 600🪙 + 6💎</button></div>
+            <div class="shop-item"><h3>⚔️ DANO BASE (Nv.<span id="lvl-dmg">1</span>)</h3><button onclick="upgradeStat('dmg')">UPAR: 500 🪙</button></div>
+            <div class="shop-item"><h3>🛡️ DEFESA BASE (Nv.<span id="lvl-def">1</span>)</h3><button onclick="upgradeStat('def')">UPAR: 400 🪙</button></div>
+            <div class="shop-item"><h3>❤️ VIDA MÁXIMA (Nv.<span id="lvl-hp">1</span>)</h3><button onclick="upgradeStat('hp')">UPAR: 600 🪙</button></div>
         </div>
-        <button class="btn-sub" onclick="document.getElementById('upgrade-menu').style.display='none'">FECHAR</button>
+        <div class="btn-sub" onclick="document.getElementById('upgrade-menu').style.display='none'">FECHAR</div>
     </div>
 
     <div id="pause-menu">
@@ -313,7 +295,7 @@
             shoot() { this.playTone(450, 'square', 0.08, 0.05); }, jump() { this.playTone(280, 'sine', 0.15, 0.05); }, hurt() { this.playTone(150, 'sawtooth', 0.2, 0.08); }, skill() { this.playTone(600, 'sine', 0.4, 0.1); }
         };
 
-        // --- 0.1. SISTEMA DE CHAT AO VIVO (SOCKET.IO) ---
+        // --- 0.1. SISTEMA DE CHAT AO VIVO E SERVIDOR (SOCKET.IO) ---
         const URL_SERVIDOR_RENDER = "https://eliasx7.onrender.com";
         let socket;
         
@@ -332,8 +314,21 @@
 
         function desenharMensagemNoChat(msg) {
             const box = document.getElementById('chat-mensagens');
-            let corNome = (jogadorAtual && msg.nick.toLowerCase() === jogadorAtual) ? '#2ecc71' : '#f1c40f';
-            box.innerHTML += `<div style="margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 4px;"><span style="color: #666; font-size: 10px;">[${msg.hora}]</span> <b style="color: ${corNome};">${msg.nick}:</b> <span style="color: #ddd;">${msg.texto}</span></div>`;
+            if (!box) return;
+
+            let corNome = '#f1c40f'; 
+            
+            // SE A MENSAGEM VIER DO RENDER COM A TAG DE VIP
+            if (msg.isVip) {
+                corNome = '#2ecc71';
+            }
+            
+            let exibicaoHora = msg && msg.hora ? msg.hora : '00:00';
+            let exibicaoNick = msg && msg.nick ? msg.nick : 'Sobrevivente';
+            let exibicaoTexto = msg && msg.texto ? msg.texto : '';
+            let tagVIPDisplay = msg.isVip ? "🅅 " : "";
+
+            box.innerHTML += `<div style="margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 4px;"><span style="color: #666; font-size: 10px;">[${exibicaoHora}]</span> <b style="color: ${corNome};">${tagVIPDisplay}${exibicaoNick}:</b> <span style="color: #ddd;">${exibicaoTexto}</span></div>`;
             box.scrollTop = box.scrollHeight;
         }
 
@@ -348,41 +343,6 @@
         }
 
         document.getElementById('btn-open-chat').addEventListener('click', () => { sfx.init(); document.getElementById('chat-global-menu').style.display = 'flex'; });
-
-
-        // --- LÓGICA DO PAINEL DO DONO (GERAR CÓDIGOS) ---
-        function abrirPainelDono() {
-            sfx.init();
-            document.getElementById('painel-senha-dono').value = '';
-            document.getElementById('painel-teto-diamantes').value = '';
-            document.getElementById('output-codigo-gerado').value = '';
-            document.getElementById('painel-dono-menu').style.display = 'flex';
-        }
-
-        async function solicitarGerarCodigoGlobal() {
-            const senha = document.getElementById('painel-senha-dono').value;
-            const teto = document.getElementById('painel-teto-diamantes').value;
-
-            if(!senha || !teto) return alert("Preencha todos os campos!");
-
-            try {
-                let resposta = await fetch(`${URL_SERVIDOR_RENDER}/painel/gerar-codigo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ senha: senha, tetoDiamantes: parseInt(teto) })
-                });
-                let resultado = await resposta.json();
-
-                if(resultado.sucesso) {
-                    document.getElementById('output-codigo-gerado').value = resultado.codigoGerated || resultado.codigoGerado;
-                    alert("✅ Código Fabricado e pronto para uso!");
-                } else {
-                    alert("❌ Erro: " + resultado.erro);
-                }
-            } catch(e) {
-                alert("❌ Erro de conexão com o servidor Render.");
-            }
-        }
 
         // --- LÓGICA DE RESGATAR O CÓDIGO (JOGADOR) ---
         document.getElementById('btn-open-resgatar').addEventListener('click', () => { sfx.init(); document.getElementById('input-codigo-resgate').value = ''; document.getElementById('resgatar-codigo-menu').style.display = 'flex'; });
@@ -415,7 +375,7 @@
         }
 
 
-        // --- 1. SISTEMA DE CADASTRO, LOGIN E RECUPERAÇÃO DE CONTA ---
+        // --- 1. SISTEMA DE CADASTRO, LOGIN E CRIAÇÃO DE NICK ---
         let usuariosDB = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
         let jogadorAtual = localStorage.getItem('ff2d_current_user') || null;
 
@@ -442,53 +402,115 @@
 
         function cadastrarConta() {
             sfx.init();
-            let nick = document.getElementById('input-nick').value.trim();
+            let email = document.getElementById('input-email').value.trim().toLowerCase();
             let senha = document.getElementById('input-senha').value.trim();
-            if (nick.length < 3) return mostrarMsgLogin("O Nick precisa ter no mínimo 3 letras!");
+            
+            if (!email || !email.includes("@")) return mostrarMsgLogin("Digite um e-mail válido!");
             if (senha.length < 4) return mostrarMsgLogin("A senha precisa ter no mínimo 4 caracteres!");
-            let nickChave = nick.toLowerCase();
-            if (usuariosDB[nickChave]) return mostrarMsgLogin("Esse Nick já está sendo usado! Escolha outro.");
-            let codigoRecup = "REC-" + Math.floor(100000 + Math.random() * 900000);
-            usuariosDB[nickChave] = { nickOriginal: nick, senha: btoa(senha), codigoSeguranca: codigoRecup }; 
+            
+            if (usuariosDB[email]) return mostrarMsgLogin("Esse E-mail já está cadastrado!");
+            
+            let ultimoID = parseInt(localStorage.getItem('ff2d_last_id')) || 0;
+            let novoID = (ultimoID + 1).toString().padStart(10, '0'); 
+            localStorage.setItem('ff2d_last_id', ultimoID + 1);
+            
+            usuariosDB[email] = { 
+                email: email, 
+                senha: btoa(senha), 
+                nickOriginal: null, 
+                id: novoID,
+                isVIP: false,
+                banidoAte: 0
+            }; 
+            
             localStorage.setItem('ff2d_users_db', JSON.stringify(usuariosDB));
-            alert(`CONTA CRIADA COM SUCESSO!\n\n⚠️ CÓDIGO DE RECUPERAÇÃO:\n👉 ${codigoRecup}`);
-            logarSucesso(nickChave);
+            alert(`CONTA CRIADA!\n\nSeu E-mail: ${email}\nID Primário: ${novoID}\n\nAgora você vai criar o Nick do seu personagem!`);
+            logarSucesso(email);
         }
 
         function entrarConta() {
             sfx.init();
-            let nick = document.getElementById('input-nick').value.trim().toLowerCase();
+            let email = document.getElementById('input-email').value.trim().toLowerCase();
             let senha = document.getElementById('input-senha').value.trim();
-            if (!usuariosDB[nick]) return mostrarMsgLogin("Nick não encontrado! Faça o cadastro.");
-            if (atob(usuariosDB[nick].senha) !== senha) return mostrarMsgLogin("Senha incorreta!");
-            logarSucesso(nick);
+            if (!usuariosDB[email]) return mostrarMsgLogin("E-mail não encontrado! Faça o cadastro.");
+            if (atob(usuariosDB[email].senha) !== senha) return mostrarMsgLogin("Senha incorreta!");
+            logarSucesso(email);
         }
 
-        function executingRecuperacaoSenha() {
+        function executarRecuperacaoSenha() {
             sfx.init();
-            let nick = document.getElementById('input-recup-nick').value.trim().toLowerCase();
-            let codigo = document.getElementById('input-recup-codigo').value.trim();
+            let emailDigitado = document.getElementById('input-recup-codigo').value.trim().toLowerCase();
             let novaSenha = document.getElementById('input-recup-nova-senha').value.trim();
-            if(!nick || !codigo || !novaSenha) return mostrarMsgRecup("Preencha todos os campos!");
-            if(!usuariosDB[nick]) return mostrarMsgRecup("Usuário não encontrado!");
+            if(!emailDigitado || !novaSenha) return mostrarMsgRecup("Preencha todos os campos!");
+            if(!usuariosDB[emailDigitado]) return mostrarMsgRecup("E-mail não encontrado!");
             if(novaSenha.length < 4) return mostrarMsgRecup("A nova senha precisa ter no mínimo 4 letras!");
-            if(usuariosDB[nick].codigoSeguranca === codigo) {
-                usuariosDB[nick].senha = btoa(novaSenha);
-                localStorage.setItem('ff2d_users_db', JSON.stringify(usuariosDB));
-                alert("✅ Senha alterada com sucesso!");
-                abrirSubTelaLogin('main');
-                document.getElementById('input-senha').value = novaSenha;
-                document.getElementById('input-nick').value = usuariosDB[nick].nickOriginal;
-            } else { mostrarMsgRecup("Código de segurança inválido!"); }
+            
+            usuariosDB[emailDigitado].senha = btoa(novaSenha);
+            localStorage.setItem('ff2d_users_db', JSON.stringify(usuariosDB));
+            alert("✅ Senha alterada com sucesso!");
+            abrirSubTelaLogin('main');
+            document.getElementById('input-senha').value = novaSenha;
+            document.getElementById('input-email').value = emailDigitado;
         }
 
-        function logarSucesso(nickChave) {
-            localStorage.setItem('ff2d_current_user', nickChave);
-            jogadorAtual = nickChave;
-            loadUserGameProgress(nickChave);
+        // 🔥 A MÁGICA ACONTECE AQUI (A PONTE COM O RENDER) 🔥
+        async function logarSucesso(emailChave) {
+            localStorage.setItem('ff2d_current_user', emailChave);
+            jogadorAtual = emailChave;
+            
+            usuariosDB = JSON.parse(localStorage.getItem('ff2d_users_db')) || {}; 
+            let dadosUser = usuariosDB[emailChave];
+
+            // SE A CONTA NÃO TEM NICK, PERGUNTA AGORA!
+            if (!dadosUser.nickOriginal) {
+                let novoNick = prompt("BEM-VINDO! Qual será o Nick do seu jogador? (Máx: 12 letras)");
+                if (!novoNick || novoNick.trim().length < 3) {
+                    alert("O Nick precisa ter no mínimo 3 letras para começar a jogar!");
+                    fazerLogout();
+                    return;
+                }
+                dadosUser.nickOriginal = novoNick.trim();
+                localStorage.setItem('ff2d_users_db', JSON.stringify(usuariosDB));
+            }
+
+            // AVISAR O SERVIDOR QUE ESSE JOGADOR EXISTE/ENTROU
+            try {
+                document.getElementById('login-msg').innerText = "Sincronizando com o servidor...";
+                document.getElementById('login-msg').style.color = "#f1c40f";
+                
+                let resposta = await fetch(`${URL_SERVIDOR_RENDER}/jogo/sincronizar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: dadosUser.id, nick: dadosUser.nickOriginal, email: dadosUser.email })
+                });
+                let resultado = await resposta.json();
+                
+                if (resultado.sucesso) {
+                    // SE O ADM BANIU ELE, BLOQUEIA AQUI!
+                    if (resultado.statusBan && resultado.statusBan !== "✅ Limpo") {
+                        alert("⛔ ACESSO NEGADO ⛔\nSua conta foi punida pelo Sistema X7!\nMotivo: " + resultado.statusBan);
+                        fazerLogout();
+                        return;
+                    }
+                    // ATUALIZA O STATUS VIP DO JOGADOR
+                    dadosUser.isVIP = resultado.isVIP;
+                    usuariosDB[emailChave] = dadosUser;
+                    localStorage.setItem('ff2d_users_db', JSON.stringify(usuariosDB));
+                }
+            } catch(e) {
+                console.log("Servidor Render offline ou demorando, liberando acesso local.");
+            }
+            
+            document.getElementById('login-msg').innerText = "";
+
+            loadUserGameProgress(emailChave);
+            
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('start-menu').style.display = 'flex';
-            document.getElementById('player-welcome').innerText = "Bem-vindo, " + usuariosDB[nickChave].nickOriginal + "!";
+
+            let tagVIP = dadosUser.isVIP ? " 🅅 " : "";
+            document.getElementById('player-welcome').innerHTML = `${tagVIP} ${dadosUser.nickOriginal} ${tagVIP} <br> <span style="font-size: 14px; color: #aaa; font-weight: normal;">ID: ${dadosUser.id}</span>`;
+            
             sfx.init(); 
         }
 
@@ -498,19 +520,19 @@
             jogadorAtual = null;
             document.getElementById('start-menu').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('input-nick').value = '';
+            document.getElementById('input-email').value = '';
             document.getElementById('input-senha').value = '';
             abrirSubTelaLogin('main');
         }
 
-        function loadUserGameProgress(nickChave) {
-            pStats = JSON.parse(localStorage.getItem('ff2d_stats_' + nickChave)) || { baseDmg: 1.0, baseDef: 1.0, maxHp: 100, dmgLvl: 1, defLvl: 1, hpLvl: 1 };
-            userGold = parseInt(localStorage.getItem('ff2d_gold_' + nickChave)) || 0;
-            userFrags = parseInt(localStorage.getItem('ff2d_frags_' + nickChave)) || 0; 
-            currentLevel = parseInt(localStorage.getItem('ff2d_checkpoint_' + nickChave)) || 1;
-            ownedSkins = JSON.parse(localStorage.getItem('ff2d_owned_skins_' + nickChave)) || ['default'];
-            equippedSkin = localStorage.getItem('ff2d_equipped_skin_' + nickChave) || 'default';
-            ownedWeapons = JSON.parse(localStorage.getItem('ff2d_owned_weapons_' + nickChave)) || ['pistol'];
+        function loadUserGameProgress(emailChave) {
+            pStats = JSON.parse(localStorage.getItem('ff2d_stats_' + emailChave)) || { baseDmg: 1.0, baseDef: 1.0, maxHp: 100, dmgLvl: 1, defLvl: 1, hpLvl: 1 };
+            userGold = parseInt(localStorage.getItem('ff2d_gold_' + emailChave)) || 0;
+            userFrags = parseInt(localStorage.getItem('ff2d_frags_' + emailChave)) || 0; 
+            currentLevel = parseInt(localStorage.getItem('ff2d_checkpoint_' + emailChave)) || 1;
+            ownedSkins = JSON.parse(localStorage.getItem('ff2d_owned_skins_' + emailChave)) || ['default'];
+            equippedSkin = localStorage.getItem('ff2d_equipped_skin_' + emailChave) || 'default';
+            ownedWeapons = JSON.parse(localStorage.getItem('ff2d_owned_weapons_' + emailChave)) || ['pistol'];
             currentWeaponIndex = 0;
             updateMenus();
         }
@@ -674,11 +696,24 @@
             }
         }
         
-        function renderShopList() { const container = document.getElementById('shop-items-list'); container.innerHTML = ''; let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; db.forEach(item => { const isOwned = (currentShopTab === 'skins' ? ownedSkins : ownedWeapons).includes(item.id); const isEquipped = currentShopTab === 'skins' && equippedSkin === item.id; let btnText = isEquipped ? "EQUIPADO" : (isOwned ? "EQUIPAR" : "COMPRAR"); container.insertAdjacentHTML('beforeend', `<div class="shop-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}"><h3>${item.name}</h3><div style="color:#f1c40f; font-size:12px; margin-bottom:8px;">${isOwned ? 'Disponível' : '🪙 ' + item.price}</div><button onclick="${currentShopTab === 'skins' ? `buySkin('${item.id}', ${item.price})` : `buyWeapon('${item.id}', ${item.price})`}">${btnText}</button></div>`); }); }
-        window.buySkin = function(id, price) { sfx.init(); if (ownedSkins.includes(id)) { equippedSkin = id; saveProgress(); renderShopList(); return; } if (userGold >= price) { userGold -= price; ownedSkins.push(id); equippedSkin = id; saveProgress(); updateMenus(); renderShopList(); } };
-        window.buyWeapon = function(id, price) { sfx.init(); if (ownedWeapons.includes(id)) return; if (userGold >= price) { userGold -= price; ownedWeapons.push(id); saveProgress(); updateMenus(); renderShopList(); } };
+        function renderShopList() { const container = document.getElementById('shop-items-list'); container.innerHTML = ''; let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; db.forEach(item => { const isOwned = (currentShopTab === 'skins' ? ownedSkins : ownedWeapons).includes(item.id); const isEquipped = currentShopTab === 'skins' && equippedSkin === item.id; let btnText = isEquipped ? "EQUIPADO" : (isOwned ? "EQUIPAR" : "COMPRAR"); let moedaTexto = currentShopTab === 'skins' ? '💎 ' : '🪙 '; container.insertAdjacentHTML('beforeend', `<div class="shop-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}"><h3>${item.name}</h3><div style="color:#f1c40f; font-size:12px; margin-bottom:8px;">${isOwned ? 'Disponível' : moedaTexto + item.price}</div><button onclick="${currentShopTab === 'skins' ? `buySkin('${item.id}', ${item.price})` : `buyWeapon('${item.id}', ${item.price})`}">${btnText}</button></div>`); }); }
+        window.buySkin = function(id, price) { sfx.init(); if (ownedSkins.includes(id)) { equippedSkin = id; saveProgress(); renderShopList(); return; } if (userFrags >= price) { userFrags -= price; ownedSkins.push(id); equippedSkin = id; saveProgress(); updateMenus(); renderShopList(); } else { alert("Você não tem diamantes suficientes!"); } };
+        window.buyWeapon = function(id, price) { sfx.init(); if (ownedWeapons.includes(id)) return; if (userGold >= price) { userGold -= price; ownedWeapons.push(id); saveProgress(); updateMenus(); renderShopList(); } else { alert("Você não tem ouro suficiente!"); } };
         function updateMenus() { document.getElementById('menu-gold').innerText = userGold; document.getElementById('menu-frags').innerText = userFrags; document.getElementById('upg-gold').innerText = userGold; document.getElementById('upg-frags').innerText = userFrags; document.getElementById('menu-level').innerText = currentLevel; document.getElementById('lvl-dmg').innerText = pStats.dmgLvl; document.getElementById('lvl-def').innerText = pStats.defLvl; document.getElementById('lvl-hp').innerText = pStats.hpLvl; }
-        window.upgradeStat = function(type) { let costGold = type==='dmg'?500:type==='def'?400:600; let costFrag = type==='dmg'?5:type==='def'?4:6; if(userGold >= costGold && userFrags >= costFrag) { userGold -= costGold; userFrags -= costFrag; if(type === 'dmg') { pStats.dmgLvl++; pStats.baseDmg += 0.2; } if(type === 'def') { pStats.defLvl++; pStats.baseDef += 0.15; } if(type === 'hp') { pStats.hpLvl++; pStats.maxHp += 20; } saveProgress(); updateMenus(); } }
+        
+        window.upgradeStat = function(type) { 
+            let costGold = type==='dmg'?500:type==='def'?400:600; 
+            if(userGold >= costGold) { 
+                userGold -= costGold; 
+                if(type === 'dmg') { pStats.dmgLvl++; pStats.baseDmg += 0.2; } 
+                if(type === 'def') { pStats.defLvl++; pStats.baseDef += 0.15; } 
+                if(type === 'hp') { pStats.hpLvl++; pStats.maxHp += 20; } 
+                saveProgress(); 
+                updateMenus(); 
+            } else {
+                alert("Você não tem ouro suficiente para este upgrade!");
+            }
+        }
 
         // --- HUD EDITOR ---
         let isEditingHud = false; const hudElementsList = ['btn-left', 'btn-right', 'btn-jump', 'btn-weapon', 'btn-fire', 'btn-skill', 'joystick-base'];
@@ -708,17 +743,35 @@
         function handleJoyStart(e) { if(isEditingHud || player.isDead || controlMode !== 'joystick' || isPaused) return; sfx.init(); joyActive = true; let rect = joyBase.getBoundingClientRect(); joyOrigX = rect.left + rect.width / 2; joyOrigY = rect.top + rect.height / 2; updateJoy(e); } function handleJoyMove(e) { if(!joyActive || isEditingHud || controlMode !== 'joystick' || isPaused) return; updateJoy(e); } function handleJoyEnd(e) { if(isEditingHud || controlMode !== 'joystick' || isPaused) return; joyActive = false; joyStick.style.transform = `translate(0px, 0px)`; moveLeft = false; moveRight = false; } function updateJoy(e) { const ev = e.touches ? e.touches[0] : e; let dx = ev.clientX - joyOrigX; let dy = ev.clientY - joyOrigY; let maxDist = (parseInt(joyBase.style.width) || 120) / 2.2; let dist = Math.sqrt(dx*dx + dy*dy); if(dist > maxDist) { dx = (dx/dist) * maxDist; dy = (dy/dist) * maxDist; } joyStick.style.transform = `translate(${dx}px, ${dy}px)`; if(dx < -15) { moveLeft = true; moveRight = false; } else if (dx > 15) { moveRight = true; moveLeft = false; } else { moveLeft = false; moveRight = false; } }
         joyBase.addEventListener('touchstart', handleJoyStart, {passive: true}); joyBase.addEventListener('touchmove', handleJoyMove, {passive: true}); joyBase.addEventListener('touchend', handleJoyEnd, {passive: true}); joyBase.addEventListener('mousedown', handleJoyStart); window.addEventListener('mousemove', handleJoyMove); window.addEventListener('mouseup', handleJoyEnd);
 
-        // --- ENGINE DO JOGO ---
+        // --- ENGINE DO JOGO COM OS NOVOS ARRAYS ---
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let MAP_WIDTH = 1200; let loopInitialized = false; let cameraX = 0; const GRAVITY = 0.55;
         let botsMortosNaFase = 0; let totalBotsParaChefao = 3; let chefaoAtivo = false;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; MAP_WIDTH = canvas.width / gameZoom; } window.addEventListener('resize', resize); resize();
         let player = { x: 600, y: 0, vy: 0, hp: 100, speed: 4.8, facing: 1, isGrounded: true, state: 'IDLE', frameAtual: 0, contadorAnim: 0, isDead: false, tempoHurt: 0, tempoRoll: 0 };
-        const PLAYER_ANIM_CONFIG = { IDLE:{start:1,end:8,speed:7}, WALK:{start:9,end:24,speed:4}, JUMP:{start:25,end:30,speed:6}, ROLL:{start:31,end:36,speed:5}, CROUCHRUN:{start:37,end:40,speed:5}, DRAWGUN:{start:42,end:43,speed:6}, SHOOT:{start:44,end:48,speed:3}, RELOAD:{start:49,end:54,speed:5}, HURT:{start:55,end:59,speed:4}, ITEM:{start:61,end:66,speed:6}, DEATH:{start:67,end:72,speed:8} };
-        const playerSprites = []; for (let i = 1; i <= 72; i++) { const img = new Image(); img.src = `img/sprite_${String(i).padStart(2, '0')}.png`; playerSprites.push(img); }
+        
+        // MAPEAMENTO DAS SUAS SEQUÊNCIAS EXATAS
+        const animacaoSprites = {
+            'RUN':   [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n => n - 1), // Correndo
+            'SHOOT': [26, 30].map(n => n - 1), // Atirando
+            'JUMP':  [69, 45, 52, 53, 57, 58, 59, 60, 61, 65, 27, 28].map(n => n - 1), // Pulando
+            'DEATH': [7, 68, 64, 11, 15, 19, 23].map(n => n - 1), // Morrendo
+            'IDLE':  [81, 82, 83, 84, 85, 86, 87, 88, 70, 71, 72, 73, 74, 75, 77, 78, 79, 80].map(n => n - 1), // Parado respirando
+            'FX':    [1, 2, 3, 13, 16, 17, 18, 20, 21, 22, 38, 46, 47, 49, 50, 51, 54, 55, 56, 62, 63, 66].map(n => n - 1), // Outras poses / Dano
+            'AIM':   [67, 39, 40, 41, 42, 10, 12, 14].map(n => n - 1) // Parado mirando (salvo caso precise no futuro)
+        };
+        
+        const PLAYER_ANIM_SPEED = { 'IDLE': 6, 'RUN': 4, 'JUMP': 5, 'SHOOT': 5, 'DEATH': 8, 'FX': 4 };
+
+        const playerSprites = []; 
+        for (let i = 1; i <= 88; i++) { 
+            const img = new Image(); 
+            img.src = `img/free.x${i}.png`; 
+            playerSprites.push(img); 
+        }
 
         const BOSS1_ANIM_CONFIG = { WALK: {start:5, end:9, speed:5}, SHOOT: {start:14, end:17, speed:4}, IDLE: {start:1, end:4, speed:6}, SPECIAL: {start:14, end:17, speed:4} }; const nomesBoss1 = ["mtf_nick_sprite_01.png", "mtf_nick_sprite_02.png", "mtf_nick_sprite_03.png", "mtf_nick_sprite_04.png", "mtf_nick_sprite_06.png", "mtf_nick_sprite_07.png", "mtf_nick_sprite_08.png", "mtf_nick_sprite_09.png", "mtf_nick_sprite_10.png", "mtf_nick_sprite_11.png", "mtf_nick_sprite_12.png", "mtf_nick_sprite_13.png", "mtf_nick_sprite_14.png", "mtf_nick_sprite_15.png", "mtf_nick_sprite_16.png", "mtf_nick_sprite_18.png", "mtf_nick_sprite_19.png", "mtf_nick_sprite_20.png", "mtf_nick_sprite_21.png", "mtf_nick_sprite_22.png", "mtf_nick_sprite_23.png", "mtf_nick_sprite_24.png", "mtf_nick_sprite_25.png", "mtf_nick_sprite_26.png", "mtf_nick_sprite_27.png", "mtf_nick_sprite_28.png", "mtf_nick_sprite_29.png"]; const boss1Sprites = []; nomesBoss1.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss1Sprites.push(img); });
-        const BOSS2_ANIM_CONFIG = { WALK: {start:1, end:6, speed:5}, RUN: {start:7, end:12, speed:4}, SHOOT: {start:13, end:18, speed:4}, SPECIAL: {start:19, end:22, speed:4}, FIRE: {start:23, border:24, speed:4}, DEATH: {start:25, end:36, speed:6}, IDLE: {start:1, end:1, speed:6} }; const boss2Sprites = []; for (let i = 1; i <= 36; i++) { const img = new Image(); img.src = `img/x${i}.png`; boss2Sprites.push(img); }
+        const BOSS2_ANIM_CONFIG = { WALK: {start:1, end:6, speed:5}, RUN: {start:7, end:12, speed:4}, SHOOT: {start:13, end:18, speed:4}, SPECIAL: {start:19, end:22, speed:4}, FIRE: {start:23, end:24, speed:4}, DEATH: {start:25, end:36, speed:6}, IDLE: {start:1, end:1, speed:6} }; const boss2Sprites = []; for (let i = 1; i <= 36; i++) { const img = new Image(); img.src = `img/x${i}.png`; boss2Sprites.push(img); }
         const BOSS3_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:7, speed:4}, SPECIAL: {start:8, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss3Sprites = []; const nomesBoss3 = ["t_fogo_frame_01.png", "t_fogo_frame_02.png", "t_fogo_frame_03.png", "t_fogo_frame_04.png", "t_fogo_frame_05.png", "t_fogo_frame_06.png", "t_fogo_frame_12.png", "t_fogo_frame_07.png", "t_fogo_frame_08.png", "t_fogo_frame_09.png", "t_fogo_frame_10.png", "t_fogo_frame_11.png"]; nomesBoss3.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss3Sprites.push(img); });
         const BOSS4_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:7, speed:4}, SPECIAL: {start:8, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss4Sprites = []; const nomesBoss4 = ["t_gelo_frame_01.png", "t_gelo_frame_02.png", "t_gelo_frame_03.png", "t_gelo_frame_04.png", "t_gelo_frame_05.png", "t_gelo_frame_06.png", "t_gelo_frame_12.png", "t_gelo_frame_07.png", "t_gelo_frame_08.png", "t_gelo_frame_09.png", "t_gelo_frame_10.png", "t_gelo_frame_11.png"]; nomesBoss4.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss4Sprites.push(img); });
         const BOSS5_ANIM_CONFIG = { WALK: {start:1, end:5, speed:5}, RUN: {start:1, end:5, speed:5}, SHOOT: {start:6, end:8, speed:4}, SPECIAL: {start:9, end:12, speed:4}, IDLE: {start:1, end:1, speed:6} }; const boss5Sprites = []; const nomesBoss5 = ["t_lava_frame_01.png", "t_lava_frame_02.png", "t_lava_frame_03.png", "t_lava_frame_04.png", "t_lava_frame_05.png", "t_lava_frame_06.png", "t_lava_frame_11.png", "t_lava_frame_12.png", "t_lava_frame_07.png", "t_lava_frame_08.png", "t_lava_frame_09.png", "t_lava_frame_10.png"]; nomesBoss5.forEach(nome => { const img = new Image(); img.src = `img/${nome}`; boss5Sprites.push(img); });
@@ -727,7 +780,6 @@
         const enemySprites = []; for (let i = 1; i <= 28; i++) { const img = new Image(); img.src = `img/sprite_${String(i).padStart(3, '0')}.png`; enemySprites.push(img); }
         const ENEMY_ANIM_CONFIG = { WALK:{start:1,end:8,speed:6}, SHOOT:{start:9,end:12,speed:5}, COMBAT:{start:13,end:16,speed:6}, SHOOT2:{start:17,end:20,speed:5}, COMBAT2:{start:21,end:28,speed:6} };
 
-        // --- CORREÇÃO DO CAMINHO DOS SPRITES DE FUNDO AQUI ---
         const backgroundImages = {}; for (let i = 1; i <= 50; i++) { const bgImg = new Image(); bgImg.src = `img/Sprite_X${i}.png`; backgroundImages[i] = bgImg; }
         const nomesObstaculos = ["obstacle_01_caixa_militar_pequena.png", "obstacle_02_caixa_militar_reforcada.png", "obstacle_03_barril_metalico.png", "obstacle_04_barril_explosivo.png", "obstacle_05_saco_areia_baixo.png", "obstacle_06_saco_areia_alto.png", "obstacle_07_barricada_metal.png", "obstacle_08_barreira_futurista.png", "obstacle_09_pedra_escura_pequena.png", "obstacle_10_pedra_escura_grande.png", "obstacle_11_caixote_tecnologico.png", "obstacle_12_gerador_danificado.png", "obstacle_13_mina_terrestre.png", "obstacle_14_espinhos_metalicos.png", "obstacle_15_placa_quebrada.png", "obstacle_16_poste_destruido.png", "obstacle_17_plataforma_curta.png", "obstacle_18_plataforma_media.png", "obstacle_19_plataforma_alta.png", "obstacle_20_container_pequeno.png"];
         const imagensObstaculos = []; nomesObstaculos.forEach(nome => { let img = new Image(); img.src = `img/${nome}`; imagensObstaculos.push(img); });
@@ -752,7 +804,27 @@
             if (!player.isDead) { let actualSpeed = player.speed; if (Date.now() < player.tempoRoll) actualSpeed *= 1.4; let nextX = player.x; if(moveLeft) { nextX -= actualSpeed; player.facing = -1; } if(moveRight) { nextX += actualSpeed; player.facing = 1; } let hitWall = false; for(let obs of obstacles) { let hitH = obs.h - 30; if(nextX + 13 > obs.x && nextX - 13 < obs.x + obs.w && player.y < hitH) { hitWall = true; break; } } if(!hitWall) player.x = nextX; if(player.x < 0) player.x = MAP_WIDTH; if(player.x > MAP_WIDTH) player.x = 0; }
             player.vy -= GRAVITY; player.y += player.vy; let landed = false; if(player.y <= 0) { player.y = 0; player.vy = 0; landed = true; } else { for(let obs of obstacles) { let hitH = obs.h - 30; if(player.x + 13 > obs.x && player.x - 13 < obs.x + obs.w && player.y <= hitH && player.y - player.vy >= hitH - 20) { player.y = hitH; player.vy = 0; landed = true; break; } } } player.isGrounded = landed; cameraX = 0; 
             let novoEstado = determinarEstadoDeAnimacao(); if (player.state !== novoEstado) { player.state = novoEstado; player.frameAtual = 0; player.contadorAnim = 0; }
-            let configAnim = PLAYER_ANIM_CONFIG[player.state]; player.contadorAnim++; if (player.contadorAnim >= configAnim.speed) { let totalFrames = configAnim.end - configAnim.start + 1; if (player.state === 'DEATH') { if (player.frameAtual < totalFrames - 1) player.frameAtual++; else executingMorteReal(); } else { player.frameAtual = (player.frameAtual + 1) % totalFrames; } player.contadorAnim = 0; }
+            
+            // INTEGRAÇÃO DOS NOVOS SPRITES NO UPDATE
+            let stateKey = player.state; 
+            if (stateKey === 'WALK' || stateKey === 'CROUCHRUN') stateKey = 'RUN'; 
+            if (stateKey === 'ROLL') stateKey = 'JUMP'; 
+            if (stateKey === 'HURT') stateKey = 'FX'; 
+            if (!animacaoSprites[stateKey]) stateKey = 'IDLE';
+            let currentAnimSpeed = PLAYER_ANIM_SPEED[stateKey] || 5;
+
+            player.contadorAnim++; 
+            if (player.contadorAnim >= currentAnimSpeed) { 
+                let totalFrames = animacaoSprites[stateKey].length; 
+                if (player.state === 'DEATH') { 
+                    if (player.frameAtual < totalFrames - 1) player.frameAtual++; 
+                    else executingMorteReal(); 
+                } else { 
+                    player.frameAtual = (player.frameAtual + 1) % totalFrames; 
+                } 
+                player.contadorAnim = 0; 
+            }
+
             if(!player.isDead) { let activeWeapons = weaponsDB.filter(w=>ownedWeapons.includes(w.id)); let wp = activeWeapons[currentWeaponIndex] || weaponsDB[0]; if(isFiring && Date.now() - lastShot > wp.fireRate) { sfx.shoot(); for(let i=0; i<wp.bps; i++) { let spread = (Math.random()-0.5)*4; bullets.push({x: player.x+(42*player.facing), y: player.y+34+spread, vx: wp.speed*player.facing, vy: 0, dmg: wp.dmg * pStats.baseDmg, color: wp.color, owner: 'player'}); } lastShot = Date.now(); } }
             for (let i = bullets.length - 1; i >= 0; i--) { let b = bullets[i]; if (b.homing && !player.isDead) { let dx = player.x - b.x; let dy = (player.y + 35) - b.y; let dist = Math.sqrt(dx*dx + dy*dy); if (dist > 0) { b.vx = (dx / dist) * b.speed; b.vy = (dy / dist) * b.speed; } } b.x += b.vx; if(b.vy) b.y += b.vy; if(b.x < 0 || b.x > MAP_WIDTH) { bullets.splice(i, 1); continue; } let hitObstacle = false; const gy = (canvas.height / gameZoom) * 0.75 - 20; let realBulletY = gy - b.y; for (let obs of obstacles) { let realObsTop = gy - (obs.h - 30); if (b.x >= obs.x && b.x <= obs.x + obs.w && realBulletY >= realObsTop && realBulletY <= gy) { hitObstacle = true; break; } } if (hitObstacle) { bullets.splice(i, 1); continue; } if(b.owner === 'player') { enemies.forEach(e => { let scale = e.scale || 1; if(Math.abs(b.x - e.x) < 24*scale && b.y >= e.y && b.y <= e.y + 80*scale) { e.hp -= b.dmg; bullets.splice(i,1); } }); } else { if(!player.isDead && Math.abs(b.x - player.x) < 20 && b.y >= player.y && b.y <= player.y + 75) { player.hp -= b.dmg / pStats.baseDef; bullets.splice(i,1); if(Date.now() > player.tempoHurt) { player.tempoHurt = Date.now() + 250; sfx.hurt(); } } } }
 
@@ -777,7 +849,28 @@
                 let eConfigAnim = ENEMY_ANIM_CONFIG[e.state] || ENEMY_ANIM_CONFIG['WALK'];
                 if (e.type === 'boss') { if (e.bossSpriteId === 1) eConfigAnim = BOSS1_ANIM_CONFIG[e.state] || BOSS1_ANIM_CONFIG['WALK']; else if (e.bossSpriteId === 2) eConfigAnim = BOSS2_ANIM_CONFIG[e.state] || BOSS2_ANIM_CONFIG['RUN']; else if (e.bossSpriteId === 3) eConfigAnim = BOSS3_ANIM_CONFIG[e.state] || BOSS3_ANIM_CONFIG['RUN']; else if (e.bossSpriteId === 4) eConfigAnim = BOSS4_ANIM_CONFIG[e.state] || BOSS4_ANIM_CONFIG['RUN']; else if (e.bossSpriteId === 5) eConfigAnim = BOSS5_ANIM_CONFIG[e.state] || BOSS5_ANIM_CONFIG['RUN']; else if (e.bossSpriteId === 6) eConfigAnim = BOSS6_ANIM_CONFIG[e.state] || BOSS6_ANIM_CONFIG['RUN']; else if (e.bossSpriteId === 7) eConfigAnim = BOSS7_ANIM_CONFIG[e.state] || BOSS7_ANIM_CONFIG['RUN']; }
                 e.contadorAnim++; if (e.contadorAnim >= eConfigAnim.speed) { let totalFrames = eConfigAnim.end - eConfigAnim.start + 1; e.frameAtual = (e.frameAtual + 1) % totalFrames; e.contadorAnim = 0; }
-                if(e.hp <= 0) { if(e.type === 'bot') { botsMortosNaFase++; userGold += 15; if(Math.random() > 0.65) drops.push({x: e.x, y: e.y, type: 'frag'}); enemies.splice(i,1); let metaTotal = calcularMetaDeBots(currentLevel); if (botsMortosNaFase + enemies.length < metaTotal) { while(enemies.length < obterMaxBotsSimultaneos(currentLevel) && (botsMortosNaFase + enemies.length < metaTotal)) { spawnSingleBot(currentLevel); } } } else { userGold += 250; userFrags += 15; drops.push({ x: e.x, y: e.y, type: 'weapon' }); enemies.splice(i,1); } saveProgress(); updateMenus(); }
+                
+                if(e.hp <= 0) { 
+                    if(e.type === 'bot') { 
+                        botsMortosNaFase++; 
+                        userGold += 15; 
+                        if(Math.random() > 0.85) drops.push({x: e.x, y: e.y, type: 'weapon'}); 
+                        enemies.splice(i,1); 
+                        let metaTotal = calcularMetaDeBots(currentLevel); 
+                        if (botsMortosNaFase + enemies.length < metaTotal) { 
+                            while(enemies.length < obterMaxBotsSimultaneos(currentLevel) && (botsMortosNaFase + enemies.length < metaTotal)) { 
+                                spawnSingleBot(currentLevel); 
+                            } 
+                        } 
+                    } else { 
+                        userGold += 250; 
+                        userFrags += 15; 
+                        drops.push({ x: e.x, y: e.y, type: 'weapon' }); 
+                        enemies.splice(i,1); 
+                    } 
+                    saveProgress(); 
+                    updateMenus(); 
+                }
             });
 
             drops.forEach((d, i) => { if(Math.abs(player.x - d.x) < 30 && Math.abs(player.y - d.y) < 30) { if (d.type === 'weapon') { let naoAdquiridas = weaponsDB.filter(w => !ownedWeapons.includes(w.id)); if (naoAdquiridas.length > 0) { let sorteada = naoAdquiridas[Math.floor(Math.random() * naoAdquiridas.length)].id; ownedWeapons.push(sorteada); saveProgress(); } } else { userFrags++; } saveProgress(); updateMenus(); drops.splice(i,1); } });
@@ -789,7 +882,56 @@
 
         function executingMorteReal() { playerLives--; document.getElementById('lives-bar').innerText = `❤️ VIDAS: ${playerLives}`; if(playerLives <= 0) { gameRunning = false; saveProgress(); document.getElementById('game-ui').style.display='none'; document.getElementById('start-menu').style.display='flex'; } else { player.hp = pStats.maxHp; player.x = MAP_WIDTH / 2; player.y = 0; player.isDead = false; player.state = 'IDLE'; player.frameAtual = 0; } }
 
-        function drawPlayerFromSpritesheet(x, y, facing) { const gy = (canvas.height / gameZoom) * 0.75 - 20; let by = gy - y; let configAnim = PLAYER_ANIM_CONFIG[player.state]; let numeroDoSprite = configAnim.start + player.frameAtual; if (numeroDoSprite > 72) numeroDoSprite = 72; let imgNode = playerSprites[numeroDoSprite - 1]; let skinEquipada = skinsDB.find(s => s.id === equippedSkin); if (skinEquipada && skinEquipada.aura && !player.isDead) { ctx.fillStyle = skinEquipada.aura; ctx.beginPath(); ctx.arc(x, by - 36, 32, 0, Math.PI * 2); ctx.fill(); } if (imgNode && imgNode.complete && imgNode.naturalWidth > 0) { ctx.save(); ctx.translate(x, by); ctx.scale(facing, 1); ctx.drawImage(imgNode, -37.5, -75, 75, 75); ctx.restore(); } else { ctx.fillStyle = player.isDead ? "#555" : "#2ecc71"; ctx.fillRect(x - 15, by - 65, 30, 65); } }
+        function drawPlayerFromSpritesheet(x, y, facing) { 
+            const gy = (canvas.height / gameZoom) * 0.75 - 20; 
+            let by = gy - y; 
+            
+            // LÓGICA DE SPRITES CORRIGIDA PARA OS ARRAYS
+            let stateKey = player.state; 
+            if (stateKey === 'WALK' || stateKey === 'CROUCHRUN') stateKey = 'RUN'; 
+            if (stateKey === 'ROLL') stateKey = 'JUMP'; 
+            if (stateKey === 'HURT') stateKey = 'FX'; 
+            if (!animacaoSprites[stateKey]) stateKey = 'IDLE';
+            
+            let listaFramesAtuais = animacaoSprites[stateKey];
+            let indiceReal = listaFramesAtuais[player.frameAtual];
+            if (indiceReal === undefined) indiceReal = listaFramesAtuais[0];
+            
+            let imgNode = playerSprites[indiceReal];
+            let skinEquipada = skinsDB.find(s => s.id === equippedSkin); 
+            
+            if (skinEquipada && skinEquipada.aura && !player.isDead) { 
+                ctx.fillStyle = skinEquipada.aura; 
+                ctx.beginPath(); 
+                ctx.arc(x, by - 36, 32, 0, Math.PI * 2); 
+                ctx.fill(); 
+            } 
+            
+            if (imgNode && imgNode.complete && imgNode.naturalWidth > 0) { 
+                ctx.save(); 
+                ctx.translate(x, by); 
+                ctx.scale(facing, 1); 
+                ctx.drawImage(imgNode, -37.5, -75, 75, 75); 
+                ctx.restore(); 
+            } else { 
+                ctx.fillStyle = player.isDead ? "#555" : "#2ecc71"; 
+                ctx.fillRect(x - 15, by - 65, 30, 65); 
+            }
+
+            if (!player.isDead && jogadorAtual && usuariosDB[jogadorAtual]) {
+                let dadosUser = usuariosDB[jogadorAtual];
+                let nickExibicao = dadosUser.nickOriginal || "Sobrevivente";
+                ctx.save();
+                ctx.textAlign = "center";
+                if (dadosUser.isVIP) {
+                    let coresNeon = ['#f1c40f', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71', '#ffffff'];
+                    let corPiscante = coresNeon[Math.floor((Date.now() / 100) % coresNeon.length)];
+                    ctx.fillStyle = corPiscante; ctx.font = "bold 18px sans-serif"; ctx.lineWidth = 3; ctx.strokeStyle = "#000000"; ctx.strokeText("🅅", x, by - 95); ctx.fillText("🅅", x, by - 95); ctx.fillStyle = "#f1c40f"; 
+                } else { ctx.fillStyle = "#ffffff"; }
+                ctx.font = "bold 12px sans-serif"; ctx.lineWidth = 2; ctx.strokeStyle = "#000000"; ctx.strokeText(nickExibicao, x, by - 80); ctx.fillText(nickExibicao, x, by - 80);
+                ctx.restore();
+            }
+        }
 
         function drawEnemyFromSpritesheet(e) {
             const gy = (canvas.height / gameZoom) * 0.75 - 20; let by = gy - e.y; let scale = e.scale || 1;
