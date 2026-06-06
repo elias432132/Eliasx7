@@ -9,86 +9,74 @@
         * { box-sizing: border-box; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; touch-action: none; }
         body { background-color: #111; color: #fff; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* BLOQUEIO RETRATO */
         #aviso-gire-tela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; text-align: center; padding: 20px; }
         .icone-celular { width: 50px; height: 80px; border: 4px solid white; border-radius: 8px; position: relative; animation: girar 2s infinite ease-in-out; margin-bottom: 20px; }
         .icone-celular::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: white; border-radius: 50%; }
         @keyframes girar { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
         @media (orientation: landscape) { #aviso-gire-tela { display: none !important; } }
 
-        /* SISTEMA DE TELAS */
         .fullscreen-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #111, #2c3e50); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; overflow-y: auto; }
         .hidden { display: none !important; }
 
-        /* LOGIN */
         .login-box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; border: 3px solid #e67e22; box-shadow: 0 0 20px #e67e22; width: 95%; max-width: 420px; }
         .login-box input { width: 100%; padding: 10px; margin-bottom: 12px; background: #222; color: #fff; border: 2px solid #555; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center; touch-action: auto; }
         .login-box input:focus { border-color: #f1c40f; outline: none; }
 
-        /* BOTÕES */
-        .btn-main { background: #e67e22; color: white; border: 3px solid #d35400; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; box-shadow: 0 4px #a83f00; cursor: pointer; }
+        .btn-main { background: #e67e22; color: white; border: 3px solid #d35400; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; box-shadow: 0 4px #a83f00; cursor: pointer; margin: 4px; }
         .btn-main:active { transform: translateY(3px); box-shadow: 0 1px #000; }
-        .btn-sub { background: #34495e; color: white; border: 3px solid #2c3e50; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #1a252f; }
+        .btn-sub { background: #34495e; color: white; border: 3px solid #2c3e50; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #1a252f; margin: 4px; }
         .btn-sub:active { transform: translateY(3px); box-shadow: 0 1px #000; }
         .btn-danger { background: #c0392b !important; border-color: #962d22 !important; box-shadow: 0 4px #6d2018 !important; }
-        .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 15px; max-width: 600px; }
+        .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; max-width: 650px; }
 
-        /* HUD / CONTROLES CUSTOMIZÁVEIS */
-        #hud-editor-msg { display: none; position: absolute; top: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; border: 2px solid #ff9f43; font-weight: bold; z-index: 500; }
-
-        /* MOEDA */
         h1 { color: #ff3f34; font-size: 28px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; margin: 0 0 5px 0; }
         .currency-display { font-size: 15px; color: #f1c40f; font-weight: bold; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .currency-display span { background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; }
 
-        /* PATENTE */
         .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; }
-
-        /* EMBLEMA VIP ESTILIZADO EM HTML (LOBBY) */
-        .badge-vip-html {
-            display: inline-flex; align-items: center; justify-content: center; background: #000000; border: 2px solid #3498db; color: #f1c40f; font-weight: 900; font-family: sans-serif; font-size: 14px; width: 22px; height: 22px; border-radius: 4px; margin-right: 5px; box-shadow: 0 0 8px #3498db; animation: pulsaVipNeon 1s infinite alternate; vertical-align: middle;
-        }
+        .badge-vip-html { display: inline-flex; align-items: center; justify-content: center; background: #000000; border: 2px solid #3498db; color: #f1c40f; font-weight: 900; font-family: sans-serif; font-size: 14px; width: 22px; height: 22px; border-radius: 4px; margin-right: 5px; box-shadow: 0 0 8px #3498db; animation: pulsaVipNeon 1s infinite alternate; vertical-align: middle; }
         @keyframes pulsaVipNeon { 0% { border-color: #3498db; box-shadow: 0 0 4px #3498db; } 100% { border-color: #2ecc71; box-shadow: 0 0 4px #2ecc71; } }
 
-        /* LOJA */
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: #444; color: #fff; border: none; padding: 8px 15px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         .tab-btn.active { background: #e67e22; }
         .shop-container { display: flex; gap: 10px; overflow-x: auto; width: 90%; padding: 10px; background: #222; border-radius: 8px; border: 2px solid #444; margin-bottom: 10px; max-width: 600px; }
         .shop-item { background: #333; border: 2px solid #555; padding: 10px; border-radius: 6px; text-align: center; min-width: 140px; flex-shrink: 0; }
-        .shop-item h3 { margin: 0 0 5px 0; font-size: 13px; }
         .shop-item button { background: #e67e22; color: #fff; border: none; padding: 5px; font-size: 11px; font-weight: bold; width: 100%; border-radius: 4px; cursor: pointer; }
 
-        /* SERVIDORES / MATCHMAKING */
         .server-bar { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; max-width: 400px; }
         .bar-classic { background: linear-gradient(90deg, #2980b9, #3498db); border: 3px solid #1f618d; }
         .bar-ranked { background: linear-gradient(90deg, #c0392b, #e74c3c); border: 3px solid #922b21; }
-        .radar-spinner { width: 60px; height: 60px; border: 6px solid #333; border-top-color: #e67e22; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* CHAT */
+        
         #chat-mensagens { width: 95%; max-width: 600px; height: 180px; background: #222; border: 2px solid #555; border-radius: 8px; overflow-y: auto; padding: 10px; margin-bottom: 10px; text-align: left; font-size: 13px; }
+        #hud-editor-msg { display: none; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 8px; border: 2px solid #ff9f43; color:#ff9f43; font-weight: bold; z-index: 500; text-align:center; }
 
-        /* ARENA */
+        /* ARENA E HUD */
         #game-ui { display: none; width: 100%; height: 100%; position: relative; }
         canvas { display: block; width: 100vw; height: 100vh; }
         #hud-top { position: absolute; top: 8px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 10; pointer-events: none; flex-wrap: wrap; }
-        .hud-item { background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 8px; border: 1px solid #555; font-weight: bold; font-size: 13px; }
+        .hud-item { background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 8px; border: 1px solid #555; font-weight: bold; font-size: 13px; pointer-events: auto; }
+        
+        #btn-menu-ingame { background: #34495e; cursor: pointer; border-color: #f1c40f; color: #f1c40f; }
+        #btn-menu-ingame:active { background: #f1c40f; color: #000; }
+
         #controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
         
-        /* BOTÕES DE CONTROLE ARRUSTÁVEIS */
         .ctrl-btn { position: absolute; pointer-events: auto; background: rgba(51,51,51,0.7); color: white; border: 2px solid #888; border-radius: 50%; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; cursor: pointer; user-select: none; }
+        
+        #joystick-base { position: absolute; pointer-events: auto; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #aaa; display: flex; align-items: center; justify-content: center; z-index: 25; }
+        #joystick-knob { position: absolute; width: 50px; height: 50px; border-radius: 50%; background: rgba(230,126,34,0.8); border: 2px solid #d35400; pointer-events: none; transition: transform 0.05s linear; }
+
+        /* MENU DE PAUSA (DENTRO DA PARTIDA) */
+        #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
 
-<!-- AVISO RETRATO -->
-<div id="aviso-gire-tela">
-    <div class="icone-celular"></div>
-    <h1 style="color:white;font-size:24px;">Gire o celular</h1>
-</div>
+<!-- AVISO TELA -->
+<div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
 
-<!-- TELA 1: LOGIN -->
+<!-- TELA LOGIN -->
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
         <h1>FREE X7<br><span style="color:#f1c40f;font-size:16px;">LOGIN DO SOBREVIVENTE</span></h1>
@@ -98,27 +86,13 @@
             <button class="btn-main" onclick="entrarConta()" style="width:50%;">ENTRAR</button>
             <button class="btn-sub" onclick="cadastrarConta()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
         </div>
-        <button class="btn-sub" onclick="abrirSubLogin('recuperar')" style="width:100%;background:#555;font-size:12px;">ESQUECI MINHA SENHA</button>
         <p id="login-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
-    </div>
-    
-    <div class="login-box" id="box-login-recuperar" style="display:none;border-color:#3498db;box-shadow:0 0 20px #3498db;">
-        <h1 style="font-size:22px;color:#3498db;margin-bottom:10px;">RECUPERAR SENHA</h1>
-        <input type="email" id="input-recup-email" placeholder="E-mail cadastrado" style="touch-action:auto;">
-        <input type="password" id="input-recup-nova" placeholder="Nova Senha" style="touch-action:auto;">
-        <div style="display:flex;gap:10px;">
-            <button class="btn-main" onclick="executarRecuperacao()" style="flex:1;background:#2ecc71;border-color:#27ae60;">ALTERAR</button>
-            <button class="btn-sub" onclick="abrirSubLogin('main')" style="flex:1;">VOLTAR</button>
-        </div>
-        <p id="recup-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
     </div>
 </div>
 
-<!-- TELA 2: LOBBY PRINCIPAL -->
+<!-- LOBBY PRINCIPAL -->
 <div id="start-menu" class="fullscreen-menu hidden">
-    <!-- BOTÃO DE ATUALIZAÇÃO AUTOMÁTICA VIA REPOSITÓRIO -->
     <button class="btn-sub" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR JOGO</button>
-    
     <h1>FREE X7 <span style="color:#f1c40f;font-size:16px;">ONLINE</span></h1>
     <p id="player-welcome" style="color:#2ecc71;font-weight:bold;margin:-5px 0 8px 0;font-size:15px; display:flex; align-items:center; justify-content:center;"></p>
     
@@ -131,16 +105,32 @@
     <div class="menu-buttons">
         <button class="btn-main" style="font-size:18px;padding:14px 30px;" onclick="abrirServidores()">⚔️ JOGAR MULTIPLAYER</button>
         <button class="btn-sub" onclick="abrirMenu('shop-menu')">🛒 LOJA DE DIAMANTES</button>
-        <button class="btn-sub" style="color:#ff9f43; border-color:#ff9f43;" onclick="entrarModoEdicaoHUD()">⚙️ AJUSTAR CONTROLES (HUD)</button>
+        <button class="btn-sub" style="color:#ff9f43; border-color:#ff9f43;" onclick="abrirMenu('settings-menu')">⚙️ CONFIGURAÇÕES (HUD)</button>
         <button class="btn-sub" style="color:#9b59b6;border-color:#8e44ad;" onclick="abrirMenu('chat-global-menu')">💬 CHAT GLOBAL</button>
-        <button class="btn-sub" style="color:#2ecc71;border-color:#27ae60;" onclick="abrirMenu('resgatar-menu')">🎁 RESGATAR CÓDIGO</button>
         <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
         <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR CONTA</button>
         <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
     </div>
 </div>
 
-<!-- TELA 3: LOJA DE DIAMANTES -->
+<!-- MENU CONFIGURAÇÕES (HUD E CONTROLES) -->
+<div id="settings-menu" class="fullscreen-menu hidden">
+    <h2 style="color:#ff9f43;">⚙️ CONFIGURAÇÕES</h2>
+    <div style="background:rgba(0,0,0,0.6); padding:20px; border-radius:10px; border:2px solid #ff9f43; width:90%; max-width:400px; text-align:center;">
+        <h3 style="margin-top:0; color:#fff;">TIPO DE MOVIMENTO</h3>
+        <p style="font-size:12px; color:#ccc;">Escolha entre usar Setas ou Joystick Analógico.</p>
+        <button class="btn-main" style="width:100%; margin-bottom:15px; background:#3498db; border-color:#2980b9;" onclick="mudarTipoControle()">
+            🎮 MODO ATUAL: <span id="label-controle">BOTÕES</span>
+        </button>
+
+        <h3 style="color:#fff;">AJUSTAR TELA</h3>
+        <p style="font-size:12px; color:#ccc;">Mude os botões de lugar para ficar perfeito no seu dedo.</p>
+        <button class="btn-main" style="width:100%; background:#2ecc71; border-color:#27ae60;" onclick="entrarModoEdicaoHUD('lobby')">📏 AJUSTAR HUD</button>
+    </div>
+    <button class="btn-sub btn-danger" style="margin-top:20px;" onclick="fecharMenu('settings-menu')">VOLTAR</button>
+</div>
+
+<!-- LOJA COM PIX ARRUMADO -->
 <div id="shop-menu" class="fullscreen-menu hidden">
     <h2 style="color:#f1c40f;">LOJA DO SERVIDOR</h2>
     <div class="shop-tabs">
@@ -151,16 +141,20 @@
     <div class="shop-container" id="shop-items-list"></div>
     
     <div id="content-diamonds" style="display:none;text-align:center;width:90%;max-width:500px;background:#222;padding:15px;border-radius:10px;border:2px solid #3498db;margin-bottom:10px;">
-        <h3 style="color:#3498db;margin-top:0;">RECARGA DE DIAMANTES VIA PIX</h3>
+        <h3 style="color:#3498db;margin-top:0;">RECARGA VIA PIX</h3>
         <label style="font-size:12px;color:#aaa;">Quantidade de Diamantes (Mínimo: 250):</label>
-        <input type="number" id="input-qtd-dimas" placeholder="Ex: 250" min="250" style="touch-action:auto;" oninput="calcularPrecoDimaReal()">
-        <div id="label-preco-dima" style="color:#2ecc71;font-weight:bold;margin:8px 0;height:20px; font-size:18px;"></div>
-        <button class="btn-main" onclick="gerarPix()" style="background:#2ecc71;border-color:#27ae60;width:90%;">⚡ GERAR PIX COPIA E COLA</button>
+        <input type="number" id="input-qtd-dimas" placeholder="Ex: 250" min="250" style="touch-action:auto; margin-bottom:5px;" oninput="calcularPrecoDimaReal()">
+        <div id="label-preco-dima" style="color:#2ecc71;font-weight:bold;margin:5px 0;height:20px; font-size:18px;">Valor Cobrado: R$ 0,00</div>
+        
+        <button class="btn-main" onclick="gerarPix(event)" style="background:#2ecc71;border-color:#27ae60;width:100%;">⚡ GERAR PIX</button>
+        
+        <textarea id="pix-code-display" style="width:100%; height:60px; margin-top:15px; background:#111; color:#2ecc71; border:2px dashed #2ecc71; border-radius:5px; padding:5px; display:none; resize:none;" readonly></textarea>
+        <button id="btn-copy-pix" class="btn-main" style="display:none; width:100%; margin-top:5px; background:#f1c40f; border-color:#f39c12; color:#000;" onclick="copiarCodigoPix()">📋 COPIAR CÓDIGO PIX</button>
     </div>
     <button class="btn-sub btn-danger" onclick="fecharMenu('shop-menu')">VOLTAR</button>
 </div>
 
-<!-- TELA 4: CHAT GLOBAL -->
+<!-- DEMAIS MENUS (CHAT, UPGRADE, SALVAR) -->
 <div id="chat-global-menu" class="fullscreen-menu hidden">
     <h2>CHAT GLOBAL</h2>
     <div id="chat-mensagens"></div>
@@ -171,15 +165,6 @@
     <button class="btn-sub btn-danger" onclick="fecharMenu('chat-global-menu')">FECHAR</button>
 </div>
 
-<!-- TELA 5: RESGATAR CÓDIGO -->
-<div id="resgatar-menu" class="fullscreen-menu hidden">
-    <h2>RESGATAR CÓDIGO</h2>
-    <input type="text" id="input-codigo-resgate" placeholder="X7-000000" style="width:80%;padding:10px;text-align:center;touch-action:auto;">
-    <button class="btn-main" onclick="processarResgate()" style="margin-top:15px;background:#2ecc71;">🎁 RESGATAR</button>
-    <button class="btn-sub btn-danger" onclick="fecharMenu('resgatar-menu')" style="margin-top:10px;">VOLTAR</button>
-</div>
-
-<!-- TELA 6: UPGRADES -->
 <div id="upgrade-menu" class="fullscreen-menu hidden">
     <h2>UPGRADE</h2>
     <div class="shop-item"><h3>⚔️ DANO (Nv.<span id="lvl-dmg">1</span>)</h3><button onclick="upgradeStat('dmg')">UPAR: 500 🪙</button></div>
@@ -188,16 +173,15 @@
     <button class="btn-sub btn-danger" onclick="fecharMenu('upgrade-menu')" style="margin-top:10px;">FECHAR</button>
 </div>
 
-<!-- TELA 7: SALVAR / RECUPERAR -->
 <div id="saveload-menu" class="fullscreen-menu hidden">
     <h2>RECUPERAR CONTA</h2>
     <textarea id="save-code-input" style="width:80%;height:80px;touch-action:auto;"></textarea><br>
     <button class="btn-main" onclick="gerarCodigoSalvar()">GERAR MEU CÓDIGO</button>
-    <button class="btn-main" onclick="carregarCodigo()">INJECTAR CÓDIGO</button>
+    <button class="btn-main" onclick="carregarCodigo()">INJETAR CÓDIGO</button>
     <button class="btn-sub btn-danger" onclick="fecharMenu('saveload-menu')" style="margin-top:10px;">VOLTAR</button>
 </div>
 
-<!-- TELA 8: SERVIDORES -->
+<!-- SERVIDORES E MODOS OFICIAIS -->
 <div id="server-menu" class="fullscreen-menu hidden">
     <h2>SERVIDORES MULTIPLAYER</h2>
     <div class="server-bar bar-classic" onclick="abrirModos('classico')">🎮 SERVIDOR CLÁSSICO</div>
@@ -205,47 +189,66 @@
     <button class="btn-sub btn-danger" onclick="voltarLobby()">VOLTAR</button>
 </div>
 
-<!-- TELA 9: MODOS -->
 <div id="mode-menu" class="fullscreen-menu hidden">
-    <h2>MODOS DE COMBATE</h2>
-    <p id="info-servidor-escolhido"></p>
-    <div style="display:flex;gap:8px;">
-        <button class="btn-main" onclick="procurarPartida('solo')">👤 SOLO</button>
-        <button class="btn-main" onclick="procurarPartida('duo')">👥 DUO</button>
-        <button class="btn-main" onclick="procurarPartida('squad')">🔥 SQUAD</button>
+    <h2>ESCOLHA O MODO DE JOGO</h2>
+    <p id="info-servidor-escolhido" style="color:#f1c40f;"></p>
+    <div style="display:flex; flex-direction:column; gap:10px; width:90%; max-width:300px;">
+        <button class="btn-main" onclick="procurarPartida('solo')">👤 1 VS 1 (Tirar X1)</button>
+        <button class="btn-main" onclick="procurarPartida('duo')" style="background:#8e44ad; border-color:#732d91;">👥 2 VS 2 (Duo)</button>
+        <button class="btn-main" onclick="procurarPartida('squad')" style="background:#c0392b; border-color:#922b21;">🔥 4 VS 4 (Squad)</button>
     </div>
-    <button class="btn-sub btn-danger" onclick="voltarServidores()" style="margin-top:15px;">VOLTAR</button>
+    <button class="btn-sub btn-danger" onclick="voltarServidores()" style="margin-top:15px; width:90%; max-width:300px;">VOLTAR</button>
 </div>
 
-<!-- TELA 10: MATCHMAKING -->
 <div id="matchmaking-screen" class="fullscreen-menu hidden">
     <div class="radar-spinner"></div>
-    <h2>PROCURANDO RIVAL ONLINE...</h2>
+    <h2 style="color:#f1c40f;">PROCURANDO JOGADORES...</h2>
     <p id="match-info"></p>
     <p id="match-timer">00:00</p>
     <button class="btn-sub btn-danger" onclick="cancelarBusca()">CANCELAR</button>
 </div>
 
-<!-- AVISO DE EDIÇÃO HUD -->
-<div id="hud-editor-msg">MODO EDIÇÃO DE CONTROLES: Arraste os botões e clique na tela para salvar!</div>
+<!-- MENSAGEM DO EDITOR HUD -->
+<div id="hud-editor-msg">MODO EDIÇÃO: Arraste os botões. Clique no fundo da tela para SALVAR!</div>
 
-<!-- ARENA DE COMBATE -->
+<!-- ARENA COM SUPORTE A ANALÓGICO, BOTÕES E MENU INTERNO -->
 <div id="game-ui">
     <div id="hud-top">
         <span class="hud-item" style="color:#3498db;" id="arena-modo">🌐 PVP</span>
         <span class="hud-item" style="color:#e74c3c;" id="arena-hp">❤️ 100</span>
-        <span class="hud-item" id="arena-kills">💀 0</span>
+        <!-- NOVO BOTÃO DE MENU DENTRO DA PARTIDA -->
+        <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
     </div>
+    
     <canvas id="gameCanvas"></canvas>
+    
     <div id="controls">
-        <div class="ctrl-btn" id="btn-left">◀</div>
-        <div class="ctrl-btn" id="btn-right">▶</div>
+        <div id="analog-mode-ui" class="hidden">
+            <div id="joystick-base"><div id="joystick-knob"></div></div>
+        </div>
+        <div id="btn-mode-ui">
+            <div class="ctrl-btn" id="btn-left">◀</div>
+            <div class="ctrl-btn" id="btn-right">▶</div>
+        </div>
         <div class="ctrl-btn" id="btn-jump">PULO</div>
         <div class="ctrl-btn" id="btn-fire" style="background:#e67e22;">TIRO</div>
+    </div>
+
+    <!-- OVERLAY DO MENU DA PARTIDA (PAUSA/QUITAR) -->
+    <div id="menu-partida-overlay" class="hidden">
+        <h2 style="color:#f1c40f; margin-bottom: 20px;">MENU DA PARTIDA</h2>
+        <div style="display:flex; flex-direction:column; gap:10px; width:80%; max-width:300px;">
+            <button class="btn-main" style="background:#e67e22;" onclick="entrarModoEdicaoHUD('partida')">📏 AJUSTAR HUD</button>
+            <button class="btn-main" style="background:#c0392b; border-color:#922b21;" onclick="sairDaPartida()">🚪 QUITAR / SAIR DA SALA</button>
+            <button class="btn-sub" style="margin-top:20px;" onclick="fecharMenuPartida()">▶️ VOLTAR PARA O COMBATE</button>
+        </div>
     </div>
 </div>
 
 <script>
+// ============================================
+// CONEXÃO
+// ============================================
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
 try { socket = io(URL_SERVIDOR); } catch(e) { console.warn("Erro de WebSocket"); }
@@ -255,19 +258,35 @@ let meuEmail     = localStorage.getItem('ff2d_current_user')          || null;
 let meuPerfil    = null;
 let currentShopTab = 'skins';
 
-// COORDENADAS PADRÃO DO HUD DOS CONTROLES CUSTOMIZÁVEIS
+// ============================================
+// CONFIGURAÇÃO HUD E ANALÓGICO
+// ============================================
+let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'botoes';
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {
     left:  { bottom: 40,  left: 40 },
     right: { bottom: 40,  left: 120 },
     jump:  { bottom: 120, right: 80 },
-    fire:  { bottom: 40,  right: 40 }
+    fire:  { bottom: 40,  right: 40 },
+    analog: { bottom: 40, left: 40 }
 };
 let modoEdicaoHUDActive = false;
+let origemEdicaoHUD = 'lobby';
 
-// CARREGA POSIÇÕES DO HUD
 function aplicarLayoutHUD() {
+    let label = document.getElementById('label-controle');
+    if(label) label.innerText = tipoControle.toUpperCase();
+
+    if (tipoControle === 'analogico') {
+        document.getElementById('btn-mode-ui').classList.add('hidden');
+        document.getElementById('analog-mode-ui').classList.remove('hidden');
+    } else {
+        document.getElementById('btn-mode-ui').classList.remove('hidden');
+        document.getElementById('analog-mode-ui').classList.add('hidden');
+    }
+
     Object.entries(hudPosicoes).forEach(([id, pos]) => {
-        let el = document.getElementById('btn-' + id);
+        let elId = id === 'analog' ? 'joystick-base' : 'btn-' + id;
+        let el = document.getElementById(elId);
         if (el) {
             el.style.top = "auto"; el.style.bottom = "auto"; el.style.left = "auto"; el.style.right = "auto";
             if (pos.bottom !== undefined) el.style.bottom = pos.bottom + "px";
@@ -277,24 +296,39 @@ function aplicarLayoutHUD() {
     });
 }
 
-function entrarModoEdicaoHUD() {
+function mudarTipoControle() {
+    tipoControle = (tipoControle === 'botoes') ? 'analogico' : 'botoes';
+    localStorage.setItem('ff2d_tipo_controle', tipoControle);
+    aplicarLayoutHUD();
+}
+
+function entrarModoEdicaoHUD(origem) {
+    origemEdicaoHUD = origem || 'lobby';
     modoEdicaoHUDActive = true;
-    document.getElementById('start-menu').classList.add('hidden');
+    
+    // Esconde todos os menus para focar no jogo
+    document.querySelectorAll('.fullscreen-menu').forEach(el => el.classList.add('hidden'));
+    document.getElementById('menu-partida-overlay').classList.add('hidden');
+    
     document.getElementById('game-ui').style.display = 'block';
     document.getElementById('hud-editor-msg').style.display = 'block';
     aplicarLayoutHUD();
 
-    ['left', 'right', 'jump', 'fire'].forEach(id => {
-        let el = document.getElementById('btn-' + id);
+    let botoesAjustaveis = tipoControle === 'analogico' ? ['jump', 'fire', 'analog'] : ['left', 'right', 'jump', 'fire'];
+
+    botoesAjustaveis.forEach(id => {
+        let elId = id === 'analog' ? 'joystick-base' : 'btn-' + id;
+        let el = document.getElementById(elId);
         el.style.border = "3px dashed #ff9f43";
         
-        let moverBotaoHUD = (e) => {
+        el.addEventListener('touchmove', (e) => {
             if (!modoEdicaoHUDActive) return;
+            e.preventDefault();
             let touch = e.touches[0];
             let x = touch.clientX;
             let y = window.innerHeight - touch.clientY;
             
-            if (id === 'left' || id === 'right') {
+            if (id === 'left' || id === 'right' || id === 'analog') {
                 hudPosicoes[id].bottom = Math.max(10, y - 30);
                 hudPosicoes[id].left = Math.max(10, x - 30);
             } else {
@@ -302,10 +336,10 @@ function entrarModoEdicaoHUD() {
                 hudPosicoes[id].right = Math.max(10, window.innerWidth - x - 30);
             }
             aplicarLayoutHUD();
-        };
-        el.addEventListener('touchmove', moverBotaoHUD);
+        }, {passive: false});
     });
-    canvas.addEventListener('touchstart', salvarConfiguracaoHUD);
+    
+    setTimeout(() => { canvas.addEventListener('touchstart', salvarConfiguracaoHUD); }, 500);
 }
 
 function salvarConfiguracaoHUD() {
@@ -313,134 +347,143 @@ function salvarConfiguracaoHUD() {
     modoEdicaoHUDActive = false;
     localStorage.setItem('ff2d_hud_layout', JSON.stringify(hudPosicoes));
     document.getElementById('hud-editor-msg').style.display = 'none';
-    document.getElementById('game-ui').style.display = 'none';
-    document.getElementById('start-menu').classList.remove('hidden');
     
-    ['left', 'right', 'jump', 'fire'].forEach(id => {
-        document.getElementById('btn-' + id).style.border = "2px solid #888";
+    ['left', 'right', 'jump', 'fire', 'analog'].forEach(id => {
+        let elId = id === 'analog' ? 'joystick-base' : 'btn-' + id;
+        let el = document.getElementById(elId);
+        if(el) el.style.border = id === 'analog' ? "2px solid #aaa" : "2px solid #888";
     });
     canvas.removeEventListener('touchstart', salvarConfiguracaoHUD);
-    alert("⚙️ Layout de Controles salvo com sucesso!");
+    
+    alert("⚙️ Layout salvo com sucesso!");
+
+    // Retorna para o lugar de onde veio
+    if (origemEdicaoHUD === 'lobby') {
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('settings-menu').classList.remove('hidden');
+    } else {
+        document.getElementById('game-ui').style.display = 'block';
+    }
 }
 
-function verificarAtualizacaoDoJogo() {
-    alert("🔄 Buscando novos arquivos de atualização no GitHub...");
-    window.location.reload(true);
+// ============================================
+// MENU DA PARTIDA (NOVO)
+// ============================================
+function abrirMenuPartida() {
+    document.getElementById('menu-partida-overlay').classList.remove('hidden');
 }
 
-function calcularPrecoDimaReal() {
-    let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0;
-    let precoReal = (qtd * 0.02).toFixed(2);
-    document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor Cobrado: R$ ${precoReal}` : 'Mínimo de 250 diamantes';
+function fecharMenuPartida() {
+    document.getElementById('menu-partida-overlay').classList.add('hidden');
 }
 
-const playerSprites = [];
-for (let i = 1; i <= 88; i++) {
-    const img = new Image(); img.src = `img/free.x${i}.png`; playerSprites.push(img);
+function sairDaPartida() {
+    gameRunning = false;
+    if (socket) socket.emit('cancelar_busca'); // Sai da sala/servidor
+    document.getElementById('menu-partida-overlay').classList.add('hidden');
+    document.getElementById('game-ui').style.display = 'none';
+    document.getElementById('start-menu').classList.remove('hidden');
 }
 
-const animacaoSprites = {
-    'RUN':   [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n => n - 1),
-    'SHOOT': [26, 30].map(n => n - 1),
-    'JUMP':  [69, 45, 52, 53, 57, 58, 59, 60, 61, 65, 27, 28].map(n => n - 1),
-    'DEATH': [7, 68, 64, 11, 15, 19, 23].map(n => n - 1),
-    'IDLE':  [81, 82, 83, 84, 85, 86, 87, 88, 70, 71, 72, 73, 74, 75, 77, 78, 79, 80].map(n => n - 1)
-};
-let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
+// ============================================
+// SISTEMA DE CONTROLE DURANTE O JOGO (TOUCH)
+// ============================================
+let keys = { left: false, right: false, jump: false, fire: false };
 
-const SISTEMA_PATENTES = [{ nome: "Bronze", min: 0, cor: "#cd7f32" }, { nome: "Ouro", min: 2000, cor: "#f1c40f" }, { nome: "Titan Elite", min: 15000, cor: "#ff0000" }];
-function calcularPatente(pts) { let p = SISTEMA_PATENTES[0]; for (let i of SISTEMA_PATENTES) { if (pts >= i.min) p = i; } return p; }
+['left','right','jump','fire'].forEach(id => {
+    let el = document.getElementById('btn-' + id);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); if(!modoEdicaoHUDActive) keys[id] = true; }, {passive:false});
+    el.addEventListener('touchend', (e) => { e.preventDefault(); keys[id] = false; }, {passive:false});
+});
 
-const skinsDB = [{ id: 'padrao', name: '👕 Padrão', price: 0, aura: 'transparent' }, { id: 'dourado', name: '🌟 Lendário', price: 800, aura: 'rgba(241,196,15,0.5)' }];
-const weaponsDB = [{ id: 'pistola', name: '🔫 Pistola', price: 0 }];
+const joyBase = document.getElementById('joystick-base');
+const joyKnob = document.getElementById('joystick-knob');
+let joyActive = false; let joyCenter = {x:0, y:0};
+
+joyBase.addEventListener('touchstart', (e) => {
+    if(modoEdicaoHUDActive) return; e.preventDefault(); joyActive = true;
+    let rect = joyBase.getBoundingClientRect(); joyCenter = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+    handleJoyMove(e.touches[0]);
+}, {passive:false});
+
+joyBase.addEventListener('touchmove', (e) => {
+    if(modoEdicaoHUDActive) return; e.preventDefault(); if(joyActive) handleJoyMove(e.touches[0]);
+}, {passive:false});
+
+joyBase.addEventListener('touchend', (e) => {
+    if(modoEdicaoHUDActive) return; e.preventDefault(); joyActive = false;
+    joyKnob.style.transform = `translate(0px, 0px)`; keys.left = false; keys.right = false;
+}, {passive:false});
+
+function handleJoyMove(touch) {
+    let dx = touch.clientX - joyCenter.x; let dy = touch.clientY - joyCenter.y;
+    let distance = Math.sqrt(dx*dx + dy*dy); let maxDist = 30; 
+    if (distance > maxDist) { dx = (dx / distance) * maxDist; dy = (dy / distance) * maxDist; }
+    joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    if (dx < -10) { keys.left = true; keys.right = false; }
+    else if (dx > 10) { keys.right = true; keys.left = false; }
+    else { keys.left = false; keys.right = false; }
+}
+
+// ============================================
+// LOGIN E CADASTRO
+// ============================================
 let pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
 
-// ============================================
-// FUNÇÃO CRÍTICA RECUPERADA (CORRIGE O ERRO)
-// ============================================
 function loadUserGameProgress(emailChave) {
     meuPerfil = dbUsuarios[emailChave];
     if (!meuPerfil) return;
-    
     if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao'];
-    if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
     if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao';
-    if(!meuPerfil.equippedWeapon) meuPerfil.equippedWeapon = 'pistola';
     if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
-    
     pStats = meuPerfil.pStats;
-    updateMenus();
-}
-
-function updateMenus() {
     document.getElementById('menu-gold').innerText  = meuPerfil.ouro  || 0;
     document.getElementById('menu-frags').innerText = meuPerfil.dimas || 0;
 }
 
 function abrirMenu(id) {
     document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden');
-    if (id==='upgrade-menu') { document.getElementById('upg-gold').innerText = meuPerfil.ouro; document.getElementById('lvl-dmg').innerText = pStats.lvlDmg; }
+    if (id==='upgrade-menu') document.getElementById('upg-gold').innerText = meuPerfil.ouro;
     if (id==='shop-menu') renderShopList();
     if (id==='chat-global-menu') conectarChat();
+    if (id==='settings-menu') aplicarLayoutHUD();
 }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
-
-function abrirSubLogin(tipo) {
-    document.getElementById('box-login-main').style.display = tipo === 'main' ? 'block' : 'none';
-    document.getElementById('box-login-recuperar').style.display = tipo === 'recuperar' ? 'block' : 'none';
-}
 
 async function cadastrarConta() {
     let email = document.getElementById('input-email').value.trim();
     let senha = document.getElementById('input-senha').value.trim();
-    let msg   = document.getElementById('login-msg');
-    if (!email || !senha) { msg.innerText = "Campos Vazios!"; return; }
+    if (!email || !senha) return alert("Campos Vazios!");
+    if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
     let nick = prompt("Nome do Sobrevivente:");
     if (!nick || nick.length < 2) return;
+    
+    document.getElementById('login-msg').innerText = "Gerando ID no servidor...";
     try {
         let resp = await fetch(`${URL_SERVIDOR}/jogo/gerar-id-unico`, { method: 'POST' });
         let dados = await resp.json();
         if (dados.sucesso) {
-            dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, id: dados.idGerado, isVIP: false, pontosRank: 0, ouro: 500, dimas: 0, ownedSkins: ['padrao'], equippedSkin: 'padrao', ownedWeapons: ['pistola'], equippedWeapon: 'pistola', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 } };
+            dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, id: dados.idGerado, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 } };
             localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
             alert(`ID GERADO: ${dados.idGerado}`); 
-            meuEmail = email;
-            localStorage.setItem('ff2d_current_user', email);
-            carregarLobby();
+            meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
         }
-    } catch (e) { msg.innerText = "Erro do servidor de IDs."; }
+    } catch (e) { alert("Servidor offline no momento."); }
 }
 
 function entrarConta() {
     let email = document.getElementById('input-email').value.trim();
     let senha = document.getElementById('input-senha').value.trim();
-    let msg   = document.getElementById('login-msg');
     if (dbUsuarios[email] && atob(dbUsuarios[email].senha) === senha) { 
-        meuEmail = email; 
-        localStorage.setItem('ff2d_current_user', email); 
-        carregarLobby(); 
+        meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); 
     } else {
-        msg.innerText = "E-mail ou senha incorretos!";
+        document.getElementById('login-msg').innerText = "E-mail ou senha incorretos!";
     }
-}
-
-function executarRecuperacao() {
-    let email = document.getElementById('input-recup-email').value.trim();
-    let novaSenha = document.getElementById('input-recup-nova').value.trim();
-    let msg = document.getElementById('recup-msg');
-    if (!dbUsuarios[email]) { msg.innerText = "E-mail não encontrado!"; return; }
-    if (!novaSenha || novaSenha.length < 4) { msg.innerText = "Senha muito curta!"; return; }
-    dbUsuarios[email].senha = btoa(novaSenha);
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-    msg.style.color = "#2ecc71";
-    msg.innerText = "✅ Senha alterada! Faça login.";
-    setTimeout(() => abrirSubLogin('main'), 2000);
 }
 
 function carregarLobby() {
     meuPerfil = dbUsuarios[meuEmail]; 
     if (!meuPerfil) return fazerLogout();
-    
     loadUserGameProgress(meuEmail);
     
     document.getElementById('login-screen').classList.add('hidden'); 
@@ -448,29 +491,25 @@ function carregarLobby() {
     let tagVIPHtml = meuPerfil.isVIP ? `<span class="badge-vip-html">V</span> ` : "";
     document.getElementById('player-welcome').innerHTML = "Bem-vindo, " + tagVIPHtml + meuPerfil.nickOriginal + "!";
     
-    let p = calcularPatente(meuPerfil.pontosRank || 0);
-    let badge = document.getElementById('badge-patente-menu');
-    badge.innerText = "🏆 " + p.nome.toUpperCase();
-    badge.style.background = p.cor;
-    badge.style.borderColor = p.cor;
-    
     aplicarLayoutHUD(); 
     
     if (socket) {
         socket.emit('sincronizar_dados', meuPerfil);
-        fetch(`${URL_SERVIDOR}/jogo/sincronizar`, { 
-            method: 'POST', headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ id: meuPerfil.id, nick: meuPerfil.nickOriginal, email: meuPerfil.email }) 
-        });
+        fetch(`${URL_SERVIDOR}/jogo/sincronizar`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: meuPerfil.id, nick: meuPerfil.nickOriginal, email: meuPerfil.email }) });
     }
 }
 
 function fazerLogout() { 
-    meuEmail = null; 
-    localStorage.removeItem('ff2d_current_user'); 
+    meuEmail = null; localStorage.removeItem('ff2d_current_user'); 
     document.getElementById('start-menu').classList.add('hidden'); 
     document.getElementById('login-screen').classList.remove('hidden'); 
 }
+
+// ============================================
+// SISTEMA DE PIX E LOJA
+// ============================================
+const skinsDB = [{ id: 'padrao', name: '👕 Padrão', price: 0, aura: 'transparent' }, { id: 'dourado', name: '🌟 Lendário', price: 800, aura: 'rgba(241,196,15,0.5)' }];
+const weaponsDB = [{ id: 'pistola', name: '🔫 Pistola', price: 0 }];
 
 function switchTab(tab) {
     currentShopTab = tab;
@@ -491,88 +530,56 @@ function renderShopList() {
 function comprarItem(id, tipo, preco) {
     let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons;
     if (!owned.includes(id)) {
-        if((meuPerfil.ouro || 0) < preco) { alert("Ouro insuficiente!"); return; }
-        meuPerfil.ouro -= preco;
-        owned.push(id);
+        if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!");
+        meuPerfil.ouro -= preco; owned.push(id);
     }
     if (tipo === 'skins') meuPerfil.equippedSkin = id;
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-    updateMenus();
-    renderShopList();
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList();
 }
 
-async function gerarPix() {
+function calcularPrecoDimaReal() {
+    let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0;
+    let precoReal = (qtd * 0.02).toFixed(2);
+    document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor Cobrado: R$ ${precoReal.replace('.',',')}` : 'Mínimo de 250 diamantes';
+    document.getElementById('pix-code-display').style.display = "none";
+    document.getElementById('btn-copy-pix').style.display = "none";
+}
+
+async function gerarPix(event) {
     let qtd = parseInt(document.getElementById('input-qtd-dimas').value);
-    if (!qtd || qtd < 250) return;
+    if (!qtd || qtd < 250) return alert("Coloque no mínimo 250 diamantes!");
+    
+    let btnGerar = event.target;
+    btnGerar.innerText = "⏳ GERANDO PIX...";
+    
     try {
         let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, valor: (qtd * 0.02), diamantes: qtd }) });
         let dados = await resp.json();
-        if (dados.copia_e_cola) alert(`Copia e Cola:\n\n${dados.copia_e_cola}`);
+        if (dados.copia_e_cola) {
+            document.getElementById('pix-code-display').style.display = "block";
+            document.getElementById('btn-copy-pix').style.display = "block";
+            document.getElementById('pix-code-display').value = dados.copia_e_cola;
+            alert("✅ PIX Gerado com sucesso! Clique em COPIAR e pague no seu banco.");
+        } else { alert("Erro na API de Pagamento."); }
     } catch(e) { alert("Servidor Indisponível"); }
+    btnGerar.innerText = "⚡ GERAR PIX";
 }
 
-async function processarResgate() {
-    let codigo = document.getElementById('input-codigo-resgate').value.trim();
-    if (!codigo) { alert("Cole um código primeiro!"); return; }
-    try {
-        let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ codigo, email: meuEmail })
-        });
-        let dados = await resp.json();
-        if (dados.sucesso) {
-            meuPerfil.dimas = (meuPerfil.dimas || 0) + (dados.diamantesGanhos || 0);
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-            updateMenus();
-            alert(`🎁 Você ganhou ${dados.diamantesGanhos} diamantes!`);
-            fecharMenu('resgatar-menu');
-        } else { alert("Código inválido ou já usado!"); }
-    } catch(e) { alert("Servidor offline."); }
+function copiarCodigoPix() {
+    let areaTexto = document.getElementById('pix-code-display');
+    areaTexto.select();
+    document.execCommand("copy");
+    navigator.clipboard?.writeText(areaTexto.value);
+    alert("✅ CÓDIGO PIX COPIADO! Agora abra o app do seu Banco, vá em 'Pix Copia e Cola', e efetue o pagamento.");
 }
 
-function upgradeStat(tipo) {
-    let custos = { dmg: 500, def: 400, hp: 600 };
-    let custo = custos[tipo];
-    if ((meuPerfil.ouro || 0) < custo) { alert("Ouro insuficiente!"); return; }
-    meuPerfil.ouro -= custo;
-    pStats['lvl' + tipo.charAt(0).toUpperCase() + tipo.slice(1)]++;
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-    document.getElementById('upg-gold').innerText = meuPerfil.ouro;
-    document.getElementById('lvl-' + tipo).innerText = pStats['lvl' + tipo.charAt(0).toUpperCase() + tipo.slice(1)];
-    updateMenus();
-}
-
-function gerarCodigoSalvar() {
-    if (!meuPerfil) return;
-    let dados = { email: meuEmail, ...meuPerfil, pStats };
-    let codigo = btoa(JSON.stringify(dados));
-    document.getElementById('save-code-input').value = codigo;
-    navigator.clipboard?.writeText(codigo);
-    alert("✅ Código gerado e copiado! Guarde-o em local seguro.");
-}
-
-function carregarCodigo() {
-    let codigo = document.getElementById('save-code-input').value.trim();
-    if (!codigo) { alert("Cole o código primeiro!"); return; }
-    try {
-        let dados = JSON.parse(atob(codigo));
-        if (!dados.email || !dados.nickOriginal) throw new Error();
-        dbUsuarios[dados.email] = dados;
-        localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-        alert(`✅ Conta de ${dados.nickOriginal} recuperada! Faça login.`);
-        fecharMenu('saveload-menu');
-    } catch(e) { alert("Código inválido ou corrompido!"); }
-}
-
+// ============================================
+// CHAT E MATCHMAKING PVP
+// ============================================
 let chatConectado = false;
 function conectarChat() {
-    if (!socket || chatConectado) return;
-    chatConectado = true;
-    socket.on('historico_chat', (msgs) => {
-        let container = document.getElementById('chat-mensagens');
-        container.innerHTML = '';
-        msgs.forEach(m => adicionarMensagemChat(m));
-    });
+    if (!socket || chatConectado) return; chatConectado = true;
+    socket.on('historico_chat', (msgs) => { document.getElementById('chat-mensagens').innerHTML = ''; msgs.forEach(m => adicionarMensagemChat(m)); });
     socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
 }
 
@@ -585,8 +592,7 @@ function adicionarMensagemChat(msg) {
 }
 
 function enviarMensagemGlobal() {
-    let input = document.getElementById('input-chat-global');
-    let texto = input.value.trim();
+    let input = document.getElementById('input-chat-global'); let texto = input.value.trim();
     if (!texto || !socket) return;
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto });
     input.value = '';
@@ -600,27 +606,40 @@ function abrirModos(servidor) { servidorSelecionado = servidor; document.getElem
 
 function procurarPartida(modo) {
     modoSelecionado = modo; document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden');
+    let modoNome = modo === 'solo' ? '1 VS 1' : (modo === 'duo' ? '2 VS 2' : '4 VS 4');
+    document.getElementById('match-info').innerText = `MODO: ${modoNome}`;
+    
     intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000);
     if (socket) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, patente: "Bronze", servidor: servidorSelecionado, modo: modoSelecionado });
 }
 function cancelarBusca() { clearInterval(intervaloBusca); if (socket) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
 
+// ============================================
+// RENDERIZAÇÃO DA ARENA E SPRITES
+// ============================================
 const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
 let gameRunning = false, loopAtivo = false, jogadoresOnline = {}, salaAtual = "";
 let player = { x: 400, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: true };
-let keys = { left: false, right: false, jump: false, fire: false };
-
-['left','right','jump','fire'].forEach(id => {
-    let el = document.getElementById('btn-' + id);
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); if(!modoEdicaoHUDActive) keys[id] = true; });
-    el.addEventListener('touchend', (e) => { e.preventDefault(); keys[id] = false; });
-});
 
 function iniciarArena(idSala) {
     clearInterval(intervaloBusca); salaAtual = idSala; document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; gameRunning = true;
     if (!loopAtivo) { loopAtivo = true; requestAnimationFrame(gameLoop); }
 }
+
+// ⚠️ CARREGAMENTO DOS SPRITES DO SEU SERVIDOR
+const playerSprites = []; 
+for (let i = 1; i <= 88; i++) { 
+    const img = new Image(); 
+    img.src = `img/free.x${i}.png`; 
+    playerSprites.push(img); 
+}
+
+const animacaoSprites = { 
+    'RUN': [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n => n - 1), 
+    'IDLE': [81, 82, 83, 84, 85, 86, 87, 88].map(n => n - 1) 
+};
+let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
 
 function gameLoop() {
     requestAnimationFrame(gameLoop); if (!gameRunning || modoEdicaoHUDActive) return;
@@ -633,23 +652,37 @@ function gameLoop() {
     else { playerState = 'IDLE'; }
     if (keys.jump && player.isGrounded) { player.vy = 12; player.isGrounded = false; }
 
-    if (socket) socket.emit('movimento_pvp', { sala: salaAtual, x: player.x, y: player.y, facing: player.facing, hp: player.hp, nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, skinId: meuPerfil.equippedSkin });
+    contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % animacaoSprites[playerState].length; contadorAnim = 0; }
+
+    if (socket && Math.random() > 0.5) socket.emit('movimento_pvp', { sala: salaAtual, x: player.x, y: player.y, facing: player.facing, hp: player.hp, nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, skinId: meuPerfil.equippedSkin, frameIndex: animacaoSprites[playerState][frameAtual] });
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
 
-    Object.entries(jogadoresOnline).forEach(([id, p]) => { if(id !== socket.id) desJogador(p.x, gy+p.y, p.facing, p.nick, p.isVIP, p.skinId); });
-    desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin);
+    Object.entries(jogadoresOnline).forEach(([id, p]) => { if(id !== socket.id) desJogador(p.x, gy+p.y, p.facing, p.nick, p.isVIP, p.skinId, p.frameIndex); });
+    desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animacaoSprites[playerState][frameAtual]);
 }
 
-function desJogador(x, baseY, facing, nick, isVIP, skinId) {
+function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx) {
     ctx.save(); ctx.translate(x, baseY);
-    ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65);
+    
+    // TENTA DESENHAR A IMAGEM. SE ELA EXISTIR NO SERVIDOR, ELA VAI APARECER!
+    let idx = fIdx || animacaoSprites['IDLE'][0]; 
+    let img = playerSprites[idx];
+    
+    if (img && img.complete && img.naturalWidth > 0) { 
+        ctx.scale(facing, 1); 
+        ctx.drawImage(img, -37.5, -75, 75, 75); 
+    } else { 
+        // Se a imagem não for encontrada, ele coloca um quadrado azul para o jogo não quebrar
+        ctx.fillStyle = '#3498db'; 
+        ctx.fillRect(-15, -65, 30, 65); 
+    }
 
     if (isVIP) {
         let neon = ['#3498db', '#2ecc71', '#9b59b6', '#f1c40f'];
-        ctx.fillStyle = "#000000"; ctx.strokeStyle = neon[Math.floor((Date.now()/150)%4)]; ctx.lineWidth = 2;
+        ctx.fillStyle = "#000"; ctx.strokeStyle = neon[Math.floor((Date.now()/150)%4)]; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.roundRect(-10, -112, 20, 20, 4); ctx.fill(); ctx.stroke();
         ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 14px Arial"; ctx.fillStyle = "#f1c40f"; ctx.fillText("V", 0, -102);
     }
@@ -661,17 +694,10 @@ window.onload = () => { if (meuEmail && dbUsuarios[meuEmail]) carregarLobby(); }
 if (socket) { 
     socket.on('partida_encontrada', (dados) => iniciarArena(dados.sala)); 
     socket.on('posicoes_jogadores', (dados) => { jogadoresOnline = dados; }); 
-    socket.on('promover_vip', (emailDoVip) => {
-        if (dbUsuarios[emailDoVip]) {
-            dbUsuarios[emailDoVip].isVIP = true;
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-            if (meuEmail === emailDoVip) {
-                alert("🎉 PARABÉNS! Você recebeu o V de Verificado!");
-                carregarLobby();
-            }
-        }
-    });
+    socket.on('promover_vip', (emailDoVip) => { if (dbUsuarios[emailDoVip]) { dbUsuarios[emailDoVip].isVIP = true; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); if (meuEmail === emailDoVip) { alert("🎉 Você recebeu o V de Verificado!"); carregarLobby(); } } });
 }
+
+function verificarAtualizacaoDoJogo() { alert("🔄 Buscando arquivos no GitHub..."); window.location.reload(true); }
 </script>
 </body>
 </html>
