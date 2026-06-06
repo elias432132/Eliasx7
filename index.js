@@ -26,6 +26,8 @@ const asaasInstance = axios.create({
 // --- BANCO DE DADOS EM MEMÓRIA ---
 const historicoChat = []; 
 const codigosDisponiveis = {}; 
+let filaMatchmaking = []; // Fila para juntar os amigos no PvP
+let salasPvP = {};        // Controla as partidas rodando ao vivo
 
 // Banco de dados em memória para os jogadores
 let jogadoresServidor = {
@@ -52,10 +54,8 @@ app.post('/admin/buscar-jogador', (req, res) => {
         return res.status(403).json({ sucesso: false, erro: "Senha mestra inválida!" });
     }
 
-    // Tenta achar pelo ID exato
     let jugador = jogadoresServidor[busca];
     
-    // Se não achou pelo ID, tenta achar pelo Nick
     if (!jugador) {
         jugador = Object.values(jogadoresServidor).find(j => j.nick && j.nick.toLowerCase() === busca.toLowerCase());
     }
@@ -77,12 +77,15 @@ app.post('/admin/comando', (req, res) => {
 
     console.log(`[ADMIN] Comando: ${comando} para o ID: ${idJogador}`);
     
-    // Se por acaso não existir, cria a ficha dele
     if (!jogadoresServidor[idJogador]) {
         jogadoresServidor[idJogador] = { nick: "Jogador", id: idJogador, email: "vinculado@gmail.com", isVIP: false, statusBan: "✅ Limpo" };
     }
 
-    if (comando === 'VIP') jogadoresServidor[idJogador].isVIP = true;
+    if (comando === 'VIP') {
+        jogadoresServidor[idJogador].isVIP = true;
+        // 🚀 AQUI ESTÁ O SEGREDO: Grita pro jogo em tempo real que esse e-mail agora é VIP!
+        io.emit('promover_vip', jogadoresServidor[idJogador].email);
+    }
     if (comando === 'BAN_PERM') jogadoresServidor[idJogador].statusBan = "⛔ BANIDO PARA SEMPRE";
     if (comando === 'MUTE') jogadoresServidor[idJogador].statusBan = "Submetido a Silêncio (24h)";
     if (comando === 'LIMPAR') {
@@ -100,17 +103,15 @@ app.post('/jogo/sincronizar', (req, res) => {
     const { id, nick, email } = req.body;
     
     if (id && nick) {
-        // Se o jogador não existe, registra ele. Se existe, atualiza.
         if (!jogadoresServidor[id]) {
             jogadoresServidor[id] = { nick: nick, id: id, email: email || "", isVIP: false, statusBan: "✅ Limpo" };
         } else {
-            jogadoresServidor[id].nick = nick; // Atualiza o nick caso ele tenha mudado
+            jogadoresServidor[id].nick = nick; 
             if(email) jogadoresServidor[id].email = email;
         }
         
         console.log(`[SYNC] Jogador Conectado: ${nick} (ID: ${id}) - VIP: ${jogadoresServidor[id].isVIP}`);
         
-        // Devolve pro jogo se o cara é VIP ou se está banido
         res.json({ 
             sucesso: true, 
             isVIP: jogadoresServidor[id].isVIP,
@@ -121,16 +122,29 @@ app.post('/jogo/sincronizar', (req, res) => {
     }
 });
 
-// --- SISTEMA DE CHAT GLOBAL VIP ---
+// ==========================================
+// 🔥 SISTEMA MULTIPLAYER E CHAT (SOCKET.IO) 🔥
+// ==========================================
 io.on('connection', (socket) => {
+    console.log(`📡 Aparelho conectado na rede: ${socket.id}`);
     socket.emit('historico_chat', historicoChat);
     
+    // Sincroniza o WebSocket quando o jogador loga
+    socket.on('sincronizar_dados', (dadosUser) => {
+        if (dadosUser && dadosUser.id) {
+            // Vincula o socket.id atual com o cadastro dele
+            if (jogadoresServidor[dadosUser.id]) {
+                jogadoresServidor[dadosUser.id].socketId = socket.id;
+            }
+        }
+    });
+
+    // Envio de mensagens com verificação de Mute/Ban
     socket.on('enviar_mensagem', (dados) => {
         let jogadorEncontrado = Object.values(jogadoresServidor).find(j => j.nick.toLowerCase() === dados.nick.toLowerCase());
         
-        // Bloqueia a mensagem se ele estiver mutado ou banido
         if (jogadorEncontrado && jogadorEncontrado.statusBan !== "✅ Limpo") {
-            return; // Fica em silêncio, não envia pro chat
+            return; 
         }
 
         let jogadorEVip = jogadorEncontrado ? jogadorEncontrado.isVIP : false;
@@ -138,15 +152,81 @@ io.on('connection', (socket) => {
         const mensagem = {
             nick: dados.nick,
             texto: dados.texto,
-            isVip: jogadorEVip,
+            isVIP: jogadorEVip, // Ajustado para bater com o HTML novo (isVIP)
             hora: new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute:'2-digit' })
         };
         
         historicoChat.push(mensagem);
         if(historicoChat.length > 30) historicoChat.shift(); 
         
-        // Emite a mensagem para todo mundo online
         io.emit('nova_mensagem', mensagem);
+    });
+
+    // ⚔️ MOTOR DE MATCHMAKING (PROCURAR PARTIDA PVP)
+    socket.on('buscar_partida', (dados) => {
+        console.log(`🔍 Fila PvP: ${dados.nick} está procurando partida no modo ${dados.modo}`);
+        
+        filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
+        filaMatchmaking.push({
+            id: socket.id,
+            nick: dados.nick,
+            isVIP: dados.isVIP,
+            patente: dados.patente,
+            servidor: dados.servidor,
+            modo: dados.modo
+        });
+
+        // Tenta juntar os jogadores do mesmo servidor e modo
+        let candidatos = filaMatchmaking.filter(p => p.servidor === dados.servidor && p.modo === dados.modo);
+
+        if (candidatos.length >= 2) {
+            let p1 = candidatos[0];
+            let p2 = candidatos[1];
+
+            filaMatchmaking = filaMatchmaking.filter(p => p.id !== p1.id && p.id !== p2.id);
+
+            let nomeSala = `SALA_PVP_${p1.id.slice(0, 4)}_${p2.id.slice(0, 4)}`;
+            salasPvP[nomeSala] = { jogadores: {}, tempo: 300 };
+
+            io.sockets.sockets.get(p1.id)?.join(nomeSala);
+            io.sockets.sockets.get(p2.id)?.join(nomeSala);
+
+            io.to(nomeSala).emit('partida_encontrada', { sala: nomeSala });
+            console.log(`🎮 Partida montada com sucesso na sala: ${nomeSala}`);
+        }
+    });
+
+    socket.on('cancelar_busca', () => {
+        filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
+    });
+
+    // 🚀 MOVIMENTAÇÃO MULTIPLAYER EM TEMPO REAL NA ARENA
+    socket.on('movimento_pvp', (dados) => {
+        const sala = dados.sala;
+        if (salasPvP[sala]) {
+            salasPvP[sala].jogadores[socket.id] = {
+                x: dados.x,
+                y: dados.y,
+                facing: dados.facing,
+                hp: dados.hp,
+                nick: dados.nick,
+                isVIP: dados.isVIP,
+                frameIndex: dados.frameIndex,
+                skinId: dados.skinId
+            };
+            // Devolve a posição de todo mundo para quem está dentro da sala
+            io.to(sala).emit('posicoes_jogadores', salasPvP[sala].jogadores);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        filaMatchmaking = filaMatchmaking.filter(p => p.id !== socket.id);
+        Object.keys(salasPvP).forEach(sala => {
+            if (salasPvP[sala].jogadores[socket.id]) {
+                delete salasPvP[sala].jogadores[socket.id];
+                io.to(sala).emit('posicoes_jogadores', salasPvP[sala].jogadores);
+            }
+        });
     });
 });
 
