@@ -38,7 +38,7 @@ let jogadoresServidor = {
 };
 
 // 🔒 SENHA MESTRE DO PAINEL
-const SENHA_DONO = "elias432132"; 
+const SENHA_DONO = "080907"; 
 
 // --- ROTA PARA SERVIR O PAINEL HTML ---
 app.get('/painel', (req, res) => {
