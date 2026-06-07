@@ -1,4 +1,4 @@
-name: Gerar APK PVP ZONE X7
+ZonEX7-APK-AndroidX7-APK-Android: Gerar APK PVP ZONE X7
 
 on:
   push:
@@ -44,5 +44,5 @@ jobs:
       - name: 7. Salvar o APK pronto para baixar
         uses: actions/upload-artifact@v4
         with:
-          name: PvP ZonEX7-APK-Android
+          name: FreeX7-APK-Android
           path: app/FreeX7-APK-Android/android/app/build/outputs/apk/debug/app-debug.apk
