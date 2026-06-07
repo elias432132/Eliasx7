@@ -19,87 +19,77 @@ const asaasInstance = axios.create({
     headers: { 'access_token': ASAAS_API_KEY }
 });
 
-// Fila de busca por modo de jogo
-let filasBusca = { solo: [], duo: [], squad: [] };
-let salas = {};
+// Fila de jogadores reais
+let filas = { solo: [], duo: [], squad: [] };
 
 io.on('connection', (socket) => {
     
-    // 1. MATCHMAKING INTELIGENTE (Espera 15s para achar jogadores reais)
     socket.on('buscar_partida', (dados) => {
-        let modo = dados.modo;
-        filasBusca[modo].push({ id: socket.id, nick: dados.nick });
+        let modo = dados.modo; // 'solo', 'duo' ou 'squad'
+        let maxPlayers = modo === 'solo' ? 2 : (modo === 'duo' ? 4 : 8);
         
-        // Se for o primeiro, inicia o relógio de 15s
-        if (filasBusca[modo].length === 1) {
+        // Adiciona o jogador à fila
+        filas[modo].push({ id: socket.id, nick: dados.nick });
+
+        // SE A SALA ENCHER COM JOGADORES REAIS (Seus amigos)
+        if (filas[modo].length >= maxPlayers) {
+            let jogadoresSala = filas[modo].splice(0, maxPlayers);
+            let salaId = "SALA_REAL_" + Date.now();
+            
+            // Divide as equipas (Ex: no X1, 1 vai para a Equipa A e outro para a Equipa B)
+            let timeA = jogadoresSala.slice(0, maxPlayers/2).map(p => p.id);
+            let timeB = jogadoresSala.slice(maxPlayers/2).map(p => p.id);
+
+            // Manda todos para a arena
+            jogadoresSala.forEach(p => {
+                io.to(p.id).emit('partida_encontrada', { sala: salaId, modo: modo, timeA: timeA, timeB: timeB });
+            });
+        } else {
+            // SE O AMIGO NÃO ENTRAR, ESPERA 10 SEGUNDOS E PÕE BOTS
             setTimeout(() => {
-                if (filasBusca[modo].length > 0) {
-                    let salaId = "SALA_X7_" + Date.now();
-                    salas[salaId] = { jogadores: {} };
-                    
-                    // Envia todo mundo da fila para a sala
-                    filasBusca[modo].forEach(p => {
-                        let objSoket = io.sockets.sockets.get(p.id);
-                        if(objSoket) objSoket.join(salaId);
-                        io.to(p.id).emit('partida_encontrada', { 
-                            sala: salaId, 
-                            modo: modo, 
-                            jogadoresOnline: filasBusca[modo].length,
-                            timeA: [filasBusca[modo][0].id] // O primeiro cai no Time A
-                        });
+                let index = filas[modo].findIndex(p => p.id === socket.id);
+                if (index !== -1) {
+                    // O jogador ainda está à espera. Vamos criar a sala com Bots!
+                    let p = filas[modo].splice(index, 1)[0];
+                    io.to(p.id).emit('partida_encontrada', { 
+                        sala: "SALA_BOTS_" + Date.now(), 
+                        modo: modo, 
+                        timeA: [p.id], 
+                        timeB: [] 
                     });
-                    filasBusca[modo] = []; // Limpa a fila
                 }
-            }, 15000);
+            }, 10000); // 10000 milissegundos = 10 segundos de espera
         }
     });
 
-    // 2. SINCRONIZAÇÃO DE MOVIMENTO (Deixa o jogo 100% Online)
-    socket.on('mover', (dados) => {
-        socket.pos = dados;
-        let salaId = Array.from(socket.rooms)[1]; 
-        if (salaId && salas[salaId]) {
-            salas[salaId].jogadores[socket.id] = dados;
-            // Manda a posição de todos para todos na sala
-            io.to(salaId).emit('posicoes_jogadores', salas[salaId].jogadores);
-        }
+    // Se o jogador cancelar a busca, sai da fila
+    socket.on('cancelar_busca', () => {
+        ['solo', 'duo', 'squad'].forEach(modo => {
+            filas[modo] = filas[modo].filter(p => p.id !== socket.id);
+        });
     });
 
     socket.on('enviar_mensagem', (msg) => {
         io.emit('nova_mensagem', msg);
     });
-
-    socket.on('disconnect', () => {
-        ['solo', 'duo', 'squad'].forEach(m => {
-            filasBusca[m] = filasBusca[m].filter(p => p.id !== socket.id);
-        });
-        Object.keys(salas).forEach(sId => {
-            if(salas[sId].jogadores[socket.id]) delete salas[sId].jogadores[socket.id];
-        });
-    });
 });
 
-// ==========================================
-// ROTA DO PIX
-// ==========================================
 app.post('/gerar-pix', async (req, res) => {
     try {
         const { Nick, valor, diamantes } = req.body;
+        
         if (!ASAAS_API_KEY || ASAAS_API_KEY === "SUA_CHAVE_AQUI") {
             return res.json({ copia_e_cola: "00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540510.005802BR5915Free X7 Teste6009Sao Paulo62070503***63041234" });
         }
-        let clienteId = 'cus_000005501234'; // Fallback
-        try {
-            const cliente = await asaasInstance.post('/customers', { name: Nick, cpfCnpj: '01234567890' });
-            clienteId = cliente.data.id;
-        } catch(e) {}
 
-        const cobranca = await asaasInstance.post('/payments', { customer: clienteId, billingType: 'PIX', value: valor, dueDate: '2026-12-31', description: `Compra de ${diamantes} Diamantes - Free X7` });
+        const cliente = await asaasInstance.post('/customers', { name: Nick, cpfCnpj: '00000000000' });
+        const cobranca = await asaasInstance.post('/payments', { customer: cliente.data.id, billingType: 'PIX', value: valor, dueDate: '2026-12-31', description: `Compra de ${diamantes} Diamantes - Free X7` });
         const qr = await asaasInstance.get(`/payments/${cobranca.data.id}/pixQrCode`);
+        
         res.json({ copia_e_cola: qr.data.payload });
     } catch (e) {
         res.json({ copia_e_cola: "ERRO_DE_CONEXAO_COM_O_BANCO_TENTE_NOVAMENTE" });
     }
 });
 
-server.listen(10000, () => console.log("Servidor Online com BOTS, PIX, ROUNDS e MULTIPLAYER!"));
+server.listen(10000, () => console.log("Servidor Online (Matchmaking + Bots + Pix)!"));
