@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const axios = require('axios'); // Mantido e configurado para o PIX Asaas
+const axios = require('axios'); // Necessário para a API do Mercado Pago
 
 const app = express();
 app.use(express.json());
@@ -11,10 +11,8 @@ app.use(cors({ origin: '*', methods: ['GET', 'POST'], credentials: true }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 
-// --- CONFIGURAÇÕES DO ASAAS ---
-// Altere para 'https://api.asaas.com/v3' quando for para produção (dinheiro real)
-const ASAAS_API_URL = process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3'; 
-const ASAAS_API_KEY = process.env.ASAAS_API_KEY || 'SUA_API_KEY_DO_ASAAS_AQUI';
+// --- CONFIGURAÇÕES DO MERCADO PAGO ---
+const MERCADOPG_TOKEN = process.env.MERCADOPG_TOKEN;
 
 let codigosValidos = {};
 let filas = { solo: [], duo: [], squad: [] };
@@ -90,66 +88,68 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     }
 });
 
-// --- CONEXÃO REAL COM O PIX ASAAS ---
+// --- CONEXÃO REAL COM O MERCADO PAGO ---
 app.post('/gerar-pix', async (req, res) => { 
     const { valor, nome, cpfCnpj } = req.body;
 
-    // Validação básica para não quebrar a API do Asaas
-    if (!valor || !nome || !cpfCnpj) {
-        return res.status(400).json({ sucesso: false, erro: "Campos valor, nome e cpfCnpj são obrigatórios." });
+    if (!valor || !nome) {
+        return res.status(400).json({ sucesso: false, erro: "Campos valor e nome são obrigatórios." });
     }
 
     try {
-        // 1. Criar o cliente no Asaas (Exigido para gerar cobranças)
-        const clienteResponse = await axios.post(`${ASAAS_URL}/customers`, {
-            name: nome,
-            cpfCnpj: cpfCnpj
-        }, {
-            headers: { 'access_token': ASAAS_API_KEY }
+        // O Mercado Pago exige um email e um CPF. Se o seu jogo não mandar, usamos um padrão para não dar erro.
+        const emailGenerico = "jogador@freex7.com";
+        const cpfGenerico = (cpfCnpj || "01234567890").replace(/\D/g, ''); 
+
+        const dadosPagamento = {
+            transaction_amount: Number(valor),
+            description: `Compra de diamantes no Free X7 - ${nome}`,
+            payment_method_id: "pix",
+            payer: {
+                email: emailGenerico,
+                first_name: nome,
+                identification: {
+                    type: "CPF",
+                    number: cpfGenerico
+                }
+            }
+        };
+
+        const mpResponse = await axios.post('https://api.mercadopago.com/v1/payments', dadosPagamento, {
+            headers: {
+                'Authorization': `Bearer ${MERCADOPG_TOKEN}`,
+                'X-Idempotency-Key': `pix-${Date.now()}` // Evita cobranças duplicadas
+            }
         });
 
-        const clienteId = clienteResponse.data.id;
+        // Pegando os dados do Pix da resposta do Mercado Pago
+        const copiaECola = mpResponse.data.point_of_interaction?.transaction_data?.qr_code;
+        const qrCodeBase64 = mpResponse.data.point_of_interaction?.transaction_data?.qr_code_base64;
+        const cobrancaId = mpResponse.data.id;
 
-        // 2. Criar a cobrança do tipo PIX
-        const hoje = new Date();
-        const dataVencimento = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        if (!copiaECola) {
+            throw new Error("Mercado Pago não retornou a chave PIX.");
+        }
 
-        const cobrancaResponse = await axios.post(`${ASAAS_URL}/payments`, {
-            customer: clienteId,
-            billingType: "PIX",
-            value: valor,
-            dueDate: dataVencimento
-        }, {
-            headers: { 'access_token': ASAAS_API_KEY }
-        });
-
-        const cobrancaId = cobrancaResponse.data.id;
-
-        // 3. Buscar a chave Copia e Cola e o QR Code gerado
-        const pixResponse = await axios.get(`${ASAAS_URL}/payments/${cobrancaId}/pixQrCode`, {
-            headers: { 'access_token': ASAAS_API_KEY }
-        });
-
-        // Responde de volta para o jogo com os dados reais
         res.json({ 
             sucesso: true,
-            copia_e_cola: pixResponse.data.payload,
-            qrcode_base64: pixResponse.data.encodedImage, // Opcional se o jogo aceitar exibir imagem em Base64
+            copia_e_cola: copiaECola,
+            qrcode_base64: qrCodeBase64, 
             cobranca_id: cobrancaId
         }); 
 
     } catch (error) {
-        console.error("Erro ao gerar PIX no Asaas:", error.response?.data || error.message);
+        console.error("Erro ao gerar PIX no Mercado Pago:", error.response?.data || error.message);
         res.status(500).json({ 
             sucesso: false, 
-            erro: "Erro interno ao processar o pagamento com o Asaas.",
-            detalhes: error.response?.data?.errors || error.message
+            erro: "Erro interno ao processar o pagamento no Mercado Pago.",
+            detalhes: error.response?.data?.message || error.message
         });
     }
 });
 
-// Ping de conexão (Para o jogo não dar "Offline" falso)
+// Ping de conexão
 app.get('/status', (req, res) => { res.json({ status: 'online' }); });
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log(`Servidor Free X7 Online na porta ${PORT}`)); 
+server.listen(PORT, () => console.log(`Servidor Free X7 Online na porta ${PORT}`));
