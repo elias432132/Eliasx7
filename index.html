@@ -225,25 +225,25 @@ let socket = null;
 
 function conectarServidor() {
     try {
-        socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
-        socket.on('historico_chat', (msgs) => { document.getElementById('chat-mensagens').innerHTML = ''; msgs.forEach(m => adicionarMensagemChat(m)); });
-        socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
-        
-        socket.on('partida_encontrada', (dados) => {
-            if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
-            else { meuTime = 'A'; player.x = 100; player.facing = 1; }
-            iniciarArena(dados.sala, dados.modo);
-        }); 
-        
-        socket.on('forcar_vip', (dados) => {
-            if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                meuPerfil.isVIP = true;
-                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-                atualizarLobby();
-                alert("🌟 O ADMIN TE DEU A TAG DE VERIFICADO VIP!");
+        // Testa se o servidor está vivo antes de ligar
+        fetch(`${URL_SERVIDOR}/gerar-pix`).then(res => {
+            if(res.ok) {
+                socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
+                socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
+                socket.on('forcar_vip', (dados) => {
+                    if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                        meuPerfil.isVIP = true;
+                        localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+                        atualizarLobby();
+                        alert("🌟 TAG VIP INJETADA!");
+                    }
+                });
+                console.log("Conectado com sucesso!");
             }
         });
-    } catch(e) {}
+    } catch(e) {
+        console.log("Servidor em repouso...");
+    }
 }
 
 let dbUsuarios = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
