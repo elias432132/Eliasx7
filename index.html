@@ -131,6 +131,7 @@
             <button class="btn-sub" onclick="entrarModoEdicaoHUD('lobby')" style="color:#f1c40f; border-color:#f39c12;">🎛️ HUD</button>
             <button class="btn-sub" style="color:#2ecc71; border-color:#27ae60;" onclick="abrirMenu('resgatar-codigo-menu')">🎁 CÓDIGO</button>
             <button class="btn-sub" style="color:#9b59b6;border-color:#8e44ad;" onclick="abrirMenu('chat-global-menu')">💬 EXPANDIR CHAT</button>
+            <button class="btn-sub" style="color:#e74c3c;border-color:#c0392b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
             <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
             <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR</button>
             <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
@@ -280,6 +281,7 @@ async function iniciarSistema() {
 function vincularJogadorAoServidor() {
     if (meuPerfil && meuPerfil.email && socket && socket.connected) {
         socket.emit('registrar_jogador', { email: meuPerfil.email });
+        socket.emit('registrar_nick', meuPerfil.nickOriginal);
     }
 }
 
@@ -355,6 +357,10 @@ function conectarSocket() {
         socket.on('atualizar_loja_dinamica', (itensNovos) => {
             skinsDB = baseSkins.concat(itensNovos.skins); weaponsDB = baseWeapons.concat(itensNovos.weapons);
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
+        });
+
+        socket.on('nova_mensagem_sistema', (dados) => {
+            alert(dados.msg);
         });
     } catch(e) {}
 }
@@ -787,6 +793,15 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     if (isVIP) { ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.roundRect(-25, -108, 14, 14, 2); ctx.fill(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 10px Arial"; ctx.fillStyle = "#000"; ctx.fillText("V", -18, -101); }
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, offsetVIP, -95);
     ctx.restore();
+}
+
+// Função que abre a caixa para o jogador mandar mensagem pra você
+function falarComDono() {
+    let msg = prompt("Digite sua mensagem para o Dono do jogo:");
+    if(msg && msg.trim() !== '') {
+        socket.emit('mensagem_para_dono', msg);
+        alert("Mensagem enviada com sucesso! Aguarde a resposta.");
+    }
 }
 </script>
 </body>
