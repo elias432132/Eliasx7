@@ -33,8 +33,40 @@
         .currency-display { font-size: 15px; color: #f1c40f; font-weight: bold; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .currency-display span { background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; }
         .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; background: rgba(0,0,0,0.5); }
-        .badge-vip-html { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; font-weight: 900; font-family: sans-serif; font-size: 13px; width: 18px; height: 18px; border-radius: 4px; margin-right: 6px; box-shadow: 0 0 6px #f1c40f; border: 1px solid #fff; vertical-align: middle; }
         
+        /* EFEITO CHROMA RGB CORRENDO NO VERIFICADO PROFISSIONAL */
+        @keyframes chromaShift {
+            0% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
+            20% { background: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
+            40% { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+            60% { background: #3498db; box-shadow: 0 0 10px #3498db; }
+            80% { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; }
+            100% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
+        }
+        .badge-vip-html { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #fff !important; 
+            font-weight: 900; 
+            font-family: sans-serif; 
+            font-size: 12px; 
+            width: 19px; 
+            height: 19px; 
+            border-radius: 50%; 
+            margin-right: 6px; 
+            border: 2px solid #fff; 
+            vertical-align: middle; 
+            animation: chromaShift 1.5s linear infinite; 
+        }
+        
+        /* ANIMACAO POP DA MENSAGEM DO DONO */
+        @keyframes popVip {
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        #modal-vip-lindo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 15, 26, 0.96); border: 3px solid #f1c40f; box-shadow: 0 0 35px #f1c40f; padding: 25px; border-radius: 20px; z-index: 99999; text-align: center; width: 340px; max-width: 90%; animation: popVip 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: #444; color: #fff; border: none; padding: 8px 15px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         .tab-btn.active { background: #e67e22; }
@@ -53,7 +85,7 @@
         canvas { display: block; width: 100vw; height: 100vh; }
         #hud-top { position: absolute; top: 8px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 10; pointer-events: none; flex-wrap: wrap; }
         .hud-item { background: rgba(0,0,0,0.8); padding: 6px 12px; border-radius: 8px; border: 1px solid #555; font-weight: bold; font-size: 14px; pointer-events: auto; }
-        #btn-menu-ingame { background: #34495e; cursor: pointer; border-color: #f1c40f; color: #f1c40f; }
+        #btn-menu-ingame { background: #34495e; cursor: pointer; border-color: #f1c40f; color: #f1c40f; pointer-events: auto !important; }
         
         #controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
         .ctrl-btn { position: absolute; pointer-events: auto; background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; cursor: pointer; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -89,6 +121,13 @@
 
 <div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
 
+<!-- TELA SENSACIONAL DE VERIFICADO ATIVADO (ANTI-BUG) -->
+<div id="modal-vip-lindo" class="hidden">
+    <h2 style="color: #f1c40f; margin: 0 0 12px 0; font-size: 22px; text-transform: uppercase; text-shadow: 0 0 10px #f1c40f;">👑 SISTEMA VIP 👑</h2>
+    <p style="color: #fff; font-size: 15px; line-height: 1.4; margin-bottom: 20px; font-weight: bold;">Parabéns! O Dono do servidor acabou de conceder a Tag de <span style="color: #f1c40f;">Verificado Oficial</span> para a sua conta!</p>
+    <button class="btn-main" onclick="fecharModalVip()" style="background: linear-gradient(90deg, #f1c40f, #f39c12); color: #000; width: 100%; border: none; box-shadow: 0 4px #b78a06;">SENSACIONAL!</button>
+</div>
+
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
         <h1>FREE X7<br><span style="color:#f1c40f;font-size:16px;">LOGIN DO SOBREVIVENTE</span></h1>
@@ -121,7 +160,7 @@
         <div class="currency-display">
             <span>🪙 <span id="menu-gold">0</span></span>
             <span>💎 <span id="menu-frags">0</span></span>
-            <span id="badge-patente-menu" class="badge-patente">🏆 BRONZE ⭐1</span>
+            <span id="badge-patente-menu" class="badge-patente">🏆 🟫 BRONZE ⭐1</span>
         </div>
         
         <div class="menu-buttons">
@@ -285,6 +324,10 @@ function vincularJogadorAoServidor() {
     }
 }
 
+function fecharModalVip() {
+    document.getElementById('modal-vip-lindo').classList.add('hidden');
+}
+
 function conectarSocket() {
     try {
         socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
@@ -341,9 +384,14 @@ function conectarSocket() {
             }
         });
 
+        /* CORREÇÃO DO BUG DO VERIFICADO (CHAMADA SEM ALERT TRAVADOR) */
         socket.on('forcar_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                meuPerfil.isVIP = true; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); alert("🌟 O DONO DO JOGO TE DEU A TAG VIP!");
+                meuPerfil.isVIP = true;
+                if(dbUsuarios[meuEmail]) dbUsuarios[meuEmail].isVIP = true;
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+                atualizarLobby(); 
+                document.getElementById('modal-vip-lindo').classList.remove('hidden');
             }
         });
 
@@ -365,7 +413,17 @@ function conectarSocket() {
     } catch(e) {}
 }
 
-const PATENTES = [{ nome: 'BRONZE', max: 3 }, { nome: 'PRATA', max: 4 }, { nome: 'OURO', max: 4 }, { nome: 'PLATINA', max: 5 }, { nome: 'DIAMANTE', max: 5 }, { nome: 'BÁRBARO', max: 5 }, { nome: 'TITAN', max: 50 }, { nome: 'TITAN ELITE', max: 999 }];
+/* BANDEIRINHAS EXCLUSIVAS DE CADA PATENTE CONFIGURADAS */
+const PATENTES = [
+    { nome: '🟫 BRONZE', max: 3 }, 
+    { nome: '⬜ PRATA', max: 4 }, 
+    { nome: '🟨 OURO', max: 4 }, 
+    { nome: '🔷 PLATINA', max: 5 }, 
+    { nome: '💎 DIAMANTE', max: 5 }, 
+    { nome: '💀 BÁRBARO', max: 5 }, 
+    { nome: '🔥 TITAN', max: 50 }, 
+    { nome: '👑 TITAN ELITE', max: 999 }
+];
 
 function atualizarLobby() {
     if(!meuPerfil) return;
@@ -373,14 +431,24 @@ function atualizarLobby() {
     document.getElementById('player-welcome').innerHTML = "Bem-vindo, " + tagV + meuPerfil.nickOriginal + "!";
     document.getElementById('menu-gold').innerText = meuPerfil.ouro || 0;
     document.getElementById('menu-frags').innerText = meuPerfil.dimas || 0;
-    let p = meuPerfil.patente || { nome: 'BRONZE', estrelas: 1 };
+    
+    let p = meuPerfil.patente || { nome: '🟫 BRONZE', estrelas: 1 };
+    if (p.nome === 'BRONZE') p.nome = '🟫 BRONZE';
+    if (p.nome === 'PRATA') p.nome = '⬜ PRATA';
+    if (p.nome === 'OURO') p.nome = '🟨 OURO';
+    if (p.nome === 'PLATINA') p.nome = '🔷 PLATINA';
+    if (p.nome === 'DIAMANTE') p.nome = '💎 DIAMANTE';
+    if (p.nome === 'BÁRBARO') p.nome = '💀 BÁRBARO';
+    if (p.nome === 'TITAN') p.nome = '🔥 TITAN';
+    if (p.nome === 'TITAN ELITE') p.nome = '👑 TITAN ELITE';
+
     document.getElementById('badge-patente-menu').innerText = `🏆 ${p.nome} ⭐${p.estrelas}`;
 }
 
 function processarFimDePartida(ganhou) {
-    if(!meuPerfil.patente) meuPerfil.patente = { nome: 'BRONZE', estrelas: 1 };
+    if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
-    if(idx === -1) { idx = 0; p = { nome: 'BRONZE', estrelas: 1 }; }
+    if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA A PATENTE ${p.nome}!`); }
@@ -457,8 +525,9 @@ function usarSkillAlok() {
     }
 }
 
+/* FIX DEFINITIVO DE TOQUE NO MENU IN-GAME DO CELULAR */
 document.addEventListener('touchstart', (e) => { 
-    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral')) {
+    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) {
         return; 
     }
     if(e.cancelable) e.preventDefault(); 
@@ -488,7 +557,7 @@ function loadUserGameProgress(emailChave) {
     meuPerfil = dbUsuarios[emailChave]; if (!meuPerfil) return;
     if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
     if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
-    if(!meuPerfil.patente) meuPerfil.patente = { nome: 'BRONZE', estrelas: 1 }; atualizarLobby();
+    if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
 }
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') renderShopList(); }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
@@ -497,7 +566,7 @@ async function cadastrarConta() {
     if (!email || !senha) return alert("Campos Vazios!"); if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
     let nick = prompt("Nome do Sobrevivente:"); if (!nick || nick.length < 2) return;
     document.getElementById('login-msg').innerText = "Gerando Conta...";
-    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: 'BRONZE', estrelas: 1} }; 
+    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
 }
 function entrarConta() {
@@ -608,19 +677,21 @@ let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 const bgImage = new Image(); 
 
+/* BOTS CONFIGURADOS COM MAIS HABILIDADE E AGRESSIVIDADE */
 function criarBot(time, index) {
     const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
     let lvl = getSafeDmgLvl(); 
-    let multiplicador = 1 + (lvl * 0.1); 
+    let multiplicador = 1 + (lvl * 0.12); 
     let posX = time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
     
     return {
         id: 'bot_' + time + '_' + index, x: posX, y: -20, vy: -15, 
-        hp: 100 * multiplicador, speed: (3.5 + Math.random()) * multiplicador,
+        hp: 100 * multiplicador, speed: (4.6 + Math.random()) * multiplicador, 
         facing: time === 'A' ? 1 : -1, isGrounded: false, state: 'JUMP', 
         nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99),
-        isVIP: Math.random() > 0.8, time: time, lastShot: Date.now() + Math.random()*1000, 
-        taxaTiro: Math.max(400, 2000 - (lvl * 300)), frameAtual: 0, contadorAnim: 0
+        isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
+        taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
+        frameAtual: 0, contadorAnim: 0
     };
 }
 
@@ -629,9 +700,10 @@ function iniciarArena(idSala, modo) {
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
     placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true;
     
-    obstaculosPartida = [ {x: canvas.width/2 - 60, w: 120, h: 60}, {x: 220, w: 70, h: 50}, {x: canvas.width - 290, w: 70, h: 50} ];
-    let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
+    /* OBSTÁCULOS DO MEIO REMOVIDOS COMPLETAMENTE DE ACORDO COM O SEU PRINT */
+    obstaculosPartida = []; 
     
+    let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
     botsAtivos = []; 
     
     window.iniciarRound = function() {
@@ -649,7 +721,7 @@ function iniciarArena(idSala, modo) {
                 bot.hp = 100 * multiplicador;
                 bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
                 bot.y = -20; bot.vy = -15; bot.isGrounded = false; bot.state = 'JUMP';
-                bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*1000;
+                bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*400;
             });
         }
         document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`; roundRodando = true;
@@ -697,6 +769,7 @@ function gameLoop() {
     ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
     ctx.fillStyle = "#3e2723"; obstaculosPartida.forEach(obs => { ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#000"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); });
 
+    /* COMPORTAMENTO INTELIGENTE MELHORADO DOS BOTS */
     botsAtivos.forEach(bot => {
         if(bot.hp <= 0) return;
         if (!bot.isGrounded) { bot.vy += 0.6; bot.y += bot.vy; }
@@ -708,14 +781,14 @@ function gameLoop() {
         let nextBotX = bot.x;
         if (alvo) {
             let distToAlvo = alvo.x - bot.x; let distAbs = Math.abs(distToAlvo);
-            if (distAbs > 250) { 
+            if (distAbs > 450) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; 
-            } else if (distAbs < 80) { 
+            } else if (distAbs < 60) { 
                 bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
             } else { 
                 bot.state = 'IDLE'; 
-                if (Math.random() < 0.05 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } 
-                if (Math.random() < 0.3) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } 
+                if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } 
+                if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } 
                 bot.facing = distToAlvo > 0 ? 1 : -1; 
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
@@ -780,6 +853,7 @@ function gameLoop() {
     }
 }
 
+/* DESENHO DO JOGADOR - VERIFICADO REDONDO PROFISSIONAL E CHROMATIC RGB DENTRO DO JOGO */
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura) {
     ctx.save(); ctx.translate(x, baseY); 
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
@@ -789,18 +863,37 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     if (img && img.complete && img.naturalWidth > 0) { ctx.drawImage(img, -37.5, -75, 75, 75); } 
     else { ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65); }
     ctx.restore(); 
+    
     let offsetVIP = isVIP ? -10 : 0;
-    if (isVIP) { ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.roundRect(-25, -108, 14, 14, 2); ctx.fill(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 10px Arial"; ctx.fillStyle = "#000"; ctx.fillText("V", -18, -101); }
+    if (isVIP) { 
+        /* EFEITO DINAMICO HSL FAZ O VERIFICADO MUDAR DE COR SUPER RAPIDO E LINDO */
+        ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; 
+        ctx.beginPath(); 
+        ctx.arc(-20, -99, 9, 0, Math.PI * 2); 
+        ctx.fill(); 
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        ctx.textAlign = "center"; 
+        ctx.textBaseline = "middle"; 
+        ctx.font = "900 11px Arial"; 
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillText("V", -20, -99); 
+    }
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, offsetVIP, -95);
     ctx.restore();
 }
 
-// Função que abre a caixa para o jogador mandar mensagem pra você
 function falarComDono() {
     let msg = prompt("Digite sua mensagem para o Dono do jogo:");
     if(msg && msg.trim() !== '') {
-        socket.emit('mensagem_para_dono', msg);
-        alert("Mensagem enviada com sucesso! Aguarde a resposta.");
+        if (socket && socket.connected) {
+            socket.emit('mensagem_para_dono', msg);
+            alert("Mensagem enviada com sucesso! Aguarde a resposta.");
+        } else {
+            alert("⚠️ Você ainda não está conectado ao servidor! Tente novamente em alguns segundos.");
+        }
     }
 }
 </script>
