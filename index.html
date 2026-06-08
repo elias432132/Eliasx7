@@ -338,6 +338,7 @@ function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getEle
 // ============================================
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false;
+let lastShotTime = 0;
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
 function usarSkillAlok() {
     if(Date.now() > skillCooldown) {
