@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const axios = require('axios'); // Necessário para a API do Mercado Pago
+const axios = require('axios'); 
 
 const app = express();
 app.use(express.json());
@@ -18,9 +18,27 @@ let codigosValidos = {};
 let filas = { solo: [], duo: [], squad: [] };
 let lojaDinamica = { skins: [], weapons: [] };
 
+// NOVO: Guarda todos os jogadores online pro painel do dono ler
+let jogadoresGlobais = {}; 
+
 io.on('connection', (socket) => {
-    // Envia os itens novos da loja pro jogador assim que ele conecta
     socket.emit('atualizar_loja_dinamica', lojaDinamica);
+
+    // NOVO: Registra o jogador quando ele entra no jogo
+    socket.on('registrar_nick', (nick) => {
+        jogadoresGlobais[socket.id] = { id: socket.id, nick: nick };
+    });
+
+    // NOVO: Recebe mensagem do jogador e manda pro painel do dono
+    socket.on('mensagem_para_dono', (texto) => {
+        let nick = jogadoresGlobais[socket.id] ? jogadoresGlobais[socket.id].nick : "Desconhecido";
+        io.emit('aviso_painel_admin', { id: socket.id, nick: nick, msg: texto });
+    });
+
+    // NOVO: Recebe a resposta do painel e manda só pro jogador certo
+    socket.on('resposta_do_dono', (dados) => {
+        io.to(dados.idDestino).emit('nova_mensagem_sistema', { msg: `👑 PROMOTOR RESPONDEU: ${dados.msg}` });
+    });
 
     socket.on('buscar_partida', (dados) => {
         const modo = dados.modo;
@@ -46,7 +64,16 @@ io.on('connection', (socket) => {
 
     socket.on('cancelar_busca', () => { ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id)); });
     socket.on('enviar_mensagem', (msg) => { io.emit('nova_mensagem', msg); });
-    socket.on('disconnect', () => { ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id)); });
+    
+    socket.on('disconnect', () => { 
+        ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id)); 
+        delete jogadoresGlobais[socket.id]; // Remove da lista do painel se ele sair
+    });
+});
+
+// --- NOVO: Rota para o Painel pegar quem tá online ---
+app.get('/admin/jogadores', (req, res) => {
+    res.json({ sucesso: true, lista: Object.values(jogadoresGlobais) });
 });
 
 // --- ROTAS DO PAINEL DE DONO ---
@@ -90,7 +117,6 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
 
 // --- CONEXÃO REAL COM O MERCADO PAGO ---
 app.post('/gerar-pix', async (req, res) => { 
-    // CORRIGIDO AQUI: Lendo 'Nick' ou 'nome' para não bugar a rota
     const { valor, nome, Nick, cpfCnpj } = req.body;
     const nomeComprador = nome || Nick;
 
@@ -100,8 +126,6 @@ app.post('/gerar-pix', async (req, res) => {
 
     try {
         const emailGenerico = "jogador@freex7.com";
-        // IMPORTANTE: O Mercado Pago costuma bloquear o PIX se o CPF for claramente falso como 01234567890.
-        // Se a API der erro de "invalid identification", você precisará colocar um campo de CPF no HTML.
         const cpfGenerico = (cpfCnpj || "01234567890").replace(/\D/g, ''); 
 
         const dadosPagamento = {
@@ -111,17 +135,14 @@ app.post('/gerar-pix', async (req, res) => {
             payer: {
                 email: emailGenerico,
                 first_name: nomeComprador,
-                identification: {
-                    type: "CPF",
-                    number: cpfGenerico
-                }
+                identification: { type: "CPF", number: cpfGenerico }
             }
         };
 
         const mpResponse = await axios.post('https://api.mercadopago.com/v1/payments', dadosPagamento, {
             headers: {
                 'Authorization': `Bearer ${MERCADOPG_TOKEN}`,
-                'X-Idempotency-Key': `pix-${Date.now()}` // Evita cobranças duplicadas
+                'X-Idempotency-Key': `pix-${Date.now()}` 
             }
         });
 
@@ -129,28 +150,16 @@ app.post('/gerar-pix', async (req, res) => {
         const qrCodeBase64 = mpResponse.data.point_of_interaction?.transaction_data?.qr_code_base64;
         const cobrancaId = mpResponse.data.id;
 
-        if (!copiaECola) {
-            throw new Error("Mercado Pago não retornou a chave PIX.");
-        }
+        if (!copiaECola) throw new Error("Mercado Pago não retornou a chave PIX.");
 
-        res.json({ 
-            sucesso: true,
-            copia_e_cola: copiaECola,
-            qrcode_base64: qrCodeBase64, 
-            cobranca_id: cobrancaId
-        }); 
+        res.json({ sucesso: true, copia_e_cola: copiaECola, qrcode_base64: qrCodeBase64, cobranca_id: cobrancaId }); 
 
     } catch (error) {
         console.error("Erro ao gerar PIX no Mercado Pago:", error.response?.data || error.message);
-        res.status(500).json({ 
-            sucesso: false, 
-            erro: "Erro interno ao processar o pagamento no Mercado Pago.",
-            detalhes: error.response?.data?.message || error.message
-        });
+        res.status(500).json({ sucesso: false, erro: "Erro interno no Mercado Pago." });
     }
 });
 
-// Ping de conexão
 app.get('/status', (req, res) => { res.json({ status: 'online' }); });
 
 const PORT = process.env.PORT || 10000;
