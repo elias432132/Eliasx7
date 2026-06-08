@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const axios = require('axios'); // Mantido para o seu PIX Asaas
+const axios = require('axios'); // Mantido e configurado para o PIX Asaas
 
 const app = express();
 app.use(express.json());
@@ -10,6 +10,11 @@ app.use(cors({ origin: '*', methods: ['GET', 'POST'], credentials: true }));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+
+// --- CONFIGURAÇÕES DO ASAAS ---
+// Altere para 'https://api.asaas.com/v3' quando for para produção (dinheiro real)
+const ASAAS_API_URL = process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3'; 
+const ASAAS_API_KEY = process.env.ASAAS_API_KEY || 'SUA_API_KEY_DO_ASAAS_AQUI';
 
 let codigosValidos = {};
 let filas = { solo: [], duo: [], squad: [] };
@@ -85,13 +90,66 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     }
 });
 
-// O Seu PIX intacto (Ele responde aqui para o jogo)
+// --- CONEXÃO REAL COM O PIX ASAAS ---
 app.post('/gerar-pix', async (req, res) => { 
-    res.json({ copia_e_cola: "00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540510.005802BR5915Free X7 Teste6009Sao Paulo62070503***63041234" }); 
+    const { valor, nome, cpfCnpj } = req.body;
+
+    // Validação básica para não quebrar a API do Asaas
+    if (!valor || !nome || !cpfCnpj) {
+        return res.status(400).json({ sucesso: false, erro: "Campos valor, nome e cpfCnpj são obrigatórios." });
+    }
+
+    try {
+        // 1. Criar o cliente no Asaas (Exigido para gerar cobranças)
+        const clienteResponse = await axios.post(`${ASAAS_URL}/customers`, {
+            name: nome,
+            cpfCnpj: cpfCnpj
+        }, {
+            headers: { 'access_token': ASAAS_API_KEY }
+        });
+
+        const clienteId = clienteResponse.data.id;
+
+        // 2. Criar a cobrança do tipo PIX
+        const hoje = new Date();
+        const dataVencimento = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+        const cobrancaResponse = await axios.post(`${ASAAS_URL}/payments`, {
+            customer: clienteId,
+            billingType: "PIX",
+            value: valor,
+            dueDate: dataVencimento
+        }, {
+            headers: { 'access_token': ASAAS_API_KEY }
+        });
+
+        const cobrancaId = cobrancaResponse.data.id;
+
+        // 3. Buscar a chave Copia e Cola e o QR Code gerado
+        const pixResponse = await axios.get(`${ASAAS_URL}/payments/${cobrancaId}/pixQrCode`, {
+            headers: { 'access_token': ASAAS_API_KEY }
+        });
+
+        // Responde de volta para o jogo com os dados reais
+        res.json({ 
+            sucesso: true,
+            copia_e_cola: pixResponse.data.payload,
+            qrcode_base64: pixResponse.data.encodedImage, // Opcional se o jogo aceitar exibir imagem em Base64
+            cobranca_id: cobrancaId
+        }); 
+
+    } catch (error) {
+        console.error("Erro ao gerar PIX no Asaas:", error.response?.data || error.message);
+        res.status(500).json({ 
+            sucesso: false, 
+            erro: "Erro interno ao processar o pagamento com o Asaas.",
+            detalhes: error.response?.data?.errors || error.message
+        });
+    }
 });
 
 // Ping de conexão (Para o jogo não dar "Offline" falso)
 app.get('/status', (req, res) => { res.json({ status: 'online' }); });
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => console.log(`Servidor Free X7 Online na porta ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor Free X7 Online na porta ${PORT}`)); 
