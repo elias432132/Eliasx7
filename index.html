@@ -122,6 +122,7 @@
 <div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
 
 <div id="modal-vip-lindo" class="hidden">
+    <span onclick="fecharModalVip()" style="position: absolute; top: 10px; right: 15px; font-size: 22px; font-weight: bold; color: #fff; cursor: pointer; text-shadow: 0 0 5px #000;">✖</span>
     <h2 style="color: #f1c40f; margin: 0 0 12px 0; font-size: 22px; text-transform: uppercase; text-shadow: 0 0 10px #f1c40f;">👑 SISTEMA VIP 👑</h2>
     <p style="color: #fff; font-size: 15px; line-height: 1.4; margin-bottom: 20px; font-weight: bold;">Parabéns! O Dono do servidor acabou de conceder a Tag de <span style="color: #f1c40f;">Verificado Oficial</span> para a sua conta!</p>
     <button class="btn-main" onclick="fecharModalVip()" style="background: linear-gradient(90deg, #f1c40f, #f39c12); color: #000; width: 100%; border: none; box-shadow: 0 4px #b78a06;">SENSACIONAL!</button>
@@ -287,6 +288,10 @@
 </div>
 
 <script>
+// SOM DA ARMA GLOBAL
+const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
+somTiroEfeito.volume = 0.4;
+
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
 
@@ -295,7 +300,13 @@ let meuEmail = localStorage.getItem('ff2d_current_user') || null;
 let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
 
 let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
-let baseWeapons = [{ id: 'pistola', name: '🔫 Pistola', price: 0 }, { id: 'mp40', name: '🔫 MP40', price: 500 }];
+
+// ARMA UMP ADICIONADA NA LOJA COMO PEDIDO COM DOIS VALORES (OURO E DIMA)
+let baseWeapons = [
+    { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
+    { id: 'mp40', name: '🔫 MP40', price: 500 },
+    { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
+];
 let skinsDB = [...baseSkins];
 let weaponsDB = [...baseWeapons];
 
@@ -587,14 +598,12 @@ function fazerLogout() {
 function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
 function verificarAtualizacaoDoJogo() { alert("🔄 Recarregando..."); window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now(); }
 
-/* --- CORREÇÃO DO BOTÃO DE GERAR CÓDIGO APLICADA AQUI --- */
 function gerarCodigoSalvar() { 
     if (!meuEmail || !dbUsuarios[meuEmail]) {
         alert("⚠️ Erro: Nenhuma conta logada.");
         return; 
     }
     try {
-        // FIX DEFINITIVO: Resolve erro do btoa convertendo acentos e emojis de forma segura
         let dados = JSON.stringify(dbUsuarios[meuEmail]);
         let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
         let inputArea = document.getElementById('save-code-input');
@@ -607,12 +616,10 @@ function gerarCodigoSalvar() {
     }
 }
 
-/* --- CORREÇÃO DO CARREGAMENTO DO CÓDIGO APLICADA AQUI --- */
 function carregarCodigo() { 
     let codigo = document.getElementById('save-code-input').value.trim(); 
     if (!codigo) return; 
     try { 
-        // FIX DEFINITIVO: Desfaz a conversão resgatando os emojis e patentes sem corromper
         let decodificado = decodeURIComponent(escape(atob(codigo)));
         let d = JSON.parse(decodificado); 
         if (d && d.email) { 
@@ -639,8 +646,51 @@ async function processarResgate() {
 }
 
 function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
-function renderShopList() { let container = document.getElementById('shop-items-list'); container.innerHTML = ''; let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; db.forEach(item => { let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3><button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price})">${isOwned ? 'EQUIPAR':'COMPRAR'}</button></div>`); }); }
-function comprarItem(id, tipo, preco) { let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; if (!owned.includes(id)) { if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); meuPerfil.ouro -= preco; owned.push(id); } if (tipo === 'skins') meuPerfil.equippedSkin = id; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); }
+
+/* RENDERIZAÇÃO DA LOJA ATUALIZADA PARA ACEITAR PREÇO EM OURO E DIMA NA MESMA ARMA */
+function renderShopList() { 
+    let container = document.getElementById('shop-items-list'); 
+    container.innerHTML = ''; 
+    let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; 
+    
+    db.forEach(item => { 
+        let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); 
+        let btnHTML = '';
+        
+        if (isOwned) {
+            let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id);
+            btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
+        } else {
+            if (item.priceD) {
+                btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`;
+            } else {
+                btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`;
+            }
+        }
+        container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3>${btnHTML}</div>`); 
+    }); 
+}
+
+/* SISTEMA DE COMPRA ATUALIZADO PARA COBRAR CERTO DIMA OU OURO */
+function comprarItem(id, tipo, preco, moeda) { 
+    let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
+    if (!owned.includes(id)) { 
+        if (moeda === 'dima') {
+            if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); 
+            meuPerfil.dimas -= preco; 
+        } else if (moeda === 'ouro') {
+            if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); 
+            meuPerfil.ouro -= preco; 
+        }
+        owned.push(id); 
+    } 
+    if (tipo === 'skins') meuPerfil.equippedSkin = id; 
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+    loadUserGameProgress(meuEmail); 
+    renderShopList(); 
+    atualizarLobby();
+}
+
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
 
 async function gerarPix(event) {
@@ -812,7 +862,15 @@ function gameLoop() {
         } else { player.isGrounded = false; }
 
         if (!player.isGrounded) playerState = 'JUMP'; else if (keys.fire) playerState = 'SHOOT'; else if (keys.left || keys.right) playerState = 'RUN'; else playerState = 'IDLE';
-        if (keys.fire && Date.now() - lastShotTime > 350) { bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); lastShotTime = Date.now(); }
+        
+        /* SOM DO TIRO AO ATIRAR */
+        if (keys.fire && Date.now() - lastShotTime > 350) { 
+            bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
+            lastShotTime = Date.now(); 
+            somTiroEfeito.currentTime = 0;
+            somTiroEfeito.play().catch(e => {}); 
+        }
+        
         contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % animSprites[playerState].length; contadorAnim = 0; }
     } else { playerState = 'IDLE'; }
 
@@ -846,6 +904,8 @@ function gameLoop() {
                 bot.facing = distToAlvo > 0 ? 1 : -1; 
                 bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
                 bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
+                somTiroEfeito.currentTime = 0;
+                somTiroEfeito.play().catch(e => {}); 
             }
         }
         
@@ -862,7 +922,7 @@ function gameLoop() {
         if (!bot.isGrounded) bot.state = 'JUMP';
         
         bot.contadorAnim++; if(bot.contadorAnim > 5) { bot.frameAtual = (bot.frameAtual + 1) % animSprites[bot.state].length; bot.contadorAnim = 0; }
-        desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, animSprites[bot.state][bot.frameAtual], bot.time !== meuTime, false);
+        desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, animSprites[bot.state][bot.frameAtual], bot.time !== meuTime, false, false);
     });
 
     for(let i = bullets.length - 1; i >= 0; i--) {
@@ -887,7 +947,9 @@ function gameLoop() {
     }
 
     if (player.hp > 0) {
-        desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animSprites[playerState][frameAtual], false, auraAtiva);
+        /* VERIFICA SE É TITAN PARA MOSTRAR A AURA TOP */
+        let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
+        desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animSprites[playerState][frameAtual], false, auraAtiva, localPlayerTitan);
     }
     
     if (roundRodando) {
@@ -904,8 +966,25 @@ function gameLoop() {
     }
 }
 
-function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura) {
+/* SISTEMA VISUAL DE DESENHO ATUALIZADO COM AS NOVAS REGRAS (VERIFICADO MAIS ALTO E AURA TITAN) */
+function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
+
+    /* AURA TOP FLAMEJANTE SE CHEGAR NO TITAN */
+    if (isTitan) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); 
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = "#f39c12"; 
+        ctx.fillStyle = "rgba(230, 126, 34, 0.4)";
+        ctx.fill();
+        ctx.strokeStyle = "#f1c40f";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+    }
+
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
     ctx.save(); ctx.scale(facing, 1); 
     let idxReal = fIdx !== undefined ? fIdx : animSprites['IDLE'][0];
@@ -914,11 +993,11 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     else { ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65); }
     ctx.restore(); 
     
-    let offsetVIP = isVIP ? -10 : 0;
+    /* O VERIFICADO AGORA FICA PERFEITAMENTE ACIMA DO NICK (Y = -112) BEM CENTRALIZADO */
     if (isVIP) { 
         ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; 
         ctx.beginPath(); 
-        ctx.arc(-20, -99, 9, 0, Math.PI * 2); 
+        ctx.arc(0, -112, 9, 0, Math.PI * 2); 
         ctx.fill(); 
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 1.5;
@@ -928,9 +1007,11 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
         ctx.textBaseline = "middle"; 
         ctx.font = "900 11px Arial"; 
         ctx.fillStyle = "#ffffff"; 
-        ctx.fillText("V", -20, -99); 
+        ctx.fillText("V", 0, -112); 
     }
-    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, offsetVIP, -95);
+    
+    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; 
+    ctx.fillText(nick, 0, -95);
     ctx.restore();
 }
 
