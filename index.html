@@ -121,7 +121,6 @@
 
 <div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
 
-<!-- TELA SENSACIONAL DE VERIFICADO ATIVADO (ANTI-BUG) -->
 <div id="modal-vip-lindo" class="hidden">
     <h2 style="color: #f1c40f; margin: 0 0 12px 0; font-size: 22px; text-transform: uppercase; text-shadow: 0 0 10px #f1c40f;">👑 SISTEMA VIP 👑</h2>
     <p style="color: #fff; font-size: 15px; line-height: 1.4; margin-bottom: 20px; font-weight: bold;">Parabéns! O Dono do servidor acabou de conceder a Tag de <span style="color: #f1c40f;">Verificado Oficial</span> para a sua conta!</p>
@@ -147,7 +146,7 @@
         <div class="lobby-chat-header">💬 CHAT GLOBAL ONLINE</div>
         <div class="lobby-chat-box" id="lobby-chat-mensagens-box"></div>
         <div class="lobby-chat-input-row">
-            <input type="text" id="input-chat-lobby" placeholder="Escreva para o servidor...">
+            <input type="text" id="input-chat-lobby" placeholder="Escreva para o servidor..." onkeydown="if(event.key === 'Enter') enviarMensagemLobby()">
             <button onclick="enviarMensagemLobby()">Mandar</button>
         </div>
     </div>
@@ -215,7 +214,7 @@
     <h2>CHAT GLOBAL</h2>
     <div id="chat-mensagens"></div>
     <div style="display:flex;gap:5px;width:95%;max-width:600px;margin-bottom:15px;">
-        <input type="text" id="input-chat-global" placeholder="Mensagem..." style="flex-grow:1;padding:10px;background:#111;color:#fff;border:2px solid #555;touch-action:auto;">
+        <input type="text" id="input-chat-global" placeholder="Mensagem..." style="flex-grow:1;padding:10px;background:#111;color:#fff;border:2px solid #555;touch-action:auto;" onkeydown="if(event.key === 'Enter') enviarMensagemGlobal()">
         <button onclick="enviarMensagemGlobal()" style="background:#9b59b6;color:white;padding:0 20px;border-radius:5px;">ENVIAR</button>
     </div>
     <button class="btn-sub btn-danger" onclick="fecharMenu('chat-global-menu')">FECHAR</button>
@@ -384,7 +383,6 @@ function conectarSocket() {
             }
         });
 
-        /* CORREÇÃO DO BUG DO VERIFICADO (CHAMADA SEM ALERT TRAVADOR) */
         socket.on('forcar_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
                 meuPerfil.isVIP = true;
@@ -413,7 +411,6 @@ function conectarSocket() {
     } catch(e) {}
 }
 
-/* BANDEIRINHAS EXCLUSIVAS DE CADA PATENTE CONFIGURADAS */
 const PATENTES = [
     { nome: '🟫 BRONZE', max: 3 }, 
     { nome: '⬜ PRATA', max: 4 }, 
@@ -525,7 +522,6 @@ function usarSkillAlok() {
     }
 }
 
-/* FIX DEFINITIVO DE TOQUE NO MENU IN-GAME DO CELULAR */
 document.addEventListener('touchstart', (e) => { 
     if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) {
         return; 
@@ -590,8 +586,45 @@ function fazerLogout() {
 }
 function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
 function verificarAtualizacaoDoJogo() { alert("🔄 Recarregando..."); window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now(); }
-function gerarCodigoSalvar() { if (!meuEmail) return; document.getElementById('save-code-input').value = btoa(JSON.stringify(dbUsuarios[meuEmail])); alert("Código gerado!"); }
-function carregarCodigo() { let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; try { let d = JSON.parse(atob(codigo)); if (d && d.email) { dbUsuarios[d.email] = d; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); alert("Conta recuperada!"); fazerLogout(); } } catch(e) { alert("Erro no código."); } }
+
+/* --- CORREÇÃO DO BOTÃO DE GERAR CÓDIGO APLICADA AQUI --- */
+function gerarCodigoSalvar() { 
+    if (!meuEmail || !dbUsuarios[meuEmail]) {
+        alert("⚠️ Erro: Nenhuma conta logada.");
+        return; 
+    }
+    try {
+        // FIX DEFINITIVO: Resolve erro do btoa convertendo acentos e emojis de forma segura
+        let dados = JSON.stringify(dbUsuarios[meuEmail]);
+        let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
+        let inputArea = document.getElementById('save-code-input');
+        inputArea.value = codigoGerado; 
+        inputArea.select();
+        document.execCommand("copy");
+        alert("✅ Código de recuperação gerado e COPIADO com sucesso! Cole e guarde-o num bloco de notas."); 
+    } catch(e) {
+        alert("Erro ao gerar: " + e.message);
+    }
+}
+
+/* --- CORREÇÃO DO CARREGAMENTO DO CÓDIGO APLICADA AQUI --- */
+function carregarCodigo() { 
+    let codigo = document.getElementById('save-code-input').value.trim(); 
+    if (!codigo) return; 
+    try { 
+        // FIX DEFINITIVO: Desfaz a conversão resgatando os emojis e patentes sem corromper
+        let decodificado = decodeURIComponent(escape(atob(codigo)));
+        let d = JSON.parse(decodificado); 
+        if (d && d.email) { 
+            dbUsuarios[d.email] = d; 
+            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+            alert("Conta recuperada com sucesso!"); 
+            fazerLogout(); 
+        } 
+    } catch(e) { 
+        alert("Erro no código. Verifique se copiou corretamente tudo."); 
+    } 
+}
 
 async function processarResgate() {
     let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!");
@@ -642,8 +675,29 @@ async function gerarPix(event) {
 
 function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
 
-function enviarMensagemGlobal() { let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto || !socket) return; socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; }
-function enviarMensagemLobby() { let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto || !socket) return; socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; }
+function enviarMensagemGlobal() { 
+    let input = document.getElementById('input-chat-global'); 
+    let texto = input.value.trim(); 
+    if (!texto) return; 
+    if (!socket || !socket.connected) { 
+        alert("⚠️ Você está desconectado do servidor. Aguarde uns segundos para enviar."); 
+        return; 
+    }
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); 
+    input.value = ''; 
+}
+
+function enviarMensagemLobby() { 
+    let input = document.getElementById('input-chat-lobby'); 
+    let texto = input.value.trim(); 
+    if (!texto) return; 
+    if (!socket || !socket.connected) { 
+        alert("⚠️ Você está desconectado do servidor. Aguarde uns segundos para enviar."); 
+        return; 
+    }
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); 
+    input.value = ''; 
+}
 
 function adicionarMensagemChat(msg) { 
     let container = document.getElementById('chat-mensagens'); 
@@ -677,7 +731,6 @@ let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 const bgImage = new Image(); 
 
-/* BOTS CONFIGURADOS COM MAIS HABILIDADE E AGRESSIVIDADE */
 function criarBot(time, index) {
     const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
     let lvl = getSafeDmgLvl(); 
@@ -700,7 +753,6 @@ function iniciarArena(idSala, modo) {
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
     placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true;
     
-    /* OBSTÁCULOS DO MEIO REMOVIDOS COMPLETAMENTE DE ACORDO COM O SEU PRINT */
     obstaculosPartida = []; 
     
     let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
@@ -769,7 +821,6 @@ function gameLoop() {
     ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
     ctx.fillStyle = "#3e2723"; obstaculosPartida.forEach(obs => { ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#000"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); });
 
-    /* COMPORTAMENTO INTELIGENTE MELHORADO DOS BOTS */
     botsAtivos.forEach(bot => {
         if(bot.hp <= 0) return;
         if (!bot.isGrounded) { bot.vy += 0.6; bot.y += bot.vy; }
@@ -853,7 +904,6 @@ function gameLoop() {
     }
 }
 
-/* DESENHO DO JOGADOR - VERIFICADO REDONDO PROFISSIONAL E CHROMATIC RGB DENTRO DO JOGO */
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura) {
     ctx.save(); ctx.translate(x, baseY); 
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
@@ -866,7 +916,6 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     
     let offsetVIP = isVIP ? -10 : 0;
     if (isVIP) { 
-        /* EFEITO DINAMICO HSL FAZ O VERIFICADO MUDAR DE COR SUPER RAPIDO E LINDO */
         ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; 
         ctx.beginPath(); 
         ctx.arc(-20, -99, 9, 0, Math.PI * 2); 
