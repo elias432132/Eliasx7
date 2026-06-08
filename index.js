@@ -90,24 +90,27 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
 
 // --- CONEXÃO REAL COM O MERCADO PAGO ---
 app.post('/gerar-pix', async (req, res) => { 
-    const { valor, nome, cpfCnpj } = req.body;
+    // CORRIGIDO AQUI: Lendo 'Nick' ou 'nome' para não bugar a rota
+    const { valor, nome, Nick, cpfCnpj } = req.body;
+    const nomeComprador = nome || Nick;
 
-    if (!valor || !nome) {
+    if (!valor || !nomeComprador) {
         return res.status(400).json({ sucesso: false, erro: "Campos valor e nome são obrigatórios." });
     }
 
     try {
-        // O Mercado Pago exige um email e um CPF. Se o seu jogo não mandar, usamos um padrão para não dar erro.
         const emailGenerico = "jogador@freex7.com";
+        // IMPORTANTE: O Mercado Pago costuma bloquear o PIX se o CPF for claramente falso como 01234567890.
+        // Se a API der erro de "invalid identification", você precisará colocar um campo de CPF no HTML.
         const cpfGenerico = (cpfCnpj || "01234567890").replace(/\D/g, ''); 
 
         const dadosPagamento = {
             transaction_amount: Number(valor),
-            description: `Compra de diamantes no Free X7 - ${nome}`,
+            description: `Compra de diamantes no Free X7 - ${nomeComprador}`,
             payment_method_id: "pix",
             payer: {
                 email: emailGenerico,
-                first_name: nome,
+                first_name: nomeComprador,
                 identification: {
                     type: "CPF",
                     number: cpfGenerico
@@ -122,7 +125,6 @@ app.post('/gerar-pix', async (req, res) => {
             }
         });
 
-        // Pegando os dados do Pix da resposta do Mercado Pago
         const copiaECola = mpResponse.data.point_of_interaction?.transaction_data?.qr_code;
         const qrCodeBase64 = mpResponse.data.point_of_interaction?.transaction_data?.qr_code_base64;
         const cobrancaId = mpResponse.data.id;
