@@ -2,7 +2,7 @@
   "name": "elias-jogo-pix",
   "version": "1.0.0",
   "description": "Servidor de Pix com Asaas",
-  "main": "server.js", 
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
