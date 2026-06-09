@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Free X7 - Servidor Global PvP</title>
+    <title>NEXUS STRIKE - Servidor Global PvP</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; touch-action: none; }
@@ -15,12 +15,12 @@
         @keyframes girar { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
         @media (orientation: landscape) { #aviso-gire-tela { display: none !important; } }
         
-        .fullscreen-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #111, #2c3e50); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; overflow-y: auto; touch-action: auto; }
+        .fullscreen-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0d1b2a, #1b263b); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; overflow-y: auto; touch-action: auto; }
         .hidden { display: none !important; }
         
-        .login-box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; border: 3px solid #e67e22; box-shadow: 0 0 20px #e67e22; width: 95%; max-width: 420px; }
+        .login-box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; border: 3px solid #00ecff; box-shadow: 0 0 20px #00ecff; width: 95%; max-width: 420px; }
         .login-box input { width: 100%; padding: 10px; margin-bottom: 12px; background: #222; color: #fff; border: 2px solid #555; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center; touch-action: auto; }
-        .login-box input:focus { border-color: #f1c40f; outline: none; }
+        .login-box input:focus { border-color: #00ecff; outline: none; }
         
         .btn-main { background: #e67e22; color: white; border: 3px solid #d35400; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; box-shadow: 0 4px #a83f00; cursor: pointer; margin: 4px; }
         .btn-main:hover { transform: scale(1.02); }
@@ -28,8 +28,11 @@
         .btn-danger { background: #c0392b !important; border-color: #962d22 !important; box-shadow: 0 4px #6d2018 !important; }
         
         .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; max-width: 650px; }
-        h1 { color: #ff3f34; font-size: 28px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; margin: 0 0 5px 0; }
         
+        /* ESTILIZAÇÃO DO NOVO LOGO NEON REFORMULADO */
+        .logo-jogo-neon { color: #fff; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #fff, 0 0 10px #00ecff, 0 0 20px #00ecff, 0 0 40px #00ecff; margin: 0 0 5px 0; animation: pulsaGlow 2s infinite ease-in-out; }
+        @keyframes pulsaGlow { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+
         .currency-display { font-size: 15px; color: #f1c40f; font-weight: bold; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .currency-display span { background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; }
         .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; background: rgba(0,0,0,0.5); }
@@ -130,7 +133,9 @@
 
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
-        <h1>FREE X7<br><span style="color:#f1c40f;font-size:16px;">LOGIN DO SOBREVIVENTE</span></h1>
+        <!-- NOME NEON CONFIGURADO -->
+        <div class="logo-jogo-neon">NEXUS STRIKE</div>
+        <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
         <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
         <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
         <div style="display:flex;gap:10px;margin-bottom:8px;">
@@ -154,7 +159,9 @@
 
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; max-width: 650px;">
         <button class="btn-sub" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR</button>
-        <h1>FREE X7 <span style="color:#f1c40f;font-size:16px;">ONLINE</span></h1>
+        
+        <!-- NOME NEON CONFIGURADO NO LOBBY -->
+        <div class="logo-jogo-neon" style="font-size: 26px;">NEXUS STRIKE <span style="color:#f1c40f;font-size:16px;">ONLINE</span></div>
         <p id="player-welcome" style="color:#2ecc71;font-weight:bold;margin:-5px 0 8px 0;font-size:15px; display:flex; align-items:center; justify-content:center;"></p>
         
         <div class="currency-display">
@@ -173,6 +180,10 @@
             <button class="btn-sub" style="color:#e74c3c;border-color:#c0392b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
             <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
             <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR</button>
+            
+            <!-- BOTÃO DE RESGATE SEMANAL EXCLUSIVO PARA VERIFICADOS -->
+            <button class="btn-sub" id="btn-recompensa-semanal" style="color:#f1c40f; background: rgba(241,196,15,0.1); border-color:#f1c40f;" onclick="resgatarPremioSemanalVip()">💎 RECOMPENSA SEMANAL</button>
+            
             <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
         </div>
     </div>
@@ -288,7 +299,6 @@
 </div>
 
 <script>
-// SOM DA ARMA GLOBAL
 const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
 somTiroEfeito.volume = 0.4;
 
@@ -300,8 +310,6 @@ let meuEmail = localStorage.getItem('ff2d_current_user') || null;
 let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
 
 let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
-
-// ARMA UMP ADICIONADA NA LOJA COMO PEDIDO COM DOIS VALORES (OURO E DIMA)
 let baseWeapons = [
     { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
     { id: 'mp40', name: '🔫 MP40', price: 500 },
@@ -394,10 +402,18 @@ function conectarSocket() {
             }
         });
 
+        // REGRAS DE PREMIAÇÃO DE 1.000 DIAMANTES AUTOMÁTICOS AO RECEBER VERIFICADO
         socket.on('forcar_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                if(!meuPerfil.isVIP) {
+                    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; // Injeta os 1000 dima
+                    alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus imediato de 1.000 Diamantes!");
+                }
                 meuPerfil.isVIP = true;
-                if(dbUsuarios[meuEmail]) dbUsuarios[meuEmail].isVIP = true;
+                if(dbUsuarios[meuEmail]) {
+                    dbUsuarios[meuEmail].isVIP = true;
+                    dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
+                }
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
                 atualizarLobby(); 
                 document.getElementById('modal-vip-lindo').classList.remove('hidden');
@@ -451,6 +467,36 @@ function atualizarLobby() {
     if (p.nome === 'TITAN ELITE') p.nome = '👑 TITAN ELITE';
 
     document.getElementById('badge-patente-menu').innerText = `🏆 ${p.nome} ⭐${p.estrelas}`;
+}
+
+// FUNÇÃO DE RESGATE SEMANAL PARA VERIFICADOS (50 a 100 diamantes)
+function resgatarPremioSemanalVip() {
+    if(!meuPerfil) return;
+    if(!meuPerfil.isVIP) {
+        return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
+    }
+    
+    let agora = Date.now();
+    let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000;
+    let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
+    
+    if(agora - ultimoResgate < umaSemanaEmMs) {
+        let tempoRestante = umaSemanaEmMs - (agora - ultimoResgate);
+        let diasRestantes = Math.ceil(tempoRestante / (24 * 60 * 60 * 1000));
+        return alert(`⏳ Calma Sobrevivente! Você já coletou essa semana. Volte em ${diasRestantes} dias.`);
+    }
+    
+    // Sorteia entre 50 e 100 diamantes
+    let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+    
+    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados;
+    meuPerfil.ultimoResgateSemanal = agora;
+    
+    dbUsuarios[meuEmail] = meuPerfil;
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+    
+    atualizarLobby();
+    alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou o bônus semanal de 💎 ${dimasSorteados} Diamantes.`);
 }
 
 function processarFimDePartida(ganhou) {
@@ -596,7 +642,22 @@ function fazerLogout() {
     document.getElementById('login-screen').classList.remove('hidden'); 
 }
 function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
-function verificarAtualizacaoDoJogo() { alert("🔄 Recarregando..."); window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now(); }
+
+// REPARO DEFINITIVO DE LIMPEZA DE CACHE DO NAVEGADOR / GITHUB
+function verificarAtualizacaoDoJogo() { 
+    alert("🔄 Buscando novos dados no servidor...\nO jogo irá reiniciar completamente sem cache travado!"); 
+    
+    // Deleta os caches antigos do navegador se existirem para forçar re-download limpo do HTML
+    if('caches' in window) {
+        caches.keys().then(names => {
+            for (let name of names) caches.delete(name);
+        });
+    }
+    
+    // Constrói uma URL com cache busting forte e limpa a sessão para recarregar
+    let baseUri = window.location.origin + window.location.pathname;
+    window.location.replace(baseUri + '?updateBuster=' + Date.now()); 
+}
 
 function gerarCodigoSalvar() { 
     if (!meuEmail || !dbUsuarios[meuEmail]) {
@@ -647,7 +708,6 @@ async function processarResgate() {
 
 function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
 
-/* RENDERIZAÇÃO DA LOJA ATUALIZADA PARA ACEITAR PREÇO EM OURO E DIMA NA MESMA ARMA */
 function renderShopList() { 
     let container = document.getElementById('shop-items-list'); 
     container.innerHTML = ''; 
@@ -671,7 +731,6 @@ function renderShopList() {
     }); 
 }
 
-/* SISTEMA DE COMPRA ATUALIZADO PARA COBRAR CERTO DIMA OU OURO */
 function comprarItem(id, tipo, preco, moeda) { 
     let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
     if (!owned.includes(id)) { 
@@ -863,7 +922,6 @@ function gameLoop() {
 
         if (!player.isGrounded) playerState = 'JUMP'; else if (keys.fire) playerState = 'SHOOT'; else if (keys.left || keys.right) playerState = 'RUN'; else playerState = 'IDLE';
         
-        /* SOM DO TIRO AO ATIRAR */
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
             lastShotTime = Date.now(); 
@@ -947,7 +1005,6 @@ function gameLoop() {
     }
 
     if (player.hp > 0) {
-        /* VERIFICA SE É TITAN PARA MOSTRAR A AURA TOP */
         let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
         desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animSprites[playerState][frameAtual], false, auraAtiva, localPlayerTitan);
     }
@@ -966,11 +1023,9 @@ function gameLoop() {
     }
 }
 
-/* SISTEMA VISUAL DE DESENHO ATUALIZADO COM AS NOVAS REGRAS (VERIFICADO MAIS ALTO E AURA TITAN) */
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
 
-    /* AURA TOP FLAMEJANTE SE CHEGAR NO TITAN */
     if (isTitan) {
         ctx.save();
         ctx.beginPath();
@@ -993,7 +1048,6 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     else { ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65); }
     ctx.restore(); 
     
-    /* O VERIFICADO AGORA FICA PERFEITAMENTE ACIMA DO NICK (Y = -112) BEM CENTRALIZADO */
     if (isVIP) { 
         ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; 
         ctx.beginPath(); 
