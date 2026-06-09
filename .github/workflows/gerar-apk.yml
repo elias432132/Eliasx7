@@ -1,4 +1,4 @@
-name: Gerar APK Free X7
+name: Gerar APK NEXO-X7
 
 on:
   push:
@@ -30,17 +30,20 @@ jobs:
 
       - name: 5. Montar a Estrutura do App
         run: |
-          cordova create app com.elias.freex7 "Free X7"
+          cordova create app com.elias.freex7 "NEXO-X7"
           rm -rf app/www/*
           cp index.html app/www/
           cp -r img app/www/img || true
+          
       - name: 6. Gerar o arquivo APK
         working-directory: ./app
         run: |
           cordova platform add android
           cordova build android
+          
       - name: 7. Salvar o APK pronto para baixar
         uses: actions/upload-artifact@v4
         with:
-          name: FreeX7-APK-Android
+          name: NEXO-X7
           path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+
