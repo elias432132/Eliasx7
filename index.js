@@ -18,24 +18,24 @@ let codigosValidos = {};
 let filas = { solo: [], duo: [], squad: [] };
 let lojaDinamica = { skins: [], weapons: [] };
 
-// NOVO: Guarda todos os jogadores online pro painel do dono ler
+// Guarda todos os jogadores online pro painel do dono ler
 let jogadoresGlobais = {}; 
 
 io.on('connection', (socket) => {
     socket.emit('atualizar_loja_dinamica', lojaDinamica);
 
-    // NOVO: Registra o jogador quando ele entra no jogo
+    // Registra o jogador quando ele entra no jogo
     socket.on('registrar_nick', (nick) => {
         jogadoresGlobais[socket.id] = { id: socket.id, nick: nick };
     });
 
-    // NOVO: Recebe mensagem do jogador e manda pro painel do dono
+    // Recebe mensagem do jogador e manda pro painel do dono
     socket.on('mensagem_para_dono', (texto) => {
         let nick = jogadoresGlobais[socket.id] ? jogadoresGlobais[socket.id].nick : "Desconhecido";
         io.emit('aviso_painel_admin', { id: socket.id, nick: nick, msg: texto });
     });
 
-    // NOVO: Recebe a resposta do painel e manda só pro jogador certo
+    // Recebe a resposta do painel e manda só pro jogador certo
     socket.on('resposta_do_dono', (dados) => {
         io.to(dados.idDestino).emit('nova_mensagem_sistema', { msg: `👑 PROMOTOR RESPONDEU: ${dados.msg}` });
     });
@@ -67,11 +67,11 @@ io.on('connection', (socket) => {
     
     socket.on('disconnect', () => { 
         ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id)); 
-        delete jogadoresGlobais[socket.id]; // Remove da lista do painel se ele sair
+        delete jogadoresGlobais[socket.id]; 
     });
 });
 
-// --- NOVO: Rota para o Painel pegar quem tá online ---
+// --- ROTA PARA O PAINEL PEGAR QUEM TÁ ONLINE ---
 app.get('/admin/jogadores', (req, res) => {
     res.json({ sucesso: true, lista: Object.values(jogadoresGlobais) });
 });
@@ -96,9 +96,38 @@ app.post('/admin/banir', (req, res) => {
     res.json({ sucesso: true });
 });
 
+// CORREÇÃO 1: Salvando TODOS os dados da Skin, incluindo o config_frames
 app.post('/admin/add-loja', (req, res) => {
-    const { tipo, id, nome, preco } = req.body;
-    lojaDinamica[tipo].push({ id, name: nome, price: preco });
+    const { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
+    
+    if (!lojaDinamica[tipo]) lojaDinamica[tipo] = [];
+    
+    // Evita duplicatas caso você mande a mesma skin duas vezes (ele atualiza)
+    lojaDinamica[tipo] = lojaDinamica[tipo].filter(item => item.id !== id);
+
+    lojaDinamica[tipo].push({ 
+        id, 
+        name, 
+        price, 
+        priceD, 
+        comportamento, 
+        config_frames 
+    });
+    
+    io.emit('atualizar_loja_dinamica', lojaDinamica);
+    res.json({ sucesso: true });
+});
+
+// CORREÇÃO 2: Rota para o botão "Sincronizar Vitrine" funcionar
+app.get('/admin/loja', (req, res) => {
+    res.json({ sucesso: true, itens: lojaDinamica.skins.concat(lojaDinamica.weapons) });
+});
+
+// CORREÇÃO 3: Rota para o botão "Remover" do bloquinho da skin funcionar
+app.post('/admin/remover-loja', (req, res) => {
+    const { id } = req.body;
+    lojaDinamica.skins = lojaDinamica.skins.filter(item => item.id !== id);
+    lojaDinamica.weapons = lojaDinamica.weapons.filter(item => item.id !== id);
     io.emit('atualizar_loja_dinamica', lojaDinamica);
     res.json({ sucesso: true });
 });
