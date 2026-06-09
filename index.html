@@ -323,7 +323,7 @@ async function iniciarSistema() {
             conectarSocket();
         }
     } catch(e) {
-        document.getElementById('login-msg').innerText = "Servidor acordando (O Render pode levar 1 minuto no plano grátis)...";
+        document.getElementById('login-msg').innerText = "Servidor acordando (O Render pode levar 1 minuto)...";
         setTimeout(iniciarSistema, 4000);
     }
 }
@@ -335,9 +335,7 @@ function vincularJogadorAoServidor() {
     }
 }
 
-function fecharModalVip() {
-    document.getElementById('modal-vip-lindo').classList.add('hidden');
-}
+function fecharModalVip() { document.getElementById('modal-vip-lindo').classList.add('hidden'); }
 
 function conectarSocket() {
     try {
@@ -375,9 +373,7 @@ function conectarSocket() {
                     elTimer.style.color = "";
                     if(elTitulo) elTitulo.innerText = "PROCURANDO...";
                     iniciarArena(dados.sala, dados.modo);
-                } else {
-                    elTimer.innerText = contagem;
-                }
+                } else { elTimer.innerText = contagem; }
             }, 1000);
         }); 
 
@@ -386,12 +382,8 @@ function conectarSocket() {
                 meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + parseInt(dados.diamantesGanhos);
                 dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-                
-                atualizarLobby();
-                document.getElementById('tela-pix-gerado').style.display = "none";
-                fecharMenu('shop-menu');
-                
-                alert(`🎉 PAGAMENTO CONFIRMADO PELO BANCO!\n${dados.diamantesGanhos} Diamantes foram creditados automaticamente na sua conta!`);
+                atualizarLobby(); document.getElementById('tela-pix-gerado').style.display = "none"; fecharMenu('shop-menu');
+                alert(`🎉 PAGAMENTO CONFIRMADO PELO BANCO!\n${dados.diamantesGanhos} Diamantes creditados!`);
             }
         });
 
@@ -399,22 +391,18 @@ function conectarSocket() {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
                 if(!meuPerfil.isVIP) {
                     meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; 
-                    alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus imediato de 1.000 Diamantes!");
+                    alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus de 1.000 Diamantes!");
                 }
                 meuPerfil.isVIP = true;
-                if(dbUsuarios[meuEmail]) {
-                    dbUsuarios[meuEmail].isVIP = true;
-                    dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
-                }
+                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = true; dbUsuarios[meuEmail].dimas = meuPerfil.dimas; }
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-                atualizarLobby(); 
-                document.getElementById('modal-vip-lindo').classList.remove('hidden');
+                atualizarLobby(); document.getElementById('modal-vip-lindo').classList.remove('hidden');
             }
         });
 
         socket.on('jogador_banido', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE PELO ADMINISTRADOR!");
+                alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
                 delete dbUsuarios[meuEmail]; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); localStorage.removeItem('ff2d_current_user'); window.location.reload(); 
             }
         });
@@ -424,22 +412,11 @@ function conectarSocket() {
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
         });
 
-        socket.on('nova_mensagem_sistema', (dados) => {
-            alert(dados.msg);
-        });
+        socket.on('nova_mensagem_sistema', (dados) => { alert(dados.msg); });
     } catch(e) {}
 }
 
-const PATENTES = [
-    { nome: '🟫 BRONZE', max: 3 }, 
-    { nome: '⬜ PRATA', max: 4 }, 
-    { nome: '🟨 OURO', max: 4 }, 
-    { nome: '🔷 PLATINA', max: 5 }, 
-    { nome: '💎 DIAMANTE', max: 5 }, 
-    { nome: '💀 BÁRBARO', max: 5 }, 
-    { nome: '🔥 TITAN', max: 50 }, 
-    { nome: '👑 TITAN ELITE', max: 999 }
-];
+const PATENTES = [{ nome: '🟫 BRONZE', max: 3 }, { nome: '⬜ PRATA', max: 4 }, { nome: '🟨 OURO', max: 4 }, { nome: '🔷 PLATINA', max: 5 }, { nome: '💎 DIAMANTE', max: 5 }, { nome: '💀 BÁRBARO', max: 5 }, { nome: '🔥 TITAN', max: 50 }, { nome: '👑 TITAN ELITE', max: 999 }];
 
 function atualizarLobby() {
     if(!meuPerfil) return;
@@ -449,44 +426,21 @@ function atualizarLobby() {
     document.getElementById('menu-frags').innerText = meuPerfil.dimas || 0;
     
     let p = meuPerfil.patente || { nome: '🟫 BRONZE', estrelas: 1 };
-    if (p.nome === 'BRONZE') p.nome = '🟫 BRONZE';
-    if (p.nome === 'PRATA') p.nome = '⬜ PRATA';
-    if (p.nome === 'OURO') p.nome = '🟨 OURO';
-    if (p.nome === 'PLATINA') p.nome = '🔷 PLATINA';
-    if (p.nome === 'DIAMANTE') p.nome = '💎 DIAMANTE';
-    if (p.nome === 'BÁRBARO') p.nome = '💀 BÁRBARO';
-    if (p.nome === 'TITAN') p.nome = '🔥 TITAN';
-    if (p.nome === 'TITAN ELITE') p.nome = '👑 TITAN ELITE';
-
     document.getElementById('badge-patente-menu').innerText = `🏆 ${p.nome} ⭐${p.estrelas}`;
 }
 
 function resgatarPremioSemanalVip() {
     if(!meuPerfil) return;
-    if(!meuPerfil.isVIP) {
-        return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
-    }
-    
-    let agora = Date.now();
-    let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000;
-    let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
-    
+    if(!meuPerfil.isVIP) return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
+    let agora = Date.now(); let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000; let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
     if(agora - ultimoResgate < umaSemanaEmMs) {
-        let tempoRestante = umaSemanaEmMs - (agora - ultimoResgate);
-        let diasRestantes = Math.ceil(tempoRestante / (24 * 60 * 60 * 1000));
-        return alert(`⏳ Calma Sobrevivente! Você já coletou essa semana. Volte em ${diasRestantes} dias.`);
+        let diasRestantes = Math.ceil((umaSemanaEmMs - (agora - ultimoResgate)) / (24 * 60 * 60 * 1000));
+        return alert(`⏳ Calma Sobrevivente! Volte em ${diasRestantes} dias.`);
     }
-    
     let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-    
-    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados;
-    meuPerfil.ultimoResgateSemanal = agora;
-    
-    dbUsuarios[meuEmail] = meuPerfil;
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-    
-    atualizarLobby();
-    alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou o bônus semanal de 💎 ${dimasSorteados} Diamantes.`);
+    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados; meuPerfil.ultimoResgateSemanal = agora;
+    dbUsuarios[meuEmail] = meuPerfil; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+    atualizarLobby(); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
 }
 
 function processarFimDePartida(ganhou) {
@@ -495,7 +449,7 @@ function processarFimDePartida(ganhou) {
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
         p.estrelas++;
-        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA A PATENTE ${p.nome}!`); }
+        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
         p.estrelas--;
         if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
@@ -504,10 +458,7 @@ function processarFimDePartida(ganhou) {
     gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
 }
 
-function getSafeDmgLvl() {
-    if (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) return meuPerfil.pStats.lvlDmg;
-    return 1;
-}
+function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) ? meuPerfil.pStats.lvlDmg : 1; }
 
 let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
@@ -532,8 +483,7 @@ function entrarModoEdicaoHUD(origem) {
     botoesAjustaveis.forEach(id => {
         let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return; el.style.border = "3px dashed #ff9f43";
         el.addEventListener('touchmove', (e) => {
-            if (!modoEdicaoHUDActive) return; 
-            if(e.cancelable) e.preventDefault(); 
+            if (!modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); 
             let touch = e.touches[0]; let x = touch.clientX; let y = window.innerHeight - touch.clientY;
             if (!hudPosicoes[id]) hudPosicoes[id] = {};
             if (id === 'left' || id === 'right' || id === 'analog') { hudPosicoes[id].bottom = Math.max(10, y - 30); hudPosicoes[id].left = Math.max(10, x - 30); delete hudPosicoes[id].top; delete hudPosicoes[id].right; } 
@@ -559,8 +509,7 @@ function fecharMenuPartida() { document.getElementById('menu-partida-overlay').c
 function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
 
 let keys = { left: false, right: false, jump: false, fire: false };
-let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false;
-let lastShotTime = 0; 
+let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
 function usarSkillAlok() {
     if(Date.now() > skillCooldown) {
@@ -570,9 +519,7 @@ function usarSkillAlok() {
 }
 
 document.addEventListener('touchstart', (e) => { 
-    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) {
-        return; 
-    }
+    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
     if(e.cancelable) e.preventDefault(); 
 }, {passive: false});
 
@@ -622,63 +569,34 @@ function carregarLobby() {
     loadUserGameProgress(meuEmail); 
     document.getElementById('login-screen').classList.add('hidden'); 
     document.getElementById('start-menu').classList.remove('hidden'); 
-    aplicarLayoutHUD(); 
-    vincularJogadorAoServidor(); 
+    aplicarLayoutHUD(); vincularJogadorAoServidor(); 
 }
-function fazerLogout() { 
-    meuEmail = null; 
-    localStorage.removeItem('ff2d_current_user'); 
-    document.getElementById('start-menu').classList.add('hidden'); 
-    document.getElementById('login-screen').classList.remove('hidden'); 
-}
+function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
 function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
 
 function verificarAtualizacaoDoJogo() { 
     alert("🔄 Buscando novos dados no servidor...\nO jogo irá reiniciar completamente sem cache travado!"); 
-    
-    if('caches' in window) {
-        caches.keys().then(names => {
-            for (let name of names) caches.delete(name);
-        });
-    }
-    
-    let baseUri = window.location.origin + window.location.pathname;
-    window.location.replace(baseUri + '?updateBuster=' + Date.now()); 
+    if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
+    window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now()); 
 }
 
 function gerarCodigoSalvar() { 
-    if (!meuEmail || !dbUsuarios[meuEmail]) {
-        alert("⚠️ Erro: Nenhuma conta logada.");
-        return; 
-    }
+    if (!meuEmail || !dbUsuarios[meuEmail]) return alert("⚠️ Erro: Nenhuma conta logada.");
     try {
         let dados = JSON.stringify(dbUsuarios[meuEmail]);
         let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
         let inputArea = document.getElementById('save-code-input');
-        inputArea.value = codigoGerado; 
-        inputArea.select();
-        document.execCommand("copy");
-        alert("✅ Código de recuperação gerado e COPIADO com sucesso! Cole e guarde-o num bloco de notas."); 
-    } catch(e) {
-        alert("Erro ao gerar: " + e.message);
-    }
+        inputArea.value = codigoGerado; inputArea.select(); document.execCommand("copy");
+        alert("✅ Código gerado e COPIADO!"); 
+    } catch(e) { alert("Erro ao gerar: " + e.message); }
 }
 
 function carregarCodigo() { 
-    let codigo = document.getElementById('save-code-input').value.trim(); 
-    if (!codigo) return; 
+    let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; 
     try { 
-        let decodificado = decodeURIComponent(escape(atob(codigo)));
-        let d = JSON.parse(decodificado); 
-        if (d && d.email) { 
-            dbUsuarios[d.email] = d; 
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-            alert("Conta recuperada com sucesso!"); 
-            fazerLogout(); 
-        } 
-    } catch(e) { 
-        alert("Erro no código. Verifique se copiou corretamente tudo."); 
-    } 
+        let decodificado = decodeURIComponent(escape(atob(codigo))); let d = JSON.parse(decodificado); 
+        if (d && d.email) { dbUsuarios[d.email] = d; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); alert("Conta recuperada!"); fazerLogout(); } 
+    } catch(e) { alert("Erro no código."); } 
 }
 
 async function processarResgate() {
@@ -696,23 +614,18 @@ async function processarResgate() {
 function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
 
 function renderShopList() { 
-    let container = document.getElementById('shop-items-list'); 
-    container.innerHTML = ''; 
+    let container = document.getElementById('shop-items-list'); container.innerHTML = ''; 
     let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; 
     
     db.forEach(item => { 
         let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); 
         let btnHTML = '';
-        
         if (isOwned) {
             let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id);
             btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
         } else {
-            if (item.priceD) {
-                btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`;
-            } else {
-                btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`;
-            }
+            if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } 
+            else { btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`; }
         }
         container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3>${btnHTML}</div>`); 
     }); 
@@ -721,20 +634,12 @@ function renderShopList() {
 function comprarItem(id, tipo, preco, moeda) { 
     let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
     if (!owned.includes(id)) { 
-        if (moeda === 'dima') {
-            if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); 
-            meuPerfil.dimas -= preco; 
-        } else if (moeda === 'ouro') {
-            if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); 
-            meuPerfil.ouro -= preco; 
-        }
+        if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); meuPerfil.dimas -= preco; } 
+        else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); meuPerfil.ouro -= preco; }
         owned.push(id); 
     } 
     if (tipo === 'skins') meuPerfil.equippedSkin = id; 
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-    loadUserGameProgress(meuEmail); 
-    renderShopList(); 
-    atualizarLobby();
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
 }
 
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
@@ -744,64 +649,31 @@ async function gerarPix(event) {
     let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true;
     let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; };
     try { 
-        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { 
-            method: 'POST', 
-            headers: {'Content-Type':'application/json'}, 
-            body: JSON.stringify({ 
-                Nick: meuPerfil.nickOriginal, 
-                email: meuPerfil.email, 
-                valor: (qtd * 0.02), 
-                diamantes: qtd 
-            }) 
-        }); 
+        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); 
         let dados = await resp.json(); 
-        
-        if (dados.copia_e_cola) {
-            mostraPix(dados.copia_e_cola); 
-            vincularJogadorAoServidor();
-        } else { 
-            throw new Error(dados.erro || "Falha ao gerar Pix no Mercado Pago"); 
-        }
-    } catch(e) { 
-        alert("⚠️ Erro ao gerar Pix: " + e.message);
-        mostraPix("00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540510.005802BR5915Free X7 Teste6009Sao Paulo62070503***63041234"); 
-    }
+        if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
+    } catch(e) { alert("⚠️ Erro ao gerar Pix: " + e.message); }
     btnGerar.innerText = "⚡ GERAR PIX"; btnGerar.disabled = false;
 }
 
 function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
 
 function enviarMensagemGlobal() { 
-    let input = document.getElementById('input-chat-global'); 
-    let texto = input.value.trim(); 
-    if (!texto) return; 
-    if (!socket || !socket.connected) { 
-        alert("⚠️ Você está desconectado do servidor. Aguarde uns segundos para enviar."); 
-        return; 
-    }
-    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); 
-    input.value = ''; 
+    let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
+    if (!socket || !socket.connected) return alert("⚠️ Você está desconectado do servidor.");
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
 function enviarMensagemLobby() { 
-    let input = document.getElementById('input-chat-lobby'); 
-    let texto = input.value.trim(); 
-    if (!texto) return; 
-    if (!socket || !socket.connected) { 
-        alert("⚠️ Você está desconectado do servidor. Aguarde uns segundos para enviar."); 
-        return; 
-    }
-    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); 
-    input.value = ''; 
+    let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
+    if (!socket || !socket.connected) return alert("⚠️ Você está desconectado do servidor.");
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
 function adicionarMensagemChat(msg) { 
-    let container = document.getElementById('chat-mensagens'); 
-    let lobbyContainer = document.getElementById('lobby-chat-mensagens-box'); 
-    let cor = msg.isVIP ? '#f1c40f' : '#2ecc71'; 
-    let tagV = msg.isVIP ? '<span class="badge-vip-html" style="transform:scale(0.7); margin-right:2px;">V</span>' : ''; 
+    let container = document.getElementById('chat-mensagens'); let lobbyContainer = document.getElementById('lobby-chat-mensagens-box'); 
+    let cor = msg.isVIP ? '#f1c40f' : '#2ecc71'; let tagV = msg.isVIP ? '<span class="badge-vip-html" style="transform:scale(0.7); margin-right:2px;">V</span>' : ''; 
     let htmlMsg = `<div style="margin-bottom:5px;"><span style="color:${cor};font-weight:bold;">${tagV}${msg.nick}:</span> <span style="color:#fff;">${msg.texto}</span></div>`;
-    
     if(container) { container.insertAdjacentHTML('beforeend', htmlMsg); container.scrollTop = container.scrollHeight; }
     if(lobbyContainer) { lobbyContainer.insertAdjacentHTML('beforeend', htmlMsg); lobbyContainer.scrollTop = lobbyContainer.scrollHeight; }
 }
@@ -840,16 +712,15 @@ function criarBot(time, index) {
         nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99),
         isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
         taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
-        frameAtual: 0, contadorAnim: 0
+        frameAtual: 0, contadorAnim: 0,
+        skinId: 'padrao' // <-- Adicionado para evitar que o bot pisque
     };
 }
 
 function iniciarArena(idSala, modo) {
     clearInterval(intervaloBusca); document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-    placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true;
-    
-    obstaculosPartida = []; 
+    placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true; obstaculosPartida = []; 
     
     let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
     botsAtivos = []; 
@@ -863,11 +734,9 @@ function iniciarArena(idSala, modo) {
             for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
             for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
         } else {
-            let lvl = getSafeDmgLvl(); 
-            let multiplicador = 1 + (lvl * 0.1); 
+            let lvl = getSafeDmgLvl(); let multiplicador = 1 + (lvl * 0.1); 
             botsAtivos.forEach(bot => {
-                bot.hp = 100 * multiplicador;
-                bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
+                bot.hp = 100 * multiplicador; bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
                 bot.y = -20; bot.vy = -15; bot.isGrounded = false; bot.state = 'JUMP';
                 bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*400;
             });
@@ -880,21 +749,53 @@ function iniciarArena(idSala, modo) {
 }
 
 /* ==========================================================================
-   SISTEMA DE PRE-REGISTRO E CARREGAMENTO DE SPRITES DINAMICO (FIX CORRIGIDO)
+   SISTEMA NOVO: TRADUTOR DE ANIMAÇÕES DO PAINEL (O SEGREDO PARA NÃO PISCAR)
    ========================================================================== */
 const playerSprites = {}; 
+const GITHUB_OWNER = "elias432132"; // <-- PREENCHA SE PRECISAR MUDAR
+const GITHUB_REPO = "Eliasx7";      // <-- PREENCHA SE PRECISAR MUDAR
+
 function carregarImagensDaSkin(prefix) {
     if (playerSprites[prefix]) return; 
     playerSprites[prefix] = [];
     for (let i = 1; i <= 88; i++) { 
         const img = new Image(); 
-        img.src = `img/${prefix}.x${i}.png`; 
+        if (prefix === 'free' || prefix === 'padrao') {
+            img.src = `img/${prefix}.x${i}.png`; 
+        } else {
+            img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${prefix}.x${i}.png`; 
+        }
         playerSprites[prefix].push(img); 
     }
 }
-carregarImagensDaSkin('free'); // Pre-carrega a skin padrao no motor grafico
+carregarImagensDaSkin('free'); 
 
-const animSprites = { 'RUN': [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n=>n-1), 'IDLE': [81, 82, 83, 84, 85, 86, 87, 88].map(n=>n-1), 'SHOOT': [26, 30].map(n=>n-1), 'JUMP': [50, 51, 52].map(n=>n-1) };
+// Essa função lê os frames do painel e converte pro jogo!
+function getAnimFramesForSkin(skinId, state) {
+    const padraoFallback = { 'RUN': [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n=>n-1), 'IDLE': [81, 82, 83, 84, 85, 86, 87, 88].map(n=>n-1), 'SHOOT': [26, 30].map(n=>n-1), 'JUMP': [50, 51, 52].map(n=>n-1) };
+    
+    let infoDaLoja = skinsDB.find(s => s.id === skinId);
+    if (infoDaLoja && infoDaLoja.config_frames) {
+        let cf = infoDaLoja.config_frames;
+        let traduzir = (str) => {
+            if(!str) return [0];
+            let pts = str.split('-');
+            let inicio = parseInt(pts[0]);
+            let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
+            let arrayPronto = [];
+            for(let i = inicio; i <= fim; i++) arrayPronto.push(i - 1); // Menos 1 porque matrizes de imagem começam no zero
+            return arrayPronto;
+        };
+        
+        if (state === 'IDLE' && cf.parado) return traduzir(cf.parado);
+        if (state === 'RUN' && cf.andando) return traduzir(cf.andando);
+        if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando);
+        if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando);
+    }
+    // Se a skin não veio do painel, usa os 88 frames antigos:
+    return padraoFallback[state] || [0]; 
+}
+
 let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
 
 function gameLoop() {
@@ -925,12 +826,16 @@ function gameLoop() {
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
-            lastShotTime = Date.now(); 
-            somTiroEfeito.currentTime = 0;
-            somTiroEfeito.play().catch(e => {}); 
+            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
         }
         
-        contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % animSprites[playerState].length; contadorAnim = 0; }
+        // CÁLCULO DE ANIMAÇÃO DO JOGADOR
+        let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
+        contadorAnim++; 
+        if(contadorAnim > 5) { 
+            frameAtual = (frameAtual + 1) % framesDoJogador.length; 
+            contadorAnim = 0; 
+        }
     } else { playerState = 'IDLE'; }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -960,19 +865,14 @@ function gameLoop() {
                 bot.facing = distToAlvo > 0 ? 1 : -1; 
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
-                bot.facing = distToAlvo > 0 ? 1 : -1; 
-                bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
-                somTiroEfeito.currentTime = 0;
-                somTiroEfeito.play().catch(e => {}); 
+                bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
             }
         }
         
         let chaoAtualBot = 0; let colidiuLateralBot = false;
         for (let obs of obstaculosPartida) {
-            if (bot.x + 15 > obs.x && bot.x - 15 < obs.x + obs.w) {
-                if (bot.y <= -obs.h || (bot.y - bot.vy <= -obs.h)) { if (-obs.h < chaoAtualBot) chaoAtualBot = -obs.h; }
-            }
+            if (bot.x + 15 > obs.x && bot.x - 15 < obs.x + obs.w) { if (bot.y <= -obs.h || (bot.y - bot.vy <= -obs.h)) { if (-obs.h < chaoAtualBot) chaoAtualBot = -obs.h; } }
             if (nextBotX + 15 > obs.x && nextBotX - 15 < obs.x + obs.w) { if (bot.y > -obs.h + 5) colidiuLateralBot = true; }
         }
         
@@ -980,14 +880,21 @@ function gameLoop() {
         if (bot.y >= chaoAtualBot) { bot.y = chaoAtualBot; bot.vy = 0; bot.isGrounded = true; } else { bot.isGrounded = false; }
         if (!bot.isGrounded) bot.state = 'JUMP';
         
-        bot.contadorAnim++; if(bot.contadorAnim > 5) { bot.frameAtual = (bot.frameAtual + 1) % animSprites[bot.state].length; bot.contadorAnim = 0; }
-        desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, animSprites[bot.state][bot.frameAtual], bot.time !== meuTime, false, false);
+        // CÁLCULO DE ANIMAÇÃO DO BOT
+        let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
+        bot.contadorAnim++; 
+        if(bot.contadorAnim > 5) { 
+            bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; 
+            bot.contadorAnim = 0; 
+        }
+        let botFrameReal = framesDoBot[bot.frameAtual] !== undefined ? framesDoBot[bot.frameAtual] : 0;
+
+        desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, botFrameReal, bot.time !== meuTime, false, false);
     });
 
     for(let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i]; b.x += b.vx;
         ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
-        
         let donoTime = b.owner === 'local' ? meuTime : (b.owner.includes('_A_') ? 'A' : 'B'); let removeBala = false;
         for (let obs of obstaculosPartida) { if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { removeBala = true; break; } }
         
@@ -997,8 +904,7 @@ function gameLoop() {
         if (!removeBala) {
             for (let bot of botsAtivos) {
                 if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
-                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5);
-                    bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; break;
+                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; break;
                 }
             }
         }
@@ -1007,98 +913,58 @@ function gameLoop() {
 
     if (player.hp > 0) {
         let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
-        desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, animSprites[playerState][frameAtual], false, auraAtiva, localPlayerTitan);
+        
+        // Pega a imagem exata calculada para o Jogador Baseado no Painel
+        let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
+        let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
+
+        desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, playerFrameReal, false, auraAtiva, localPlayerTitan);
     }
     
     if (roundRodando) {
         let vivosA = player.hp > 0 ? 1 : 0; let vivosB = 0;
         botsAtivos.forEach(b => { if(b.hp > 0) { if(b.time === 'A') vivosA++; else vivosB++; } });
-        
         if (vivosA === 0 || vivosB === 0) {
-            roundRodando = false;
-            if (vivosA === 0) placarCS.B++; else placarCS.A++;
-            document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`;
-            if (placarCS.A === 4 || placarCS.B === 4) { setTimeout(() => { processarFimDePartida(placarCS.A === 4); }, 2000); } 
-            else { setTimeout(() => { iniciarRound(); }, 3000); }
+            roundRodando = false; if (vivosA === 0) placarCS.B++; else placarCS.A++; document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`;
+            if (placarCS.A === 4 || placarCS.B === 4) { setTimeout(() => { processarFimDePartida(placarCS.A === 4); }, 2000); } else { setTimeout(() => { iniciarRound(); }, 3000); }
         }
     }
 }
 
-/* ==========================================================================
-   FUNÇÃO DE RENDERIZACAO REFORMULADA COM DETECCAO AUTOMATICA DE SKIN (MUDADA)
-   ========================================================================== */
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
 
     if (isTitan) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); 
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = "#f39c12"; 
-        ctx.fillStyle = "rgba(230, 126, 34, 0.4)";
-        ctx.fill();
-        ctx.strokeStyle = "#f1c40f";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
+        ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
     }
-
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
+    
     ctx.save(); ctx.scale(facing, 1); 
-    let idxReal = fIdx !== undefined ? fIdx : animSprites['IDLE'][0];
     
-    // Mapeador dinamico de imagens
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
-    carregarImagensDaSkin(prefixoSkin); // Garante o carregamento em background se ela ainda nao existir
+    carregarImagensDaSkin(prefixoSkin); 
     
-    let img = (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][idxReal]) ? playerSprites[prefixoSkin][idxReal] : playerSprites['free'][idxReal];
+    // Agora o fIdx que chega aqui é sempre o frame perfeito do Painel!
+    let img = (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][fIdx]) ? playerSprites[prefixoSkin][fIdx] : playerSprites['free'][fIdx];
     
     if (img && img.complete && img.naturalWidth > 0) { 
         ctx.drawImage(img, -37.5, -75, 75, 75); 
     } else { 
-        let imgFallback = (playerSprites['padrao'] && playerSprites['padrao'][idxReal]) ? playerSprites['padrao'][idxReal] : playerSprites['free']?.[idxReal];
-        if (imgFallback && imgFallback.complete && imgFallback.naturalWidth > 0) {
-            ctx.drawImage(imgFallback, -37.5, -75, 75, 75);
-        } else {
-            ctx.fillStyle = '#3498db'; 
-            ctx.fillRect(-15, -65, 30, 65); 
-        }
+        // Se a internet falhar e não achar a foto, desenha o bloco azul só por segurança
+        ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65); 
     }
     ctx.restore(); 
     
     if (isVIP) { 
-        ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; 
-        ctx.beginPath(); 
-        ctx.arc(0, -112, 9, 0, Math.PI * 2); 
-        ctx.fill(); 
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        
-        ctx.textAlign = "center"; 
-        ctx.textBaseline = "middle"; 
-        ctx.font = "900 11px Arial"; 
-        ctx.fillStyle = "#ffffff"; 
-        ctx.fillText("V", 0, -112); 
+        ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; ctx.beginPath(); ctx.arc(0, -112, 9, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 11px Arial"; ctx.fillStyle = "#ffffff"; ctx.fillText("V", 0, -112); 
     }
     
-    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; 
-    ctx.fillText(nick, 0, -95);
-    ctx.restore();
+    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
-function falarComDono() {
-    let msg = prompt("Digite sua mensagem para o Dono do jogo:");
-    if(msg && msg.trim() !== '') {
-        if (socket && socket.connected) {
-            socket.emit('mensagem_para_dono', msg);
-            alert("Mensagem enviada com sucesso! Aguarde a resposta.");
-        } else {
-            alert("⚠️ Você ainda não está conectado ao servidor! Tente novamente em alguns segundos.");
-        }
-    }
-}
+function falarComDono() { let msg = prompt("Digite sua mensagem para o Dono do jogo:"); if(msg && msg.trim() !== '') { if (socket && socket.connected) { socket.emit('mensagem_para_dono', msg); alert("Mensagem enviada!"); } else { alert("⚠️ Você está desconectado!"); } } }
 </script>
+
 </body>
 </html>
