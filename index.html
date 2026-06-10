@@ -341,7 +341,10 @@ function conectarSocket() {
     try {
         socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
         
-        socket.on('connect', () => { vincularJogadorAoServidor(); socket.emit('pedir_loja_atualizada'); });
+        socket.on('connect', () => { 
+            vincularJogadorAoServidor(); 
+            socket.emit('pedir_loja_atualizada'); 
+        });
 
         socket.on('historico_chat', (msgs) => { 
             document.getElementById('chat-mensagens').innerHTML = ''; 
@@ -400,6 +403,17 @@ function conectarSocket() {
             }
         });
 
+        // SISTEMA DE REMOVER O VIP
+        socket.on('remover_vip', (dados) => {
+            if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                meuPerfil.isVIP = false;
+                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = false; }
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+                atualizarLobby();
+                alert("⚠️ Sua Tag de Verificado Oficial foi removida pelo Dono do Servidor.");
+            }
+        });
+
         socket.on('jogador_banido', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
                 alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
@@ -408,7 +422,6 @@ function conectarSocket() {
         });
 
         socket.on('atualizar_loja_dinamica', (itensNovos) => {
-            // Essa trava impede que as skins se multipliquem no celular do jogador
             skinsDB = [...baseSkins];
             if (itensNovos && itensNovos.skins) {
                 itensNovos.skins.forEach(nova => {
@@ -423,7 +436,6 @@ function conectarSocket() {
                 });
             }
             
-            // Atualiza a vitrine ao vivo se o jogador estiver com ela aberta
             if (!document.getElementById('shop-menu').classList.contains('hidden')) {
                 renderShopList();
             }
@@ -566,7 +578,7 @@ function loadUserGameProgress(emailChave) {
     if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
 }
-function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
+function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
 async function cadastrarConta() {
     let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim();
@@ -675,15 +687,22 @@ async function gerarPix(event) {
 
 function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
 
+// PROTEÇÃO PARA ENVIAR MENSAGENS DE CHAT
 function enviarMensagemGlobal() { 
     let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) return alert("⚠️ Você está desconectado do servidor.");
+    // Proteção de Conexão
+    if (!socket || !socket.connected) {
+        return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante e tente enviar a mensagem novamente.");
+    }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
 function enviarMensagemLobby() { 
     let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) return alert("⚠️ Você está desconectado do servidor.");
+    // Proteção de Conexão
+    if (!socket || !socket.connected) {
+        return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante e tente enviar a mensagem novamente.");
+    }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
@@ -705,9 +724,9 @@ function procurarPartida(modo) {
     document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden');
     tempoBusca = 0; document.getElementById('match-timer').innerText = "0s";
     intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000);
-    if (socket) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo });
+    if (socket && socket.connected) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo });
 }
-function cancelarBusca() { clearInterval(intervaloBusca); if (socket) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
+function cancelarBusca() { clearInterval(intervaloBusca); if (socket && socket.connected) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
 
 const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
 let gameRunning = false, loopAtivo = false, salaAtual = "";
@@ -730,7 +749,7 @@ function criarBot(time, index) {
         isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
         taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
         frameAtual: 0, contadorAnim: 0,
-        skinId: 'padrao' // <-- Adicionado para evitar que o bot pisque
+        skinId: 'padrao'
     };
 }
 
@@ -765,12 +784,12 @@ function iniciarArena(idSala, modo) {
     if (!loopAtivo) { loopAtivo = true; requestAnimationFrame(gameLoop); }
 }
 
-/* ==========================================================================
-   SISTEMA NOVO: TRADUTOR DE ANIMAÇÕES DO PAINEL (O SEGREDO PARA NÃO PISCAR)
-   ========================================================================== */
 const playerSprites = {}; 
-const GITHUB_OWNER = "elias432132"; // <-- PREENCHA SE PRECISAR MUDAR
-const GITHUB_REPO = "Eliasx7";      // <-- PREENCHA SE PRECISAR MUDAR
+/*==========================================================================
+   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
+  ==========================================================================*/
+const GITHUB_OWNER = "elias432132"; // <-- MUDE PARA O SEU USUÁRIO
+const GITHUB_REPO = "Eliasx7";      // <-- MUDE PARA O SEU REPOSITORIO
 
 function carregarImagensDaSkin(prefix) {
     if (playerSprites[prefix]) return; 
@@ -787,7 +806,6 @@ function carregarImagensDaSkin(prefix) {
 }
 carregarImagensDaSkin('free'); 
 
-// Essa função lê os frames do painel e converte pro jogo!
 function getAnimFramesForSkin(skinId, state) {
     const padraoFallback = { 'RUN': [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n=>n-1), 'IDLE': [81, 82, 83, 84, 85, 86, 87, 88].map(n=>n-1), 'SHOOT': [26, 30].map(n=>n-1), 'JUMP': [50, 51, 52].map(n=>n-1) };
     
@@ -800,7 +818,7 @@ function getAnimFramesForSkin(skinId, state) {
             let inicio = parseInt(pts[0]);
             let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
             let arrayPronto = [];
-            for(let i = inicio; i <= fim; i++) arrayPronto.push(i - 1); // Menos 1 porque matrizes de imagem começam no zero
+            for(let i = inicio; i <= fim; i++) arrayPronto.push(i - 1); 
             return arrayPronto;
         };
         
@@ -809,7 +827,6 @@ function getAnimFramesForSkin(skinId, state) {
         if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando);
         if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando);
     }
-    // Se a skin não veio do painel, usa os 88 frames antigos:
     return padraoFallback[state] || [0]; 
 }
 
@@ -846,7 +863,6 @@ function gameLoop() {
             lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
         }
         
-        // CÁLCULO DE ANIMAÇÃO DO JOGADOR
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
         contadorAnim++; 
         if(contadorAnim > 5) { 
@@ -897,7 +913,6 @@ function gameLoop() {
         if (bot.y >= chaoAtualBot) { bot.y = chaoAtualBot; bot.vy = 0; bot.isGrounded = true; } else { bot.isGrounded = false; }
         if (!bot.isGrounded) bot.state = 'JUMP';
         
-        // CÁLCULO DE ANIMAÇÃO DO BOT
         let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
         bot.contadorAnim++; 
         if(bot.contadorAnim > 5) { 
@@ -931,7 +946,6 @@ function gameLoop() {
     if (player.hp > 0) {
         let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
         
-        // Pega a imagem exata calculada para o Jogador Baseado no Painel
         let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
         let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
 
@@ -961,14 +975,14 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
     carregarImagensDaSkin(prefixoSkin); 
     
-    // Agora o fIdx que chega aqui é sempre o frame perfeito do Painel!
     let img = (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][fIdx]) ? playerSprites[prefixoSkin][fIdx] : playerSprites['free'][fIdx];
     
+    // PROTEÇÃO DA SKIN PISCANDO AQUI:
     if (img && img.complete && img.naturalWidth > 0) { 
         ctx.drawImage(img, -37.5, -75, 75, 75); 
     } else { 
-        // Se a internet falhar e não achar a foto, desenha o bloco azul só por segurança
-        ctx.fillStyle = '#3498db'; ctx.fillRect(-15, -65, 30, 65); 
+        // Se der erro ao baixar a foto do Github, desenha fallback invisivel pra nao piscar nada bugado
+        ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-15, -65, 30, 65); 
     }
     ctx.restore(); 
     
@@ -980,7 +994,17 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
-function falarComDono() { let msg = prompt("Digite sua mensagem para o Dono do jogo:"); if(msg && msg.trim() !== '') { if (socket && socket.connected) { socket.emit('mensagem_para_dono', msg); alert("Mensagem enviada!"); } else { alert("⚠️ Você está desconectado!"); } } }
+function falarComDono() { 
+    let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
+    if(msg && msg.trim() !== '') { 
+        if (socket && socket.connected) { 
+            socket.emit('mensagem_para_dono', msg); 
+            alert("Mensagem enviada!"); 
+        } else { 
+            alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
+        } 
+    } 
+}
 </script>
 
 </body>
