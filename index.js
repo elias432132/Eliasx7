@@ -25,7 +25,6 @@ io.on('connection', (socket) => {
     // Envia a loja assim que o cara conecta
     socket.emit('atualizar_loja_dinamica', lojaDinamica);
 
-    // CORREÇÃO: Faltava o servidor escutar quando o jogo pedia a loja de novo!
     socket.on('pedir_loja_atualizada', () => {
         socket.emit('atualizar_loja_dinamica', lojaDinamica);
     });
@@ -88,6 +87,13 @@ app.post('/admin/gerar-codigo', (req, res) => {
 app.post('/admin/dar-vip', (req, res) => {
     const { nick } = req.body;
     io.emit('forcar_vip', { nick }); 
+    res.json({ sucesso: true });
+});
+
+// NOVA ROTA: REMOVER VIP
+app.post('/admin/remover-vip', (req, res) => {
+    const { nick } = req.body;
+    io.emit('remover_vip', { nick }); 
     res.json({ sucesso: true });
 });
 
