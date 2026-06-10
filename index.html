@@ -43,27 +43,9 @@
             80% { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; }
             100% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
         }
-        .badge-vip-html { 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: #fff !important; 
-            font-weight: 900; 
-            font-family: sans-serif; 
-            font-size: 12px; 
-            width: 19px; 
-            height: 19px; 
-            border-radius: 50%; 
-            margin-right: 6px; 
-            border: 2px solid #fff; 
-            vertical-align: middle; 
-            animation: chromaShift 1.5s linear infinite; 
-        }
+        .badge-vip-html { display: inline-flex; align-items: center; justify-content: center; color: #fff !important; font-weight: 900; font-family: sans-serif; font-size: 12px; width: 19px; height: 19px; border-radius: 50%; margin-right: 6px; border: 2px solid #fff; vertical-align: middle; animation: chromaShift 1.5s linear infinite; }
         
-        @keyframes popVip {
-            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
+        @keyframes popVip { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         #modal-vip-lindo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 15, 26, 0.96); border: 3px solid #f1c40f; box-shadow: 0 0 35px #f1c40f; padding: 25px; border-radius: 20px; z-index: 99999; text-align: center; width: 340px; max-width: 90%; animation: popVip 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
@@ -87,28 +69,18 @@
         #btn-menu-ingame { background: #34495e; cursor: pointer; border-color: #f1c40f; color: #f1c40f; pointer-events: auto !important; }
         
         #controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
-        .ctrl-btn { position: absolute; pointer-events: auto; background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; cursor: pointer; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        #joystick-base { position: absolute; pointer-events: auto; width: 130px; height: 130px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; z-index: 25; }
+        .ctrl-btn { position: absolute; pointer-events: auto !important; background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; cursor: pointer; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        #joystick-base { position: absolute; pointer-events: auto !important; width: 130px; height: 130px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; z-index: 25; }
         #joystick-knob { position: absolute; width: 55px; height: 55px; border-radius: 50%; background: #e67e22; box-shadow: 0 0 10px rgba(0,0,0,0.8); pointer-events: none; transition: transform 0.05s linear; }
         
-        #btn-fire { width: 80px; height: 80px; background: rgba(230,126,34,0.9); border: 2px solid #d35400; color: white; font-size: 14px; }
-        #btn-jump { width: 65px; height: 65px; }
-        #btn-weapon { width: 55px; height: 55px; }
-        #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); }
+        #btn-fire { width: 80px; height: 80px; background: rgba(230,126,34,0.9); border: 2px solid #d35400; color: white; font-size: 14px; z-index: 30; }
+        #btn-jump { width: 65px; height: 65px; z-index: 30; }
+        #btn-weapon { width: 55px; height: 55px; z-index: 30; }
+        #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
-        .lobby-chat-lateral {
-            width: 260px;
-            height: 85%;
-            background: rgba(20, 27, 38, 0.85);
-            border: 2px solid #34495e;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
+        .lobby-chat-lateral { width: 260px; height: 85%; background: rgba(20, 27, 38, 0.85); border: 2px solid #34495e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
         .lobby-chat-header { background: #1f2833; padding: 8px; font-size: 12px; font-weight: bold; text-align: center; color: #3498db; border-bottom: 1px solid #34495e; }
         .lobby-chat-box { flex-grow: 1; padding: 8px; overflow-y: auto; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
         .lobby-chat-input-row { display: flex; border-top: 1px solid #34495e; background: #111; }
@@ -174,9 +146,7 @@
             <button class="btn-sub" style="color:#e74c3c;border-color:#c0392b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
             <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
             <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR</button>
-            
             <button class="btn-sub" id="btn-recompensa-semanal" style="color:#f1c40f; background: rgba(241,196,15,0.1); border-color:#f1c40f;" onclick="resgatarPremioSemanalVip()">💎 RECOMPENSA SEMANAL</button>
-            
             <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
         </div>
     </div>
@@ -403,7 +373,6 @@ function conectarSocket() {
             }
         });
 
-        // SISTEMA DE REMOVER O VIP
         socket.on('remover_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
                 meuPerfil.isVIP = false;
@@ -428,17 +397,13 @@ function conectarSocket() {
                     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
                 });
             }
-            
             weaponsDB = [...baseWeapons];
             if (itensNovos && itensNovos.weapons) {
                 itensNovos.weapons.forEach(nova => {
                     if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
                 });
             }
-            
-            if (!document.getElementById('shop-menu').classList.contains('hidden')) {
-                renderShopList();
-            }
+            if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
         });
 
         socket.on('nova_mensagem_sistema', (dados) => { alert(dados.msg); });
@@ -547,24 +512,35 @@ function usarSkillAlok() {
     }
 }
 
+// CORREÇÃO DOS EVENTOS DE TOQUE E TIROS QUE NÃO SAÍAM
 document.addEventListener('touchstart', (e) => { 
     if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
-    if(e.cancelable) e.preventDefault(); 
+    // Removida a trava global que impedia o touch dos botões
 }, {passive: false});
 
 ['left','right','jump','fire','weapon','skill'].forEach(id => {
     let el = document.getElementById('btn-' + id);
     if(el) { 
-        el.addEventListener('touchstart', (e) => { if(e.cancelable) e.preventDefault(); if(!modoEdicaoHUDActive) keys[id] = true; }, {passive:false}); 
-        el.addEventListener('touchend', (e) => { if(e.cancelable) e.preventDefault(); keys[id] = false; if(id === 'weapon') trocarArma(); if(id === 'skill') usarSkillAlok(); }, {passive:false}); 
+        el.addEventListener('touchstart', (e) => { 
+            e.stopPropagation(); // Evita que o evento escape e seja bloqueado
+            if(e.cancelable) e.preventDefault(); 
+            if(!modoEdicaoHUDActive) keys[id] = true; 
+        }, {passive:false}); 
+        el.addEventListener('touchend', (e) => { 
+            e.stopPropagation(); 
+            if(e.cancelable) e.preventDefault(); 
+            keys[id] = false; 
+            if(id === 'weapon') trocarArma(); 
+            if(id === 'skill') usarSkillAlok(); 
+        }, {passive:false}); 
     }
 });
 
 const joyBase = document.getElementById('joystick-base'); const joyKnob = document.getElementById('joystick-knob');
 let joyActive = false; let joyCenter = {x:0, y:0};
-joyBase.addEventListener('touchstart', (e) => { if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = true; let rect = joyBase.getBoundingClientRect(); joyCenter = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }; handleJoyMove(e.touches[0]); }, {passive:false});
-joyBase.addEventListener('touchmove', (e) => { if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); if(joyActive) handleJoyMove(e.touches[0]); }, {passive:false});
-joyBase.addEventListener('touchend', (e) => { if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = false; joyKnob.style.transform = `translate(0px, 0px)`; keys.left = false; keys.right = false; }, {passive:false});
+joyBase.addEventListener('touchstart', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = true; let rect = joyBase.getBoundingClientRect(); joyCenter = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }; handleJoyMove(e.touches[0]); }, {passive:false});
+joyBase.addEventListener('touchmove', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); if(joyActive) handleJoyMove(e.touches[0]); }, {passive:false});
+joyBase.addEventListener('touchend', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = false; joyKnob.style.transform = `translate(0px, 0px)`; keys.left = false; keys.right = false; }, {passive:false});
 function handleJoyMove(touch) {
     let dx = touch.clientX - joyCenter.x; let dy = touch.clientY - joyCenter.y; let distance = Math.sqrt(dx*dx + dy*dy); let maxDist = 35; 
     if (distance > maxDist) { dx = (dx / distance) * maxDist; dy = (dy / distance) * maxDist; }
@@ -687,22 +663,15 @@ async function gerarPix(event) {
 
 function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
 
-// PROTEÇÃO PARA ENVIAR MENSAGENS DE CHAT
 function enviarMensagemGlobal() { 
     let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
-    // Proteção de Conexão
-    if (!socket || !socket.connected) {
-        return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante e tente enviar a mensagem novamente.");
-    }
+    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
 function enviarMensagemLobby() { 
     let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
-    // Proteção de Conexão
-    if (!socket || !socket.connected) {
-        return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante e tente enviar a mensagem novamente.");
-    }
+    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
@@ -906,118 +875,111 @@ function gameLoop() {
         let chaoAtualBot = 0; let colidiuLateralBot = false;
         for (let obs of obstaculosPartida) {
             if (bot.x + 15 > obs.x && bot.x - 15 < obs.x + obs.w) { if (bot.y <= -obs.h || (bot.y - bot.vy <= -obs.h)) { if (-obs.h < chaoAtualBot) chaoAtualBot = -obs.h; } }
-            if (nextBotX + 15 > obs.x && nextBotX - 15 < obs.x + obs.w) { if (bot.y > -obs.h + 5) { colidiuLateralBot = true; if (bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } } }
+            if (nextBotX + 15 > obs.x && nextBotX - 15 < obs.x + obs.w) { if (bot.y > -obs.h + 5) colidiuLateralBot = true; }
         }
-        if (!colidiuLateralBot) bot.x = nextBotX;
         
-        if (bot.x < 10) bot.x = 10; if (bot.x > canvas.width - 10) bot.x = canvas.width - 10;
+        if (colidiuLateralBot) { if (bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } } else { bot.x = nextBotX; }
         if (bot.y >= chaoAtualBot) { bot.y = chaoAtualBot; bot.vy = 0; bot.isGrounded = true; } else { bot.isGrounded = false; }
-        if (!bot.isGrounded && bot.state !== 'SHOOT') bot.state = 'JUMP';
-
-        bot.contadorAnim++; 
-        let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
-        if(bot.contadorAnim > 5) { bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; bot.contadorAnim = 0; }
-        let botFrameReal = framesDoBot[bot.frameAtual] || 0;
+        if (!bot.isGrounded) bot.state = 'JUMP';
         
+        let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
+        bot.contadorAnim++; 
+        if(bot.contadorAnim > 5) { 
+            bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; 
+            bot.contadorAnim = 0; 
+        }
+        let botFrameReal = framesDoBot[bot.frameAtual] !== undefined ? framesDoBot[bot.frameAtual] : 0;
+
         desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, botFrameReal, bot.time !== meuTime, false, false);
     });
 
-    for (let i = bullets.length - 1; i >= 0; i--) {
+    for(let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i]; b.x += b.vx;
-        ctx.fillStyle = '#f1c40f'; ctx.fillRect(b.x, gy + b.y - 120, 8, 3);
+        ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
+        let donoTime = b.owner === 'local' ? meuTime : (b.owner.includes('_A_') ? 'A' : 'B'); let removeBala = false;
+        for (let obs of obstaculosPartida) { if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { removeBala = true; break; } }
         
-        let removeBullet = false;
-        let pStats = meuPerfil.pStats || { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
-        let danoBase = 15;
-        let danoInimigo = danoBase + (getSafeDmgLvl() * 2);
-        
-        if (b.owner !== 'local' && player.hp > 0 && Math.abs(b.x - player.x) < 30 && (b.y - 120) > player.y - 75 && (b.y - 120) < player.y) {
-            let reducao = (pStats.lvlDef * 1.5);
-            let danoTomado = Math.max(5, danoInimigo - reducao);
-            if (auraAtiva) danoTomado /= 2;
-            player.hp -= danoTomado; removeBullet = true; document.getElementById('arena-hp').innerText = `❤️ ${Math.floor(Math.max(0, player.hp))}`;
-            if (player.hp <= 0) { console.log("Você morreu!"); }
-        } else if (b.owner === 'local') {
-            botsAtivos.forEach(bot => {
-                if (bot.hp > 0 && bot.time !== meuTime && Math.abs(b.x - bot.x) < 30 && (b.y - 120) > bot.y - 75 && (b.y - 120) < bot.y) {
-                    let danoDar = danoBase + (pStats.lvlDmg * 3.5); bot.hp -= danoDar; removeBullet = true;
-                    ctx.fillStyle = 'white'; ctx.font = 'bold 16px Arial'; ctx.fillText("-" + Math.floor(danoDar), bot.x, gy + bot.y - 100);
-                }
-            });
+        if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
+            player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
         }
-        if (b.x < 0 || b.x > canvas.width) removeBullet = true;
-        for (let obs of obstaculosPartida) { if (b.x > obs.x && b.x < obs.x + obs.w && (gy + b.y - 120) > gy - obs.h) removeBullet = true; }
-        if (removeBullet) bullets.splice(i, 1);
+        if (!removeBala) {
+            for (let bot of botsAtivos) {
+                if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
+                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; break;
+                }
+            }
+        }
+        if (removeBala || b.x < 0 || b.x > canvas.width) { bullets.splice(i, 1); }
     }
-    
-    let localFrames = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
-    let playerFrameReal = localFrames[frameAtual] || 0;
-    
-    let localPlayerTitan = (meuPerfil.patente && (meuPerfil.patente.nome === '🔥 TITAN' || meuPerfil.patente.nome === '👑 TITAN ELITE'));
 
     if (player.hp > 0) {
-        if(player.x < 10) player.x = 10; if(player.x > canvas.width - 10) player.x = canvas.width - 10;
+        let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
+        
+        let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
+        let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
+
         desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, playerFrameReal, false, auraAtiva, localPlayerTitan);
     }
-
+    
     if (roundRodando) {
-        let vivosA = 0; let vivosB = 0;
-        if(meuTime === 'A' && player.hp > 0) vivosA++; else if(meuTime === 'B' && player.hp > 0) vivosB++;
+        let vivosA = player.hp > 0 ? 1 : 0; let vivosB = 0;
         botsAtivos.forEach(b => { if(b.hp > 0) { if(b.time === 'A') vivosA++; else vivosB++; } });
-        
-        if (vivosA === 0) { placarCS.B++; roundRodando = false; document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`; setTimeout(checarVencedorCS, 2000); }
-        else if (vivosB === 0) { placarCS.A++; roundRodando = false; document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`; setTimeout(checarVencedorCS, 2000); }
+        if (vivosA === 0 || vivosB === 0) {
+            roundRodando = false; if (vivosA === 0) placarCS.B++; else placarCS.A++; document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`;
+            if (placarCS.A === 4 || placarCS.B === 4) { setTimeout(() => { processarFimDePartida(placarCS.A === 4); }, 2000); } else { setTimeout(() => { iniciarRound(); }, 3000); }
+        }
     }
 }
 
-function checarVencedorCS() {
-    if (placarCS.A >= 4) { alert(meuTime === 'A' ? "🏆 BOOYAH! SEU SQUAD VENCEU!" : "💀 SEU SQUAD FOI ELIMINADO!"); processarFimDePartida(meuTime === 'A'); } 
-    else if (placarCS.B >= 4) { alert(meuTime === 'B' ? "🏆 BOOYAH! SEU SQUAD VENCEU!" : "💀 SEU SQUAD FOI ELIMINADO!"); processarFimDePartida(meuTime === 'B'); } 
-    else { iniciarRound(); }
-}
-
-function falarComDono() { window.open("https://wa.me/5564993181829", "_blank"); }
-
-// =========================================================================
-// FUNÇÃO DESENHAR JOGADOR (COM AS DUAS CORREÇÕES APLICADAS)
-// =========================================================================
+// ==========================================
+// SOLUÇÃO FINAL: CORTE DE SKIN E ISOLAMENTO
+// ==========================================
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
 
     if (isTitan) {
         ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
     }
-    if (hasAura) { 
-        ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); 
-    }
+    if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
     
     ctx.save(); ctx.scale(facing, 1); 
     
-    // ISOLAMENTO DA SKIN: Garante que cada jogador/bot use a sua própria
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
     carregarImagensDaSkin(prefixoSkin); 
     
-    let img = (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][fIdx]) ? playerSprites[prefixoSkin][fIdx] : playerSprites['free'][fIdx];
+    let img = null;
     
-    // PROTEÇÃO E RECORTE DO SPRITE SHEET (Evita personagem achatado e piscando)
+    // Tenta pegar a skin exata que o jogador/bot está usando
+    if (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][fIdx]) {
+        img = playerSprites[prefixoSkin][fIdx];
+    } else {
+        // Se der erro ou se ele usar a padrão, pega a azul
+        img = playerSprites['free'] ? playerSprites['free'][fIdx] : null;
+    }
+    
+    // Aqui está a MÁGICA DE VERDADE para parar de piscar e amassar a skin
     if (img && img.complete && img.naturalWidth > 0) { 
-        if (img.naturalWidth > img.naturalHeight * 2) {
-            // A imagem é larga (Sprite Sheet do Painel) - Fazemos o Recorte ✂️
+        if (img.naturalWidth > img.naturalHeight * 1.5) {
+            // Se a imagem for larga (ex: o painel gerou Sprite Sheet de 9 frames), fazemos o corte ✂️
             let totalFrames = 9; 
             let larguraFrame = img.naturalWidth / totalFrames;
             let alturaFrame = img.naturalHeight;
             let frameRecorte = fIdx % totalFrames; 
+
             ctx.drawImage(
                 img, 
                 frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, 
                 -37.5, -75, 75, 75
             );
         } else {
-            // A imagem é individual (Arquivos padrão) - Desenha Normal 🖼️
+            // Se for a imagem padrão separada, desenha normal
             ctx.drawImage(img, -37.5, -75, 75, 75); 
         }
     } else { 
-        ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-15, -65, 30, 65); 
+        // Em vez de chamar a skin azul por acidente e bugar o visual, 
+        // desenha invisível até a roupa Ninja carregar
+        ctx.fillStyle = 'rgba(0,0,0,0)'; 
+        ctx.fillRect(-15, -65, 30, 65); 
     }
     ctx.restore(); 
     
@@ -1026,10 +988,21 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
         ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 11px Arial"; ctx.fillStyle = "#ffffff"; ctx.fillText("V", 0, -112); 
     }
     
-    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); 
-    ctx.restore();
+    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
+function falarComDono() { 
+    let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
+    if(msg && msg.trim() !== '') { 
+        if (socket && socket.connected) { 
+            socket.emit('mensagem_para_dono', msg); 
+            alert("Mensagem enviada!"); 
+        } else { 
+            alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
+        } 
+    } 
+}
 </script>
+
 </body>
 </html>
