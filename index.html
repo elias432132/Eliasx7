@@ -278,7 +278,13 @@ let baseWeapons = [
     { id: 'mp40', name: '🔫 MP40', price: 500 },
     { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
 ];
+// Carrega skins da loja do cache local para não sumirem quando o servidor cai
+let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
 let skinsDB = [...baseSkins];
+_cachedShopSkins.forEach(nova => { 
+    if (nova.comportamento === 'replace_default') return;
+    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
+});
 let weaponsDB = [...baseWeapons];
 
 window.onload = function() { iniciarSistema(); };
@@ -394,8 +400,13 @@ function conectarSocket() {
             skinsDB = [...baseSkins];
             if (itensNovos && itensNovos.skins) {
                 itensNovos.skins.forEach(nova => {
+                    // Ignora skins com comportamento replace_default para não sobrescrever a skin padrão
+                    if (nova.comportamento === 'replace_default') return;
                     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
                 });
+                // Salva as skins da loja no cache local para sobreviver reinicializações do servidor
+                let skinsSomenteLoja = skinsDB.filter(s => !baseSkins.find(b => b.id === s.id));
+                localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsSomenteLoja));
             }
             weaponsDB = [...baseWeapons];
             if (itensNovos && itensNovos.weapons) {
