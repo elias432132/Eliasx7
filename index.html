@@ -408,8 +408,25 @@ function conectarSocket() {
         });
 
         socket.on('atualizar_loja_dinamica', (itensNovos) => {
-            skinsDB = baseSkins.concat(itensNovos?.skins || []); weaponsDB = baseWeapons.concat(itensNovos?.weapons || []);
-            if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
+            // Essa trava impede que as skins se multipliquem no celular do jogador
+            skinsDB = [...baseSkins];
+            if (itensNovos && itensNovos.skins) {
+                itensNovos.skins.forEach(nova => {
+                    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
+                });
+            }
+            
+            weaponsDB = [...baseWeapons];
+            if (itensNovos && itensNovos.weapons) {
+                itensNovos.weapons.forEach(nova => {
+                    if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
+                });
+            }
+            
+            // Atualiza a vitrine ao vivo se o jogador estiver com ela aberta
+            if (!document.getElementById('shop-menu').classList.contains('hidden')) {
+                renderShopList();
+            }
         });
 
         socket.on('nova_mensagem_sistema', (dados) => { alert(dados.msg); });
