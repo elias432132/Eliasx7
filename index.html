@@ -787,27 +787,34 @@ function carregarImagensDaSkin(prefix) {
 carregarImagensDaSkin('free'); 
 
 function getAnimFramesForSkin(skinId, state) {
-    const padraoFallback = { 'RUN': [8, 9, 24, 25, 29, 31, 32, 33, 34, 35, 36, 37, 43, 44, 48].map(n=>n-1), 'IDLE': [81, 82, 83, 84, 85, 86, 87, 88].map(n=>n-1), 'SHOOT': [26, 30].map(n=>n-1), 'JUMP': [50, 51, 52].map(n=>n-1) };
-    
+    // Fallback APENAS para skin padrão azul
+    const padraoFallback = { 'RUN': [8,9,24,25,29,31,32,33,34,35,36,37,43,44,48].map(n=>n-1), 'IDLE': [81,82,83,84,85,86,87,88].map(n=>n-1), 'SHOOT': [26,30].map(n=>n-1), 'JUMP': [50,51,52].map(n=>n-1) };
+
+    // Skin padrão — usa frames da azul
+    if (!skinId || skinId === 'padrao') return padraoFallback[state] || [0];
+
+    let traduzir = (str) => {
+        if(!str) return null;
+        let pts = str.split('-');
+        let inicio = parseInt(pts[0]);
+        let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
+        let arr = [];
+        for(let i = inicio; i <= fim; i++) arr.push(i - 1);
+        return arr;
+    };
+
     let infoDaLoja = skinsDB.find(s => s.id === skinId);
     if (infoDaLoja && infoDaLoja.config_frames) {
         let cf = infoDaLoja.config_frames;
-        let traduzir = (str) => {
-            if(!str) return [0];
-            let pts = str.split('-');
-            let inicio = parseInt(pts[0]);
-            let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
-            let arrayPronto = [];
-            for(let i = inicio; i <= fim; i++) arrayPronto.push(i - 1); 
-            return arrayPronto;
-        };
-        
-        if (state === 'IDLE' && cf.parado) return traduzir(cf.parado);
-        if (state === 'RUN' && cf.andando) return traduzir(cf.andando);
-        if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando);
-        if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando);
+        if (state === 'IDLE' && cf.parado) return traduzir(cf.parado) || [0];
+        if (state === 'RUN' && cf.andando) return traduzir(cf.andando) || [0,1,2,3,4,5,6,7,8];
+        if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando) || [3];
+        if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando) || [5];
     }
-    return padraoFallback[state] || [0]; 
+
+    // Skin customizada SEM config_frames — usa frames 1-9 simples, NUNCA os da azul
+    const customFallback = { 'RUN': [0,1,2,3,4,5,6,7,8], 'IDLE': [0], 'SHOOT': [5], 'JUMP': [3] };
+    return customFallback[state] || [0];
 }
 
 let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
