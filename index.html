@@ -956,41 +956,45 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     ctx.save(); ctx.scale(facing, 1); 
     
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
-    carregarImagensDaSkin(prefixoSkin); 
-    
+    carregarImagensDaSkin(prefixoSkin);
+
     let img = null;
-    
-    // Tenta pegar a skin exata que o jogador/bot está usando
-    if (playerSprites[prefixoSkin] && playerSprites[prefixoSkin][fIdx]) {
-        img = playerSprites[prefixoSkin][fIdx];
-    } else {
-        // Se der erro ou se ele usar a padrão, pega a azul
+    let usarFallback = false;
+
+    if (prefixoSkin === 'free') {
+        // Skin padrão — usa direto
         img = playerSprites['free'] ? playerSprites['free'][fIdx] : null;
+    } else {
+        // Skin customizada — só usa se o frame já carregou completamente
+        let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null;
+        if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) {
+            img = frameCustom;
+        } else {
+            // Frame ainda carregando — fica invisível, NÃO mostra a azul
+            usarFallback = true;
+        }
     }
-    
-    // Aqui está a MÁGICA DE VERDADE para parar de piscar e amassar a skin
-    if (img && img.complete && img.naturalWidth > 0) { 
+
+    if (usarFallback) {
+        // Aguarda carregar sem piscar para a skin azul
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(-37.5, -75, 75, 75);
+    } else if (img && img.complete && img.naturalWidth > 0) {
         if (img.naturalWidth > img.naturalHeight * 1.5) {
-            // Se a imagem for larga (ex: o painel gerou Sprite Sheet de 9 frames), fazemos o corte ✂️
-            let totalFrames = 9; 
+            // Sprite sheet — faz o corte do frame correto
+            let totalFrames = 9;
             let larguraFrame = img.naturalWidth / totalFrames;
             let alturaFrame = img.naturalHeight;
-            let frameRecorte = fIdx % totalFrames; 
-
-            ctx.drawImage(
-                img, 
-                frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, 
-                -37.5, -75, 75, 75
-            );
+            let frameRecorte = fIdx % totalFrames;
+            ctx.drawImage(img, frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, -37.5, -75, 75, 75);
         } else {
-            // Se for a imagem padrão separada, desenha normal
-            ctx.drawImage(img, -37.5, -75, 75, 75); 
+            // Imagem individual
+            ctx.drawImage(img, -37.5, -75, 75, 75);
         }
-    } else { 
-        // Em vez de chamar a skin azul por acidente e bugar o visual, 
-        // desenha invisível até a roupa Ninja carregar
-        ctx.fillStyle = 'rgba(0,0,0,0)'; 
-        ctx.fillRect(-15, -65, 30, 65); 
+    } else {
+        // Imagem padrão ainda carregando — invisível
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(-37.5, -75, 75, 75);
     }
     ctx.restore(); 
     
