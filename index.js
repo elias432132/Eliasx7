@@ -257,7 +257,8 @@ app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
         const payload = { message: `Upload ${filePath}`, content };
         if (sha) payload.sha = sha;
         const response = await axios.put(url, payload, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            timeout: 30000
         });
         res.json({ sucesso: true, data: response.data });
     } catch (err) {
