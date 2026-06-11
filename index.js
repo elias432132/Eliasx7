@@ -246,6 +246,39 @@ app.get('/status', (req, res) => {
     res.json({ status: 'online', skins: lojaDinamica.skins.length, weapons: lojaDinamica.weapons.length });
 });
 
+// Proxy de upload para o GitHub — evita bloqueio de CORS no navegador
+app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
+    const { token, owner, repo, path: filePath, content, sha } = req.body;
+    if (!token || !owner || !repo || !filePath || !content) {
+        return res.status(400).json({ sucesso: false, erro: 'Campos obrigatórios faltando.' });
+    }
+    try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+        const payload = { message: `Upload ${filePath}`, content };
+        if (sha) payload.sha = sha;
+        const response = await axios.put(url, payload, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        res.json({ sucesso: true, data: response.data });
+    } catch (err) {
+        res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message });
+    }
+});
+
+// Proxy para verificar SHA do arquivo no GitHub
+app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
+    const { token, owner, repo, path: filePath } = req.body;
+    try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+        const response = await axios.get(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        res.json({ sucesso: true, sha: response.data.sha });
+    } catch (err) {
+        res.json({ sucesso: false, sha: null });
+    }
+});
+
 // Serve arquivos estáticos da raiz
 app.use(express.static(path.join(__dirname)));
 
@@ -256,4 +289,3 @@ app.get('/painel', (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
-
