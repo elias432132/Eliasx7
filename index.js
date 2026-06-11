@@ -290,3 +290,6 @@ app.get('/painel', (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
+
+
+
