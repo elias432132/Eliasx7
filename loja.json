@@ -1,21 +1,4 @@
 {
-  "skins": [
-    {
-      "id": "ninja",
-      "name": "Conj.Sombrio",
-      "price": 1,
-      "priceD": 1,
-      "comportamento": "custom_isolated",
-      "config_frames": {
-        "parado": "1-1",
-        "andando": "2-4",
-        "pulando": "5-5",
-        "atirando": "6-6",
-        "ataque": "6-6",
-        "morrendo": "9-9",
-        "fps": 12
-      }
-    }
-  ],
+  "skins": [],
   "weapons": []
 }
