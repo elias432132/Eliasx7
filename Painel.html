@@ -307,19 +307,27 @@
                     if (numeroFrame > idEnd) break;
 
                     const base64Data = await arquivosFila[idx].async("base64");
-                    const filename = `${itemID}.x${numeroFrame}.png`;
-                    const uploadUrl = `https://api.github.com/repos/${owner}/${repo}/contents/img/${filename}`;
-                    
+                    const filename = `img/${itemID}.x${numeroFrame}.png`;
+
+                    // Busca SHA via proxy do servidor (evita CORS)
                     let sha = null;
-                    try { let cRes = await fetch(uploadUrl, { headers: { 'Authorization': `Bearer ${token}` } }); if(cRes.ok) { let cD = await cRes.json(); sha = cD.sha; } } catch(err) {}
+                    try {
+                        let shaRes = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
+                            method: 'POST', headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ token, owner, repo, path: filename })
+                        });
+                        let shaData = await shaRes.json();
+                        if (shaData.sha) sha = shaData.sha;
+                    } catch(err) {}
 
-                    let payload = { message: `Upload frame ${numeroFrame}`, content: base64Data };
-                    if(sha) payload.sha = sha;
-
-                    let resPut = await fetch(uploadUrl, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    // Upload via proxy do servidor (evita CORS)
+                    let resPut = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ token, owner, repo, path: filename, content: base64Data, sha })
+                    });
                     if(!resPut.ok) {
                         const errData = await resPut.json().catch(() => ({}));
-                        throw new Error(`Falha no frame ${numeroFrame}: ${errData.message || resPut.status}`);
+                        throw new Error(`Falha no frame ${numeroFrame}: ${errData.erro || resPut.status}`);
                     }
                     logConsole(`✅ Frame ${numeroFrame} enviado!`);
                 }
