@@ -27,8 +27,10 @@ function carregarLoja() {
     try {
         if (fs.existsSync(LOJA_FILE)) {
             const dados = JSON.parse(fs.readFileSync(LOJA_FILE, 'utf8'));
-            console.log(`✅ Loja carregada: ${dados.skins.length} skins, ${dados.weapons.length} weapons`);
-            return dados;
+            if (dados.skins && dados.skins.length > 0) {
+                console.log(`✅ Loja carregada do arquivo: ${dados.skins.length} skins`);
+                return dados;
+            }
         }
     } catch (e) {
         console.error('Erro ao carregar loja:', e.message);
@@ -247,6 +249,26 @@ app.get('/status', (req, res) => {
     res.json({ status: 'online', skins: lojaDinamica.skins.length, weapons: lojaDinamica.weapons.length });
 });
 
+// Carrega loja do GitHub (chamado pelo painel após deploy)
+app.post('/proxy/carregar-loja-github', verificarAdmin, async (req, res) => {
+    const { token, owner, repo } = req.body;
+    try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/loja.json`;
+        const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const dados = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf8'));
+        if (dados.skins && dados.skins.length > 0) {
+            lojaDinamica = dados;
+            salvarLoja();
+            io.emit('atualizar_loja_dinamica', lojaDinamica);
+            res.json({ sucesso: true, skins: lojaDinamica.skins.length });
+        } else {
+            res.json({ sucesso: false, erro: 'Loja vazia no GitHub' });
+        }
+    } catch (err) {
+        res.status(500).json({ sucesso: false, erro: err.message });
+    }
+});
+
 // Proxy de upload para o GitHub — evita bloqueio de CORS no navegador
 app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
     const { token, owner, repo, path: filePath, content, sha } = req.body;
@@ -266,6 +288,33 @@ app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
         res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message });
     }
 });
+
+// Proxy para salvar loja.json no GitHub (loja permanente)
+app.post('/proxy/salvar-loja-github', verificarAdmin, async (req, res) => {
+    const { token, owner, repo } = req.body;
+    if (!token || !owner || !repo) {
+        return res.status(400).json({ sucesso: false, erro: 'Campos obrigatórios faltando.' });
+    }
+    try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/loja.json`;
+        const content = Buffer.from(JSON.stringify(lojaDinamica, null, 2)).toString('base64');
+        let sha = null;
+        try {
+            const getRes = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
+            sha = getRes.data.sha;
+        } catch(e) {}
+        const payload = { message: 'Atualizar loja.json', content };
+        if (sha) payload.sha = sha;
+        await axios.put(url, payload, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            timeout: 30000
+        });
+        res.json({ sucesso: true });
+    } catch (err) {
+        res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message });
+    }
+});
+
 
 // Proxy para verificar SHA do arquivo no GitHub
 app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
