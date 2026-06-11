@@ -154,6 +154,7 @@ app.post('/admin/banir', verificarAdmin, (req, res) => {
 
 app.post('/admin/add-loja', verificarAdmin, (req, res) => {
     const { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
+    console.log('add-loja recebido:', { tipo, id, name, comportamento });
 
     if (tipo !== 'skins' && tipo !== 'weapons') {
         return res.status(400).json({ sucesso: false, erro: 'Tipo inválido. Use skins ou weapons.' });
@@ -290,6 +291,3 @@ app.get('/painel', (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
-
-
-
