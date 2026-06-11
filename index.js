@@ -246,10 +246,14 @@ app.get('/status', (req, res) => {
     res.json({ status: 'online', skins: lojaDinamica.skins.length, weapons: lojaDinamica.weapons.length });
 });
 
-// Serve o painel direto pelo servidor para evitar problemas de CORS
+// Serve arquivos estáticos da raiz
+app.use(express.static(path.join(__dirname)));
+
+// Serve o painel direto pelo servidor
 app.get('/painel', (req, res) => {
-    res.sendFile(path.join(__dirname, 'painel.html'));
+    res.sendFile(path.join(__dirname, 'Painel.html'));
 });
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
+
