@@ -135,7 +135,6 @@
 
     <script>
         const URL_SERVIDOR = "https://eliasx7.onrender.com";
-        const socket = io(URL_SERVIDOR);
         let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
 
         // 🔐 Senha do painel — mesma definida no Render como ADMIN_SECRET
@@ -318,7 +317,11 @@
                     if(sha) payload.sha = sha;
 
                     let resPut = await fetch(uploadUrl, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if(!resPut.ok) throw new Error(`Falha no frame ${numeroFrame}`);
+                    if(!resPut.ok) {
+                        const errData = await resPut.json().catch(() => ({}));
+                        throw new Error(`Falha no frame ${numeroFrame}: ${errData.message || resPut.status}`);
+                    }
+                    logConsole(`✅ Frame ${numeroFrame} enviado!`);
                 }
 
                 const skinConfigCompleta = { 
@@ -345,9 +348,13 @@
                 localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
                 renderizarBloquinhos();
 
-                await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
-
-                alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens criadas e injetadas no jogo!`);
+                // Tenta registrar no servidor — se falhar não para o processo
+                try {
+                    await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
+                    alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens enviadas ao GitHub e registradas no servidor!`);
+                } catch(serverErr) {
+                    alert(`✅ IMAGENS ENVIADAS AO GITHUB!\n⚠️ Servidor offline — use o botão RESTAURAR SERVIDOR depois que ele voltar.`);
+                }
             } catch(e) { alert("Erro: " + e.message); }
             
             btn.innerText = "📦 FILTRAR SEQUÊNCIA E INJETAR"; btn.disabled = false;
