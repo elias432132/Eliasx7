@@ -1,4 +1,21 @@
 {
-  "skins": [],
+  "skins": [
+    {
+      "id": "ninja",
+      "name": "Conju.ninja",
+      "price": 10000,
+      "priceD": 250,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "1-1",
+        "andando": "2-4",
+        "pulando": "5-5",
+        "atirando": "6-6",
+        "ataque": "6-6",
+        "morrendo": "9-9",
+        "fps": 12
+      }
+    }
+  ],
   "weapons": []
 }
