@@ -137,7 +137,7 @@
         const URL_SERVIDOR = "https://eliasx7.onrender.com";
         let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
 
-        // 🔐 Senha do painel — mesma definida no Render como ADMIN_SECRET
+        // 🔐 Senha fixa do painel
         const ADMIN_SECRET = localStorage.getItem('admin_secret') || 'nexusmaster';
 
         // Helper: fetch com autenticação admin automática
@@ -249,6 +249,20 @@
         }
 
         async function sincronizarVitrine() {
+            const token = localStorage.getItem('gh_token');
+            const owner = localStorage.getItem('gh_owner');
+            const repo = localStorage.getItem('gh_repo');
+            
+            // Tenta carregar do GitHub primeiro (persistência permanente)
+            if (token && owner && repo) {
+                try {
+                    await adminFetch(URL_SERVIDOR + '/proxy/carregar-loja-github', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ token, owner, repo })
+                    });
+                } catch(e) {}
+            }
+
             try {
                 let res = await adminFetch(URL_SERVIDOR + '/admin/loja');
                 let dados = await res.json();
@@ -272,7 +286,19 @@
                     });
                 } catch(e) { console.error(e); }
             }
-            alert("✅ Servidor curado! Suas skins locais foram reinjetadas no Render. Abra o jogo e confira a loja!");
+            // Salva loja.json no GitHub para persistência permanente
+            const token = localStorage.getItem('gh_token');
+            const owner = localStorage.getItem('gh_owner');
+            const repo = localStorage.getItem('gh_repo');
+            if (token && owner && repo) {
+                try {
+                    await adminFetch(URL_SERVIDOR + '/proxy/salvar-loja-github', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ token, owner, repo })
+                    });
+                } catch(e) {}
+            }
+            alert("✅ Servidor curado! Suas skins foram salvas permanentemente no GitHub!");
         }
 
         async function processarEUploadZip() {
