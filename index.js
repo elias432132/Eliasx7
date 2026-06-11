@@ -18,7 +18,7 @@ const MERCADOPG_TOKEN = process.env.MERCADOPG_TOKEN;
 
 // 🔐 SENHA DO PAINEL ADMIN
 // Defina a variável de ambiente ADMIN_SECRET no Render para proteger seu painel!
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'nexus_admin_2024';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'nexusmaster';
 
 // --- PERSISTÊNCIA EM ARQUIVO (Loja não some mais ao reiniciar) ---
 const LOJA_FILE = path.join(__dirname, 'loja_data.json');
