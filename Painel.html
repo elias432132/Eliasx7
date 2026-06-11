@@ -330,6 +330,8 @@
                         throw new Error(`Falha no frame ${numeroFrame}: ${errData.erro || resPut.status}`);
                     }
                     logConsole(`✅ Frame ${numeroFrame} enviado!`);
+                    // Pequena pausa para não sobrecarregar o servidor
+                    await new Promise(r => setTimeout(r, 300));
                 }
 
                 const skinConfigCompleta = { 
