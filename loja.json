@@ -3,8 +3,8 @@
     {
       "id": "ninja",
       "name": "Conju.ninja",
-      "price": 10000,
-      "priceD": 250,
+      "price": 1,
+      "priceD": 1,
       "comportamento": "custom_isolated",
       "config_frames": {
         "parado": "1-1",
