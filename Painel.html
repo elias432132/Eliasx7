@@ -58,10 +58,24 @@
         </div>
 
         <div class="card card-orange">
-            <h3 style="margin-top:0; color:#e67e22;">👥 Jogadores Online (Ao Vivo)</h3>
+            <h3 style="margin-top:0; color:#e67e22;">👥 Jogadores Online (Ao Vivo) — <span id="total-jogadores" style="color:#f1c40f;">0</span> online</h3>
             <button class="btn-orange" style="font-size: 11px;" onclick="carregarJogadores()">🔄 ATUALIZAR LISTA DE JOGADORES</button>
             <div id="lista-jogadores" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
                 <span style='color:#777;font-size:12px;text-align:center;'>Clique em atualizar para buscar os jogadores.</span>
+            </div>
+        </div>
+
+        <div class="card card-gold">
+            <h3 style="margin-top:0; color:#f1c40f;">💎 Gerador de Códigos de Diamantes</h3>
+            <span style="font-size: 11px; color: #aaa;">Gere um código válido para até 3 jogadores diferentes resgatarem. O mesmo jogador não pode resgatar duas vezes.</span>
+            <div class="flex-row" style="margin-top: 10px;">
+                <input type="number" id="qtd-diamantes" placeholder="Quantidade de diamantes" min="1">
+            </div>
+            <button class="btn-gold" onclick="gerarCodigo()" style="margin-top: 5px;">🎁 GERAR CÓDIGO</button>
+            <div id="codigo-gerado" style="margin-top: 10px; display:none; background:#000; padding: 15px; border-radius: 6px; text-align:center;">
+                <p style="color:#aaa; font-size:11px; margin:0 0 5px 0;">Código gerado:</p>
+                <p id="codigo-texto" style="color:#f1c40f; font-size:20px; font-weight:bold; letter-spacing:3px; margin:0;"></p>
+                <p id="codigo-info" style="color:#aaa; font-size:11px; margin:5px 0 0 0;"></p>
             </div>
         </div>
 
@@ -175,6 +189,7 @@
                 let res = await adminFetch(URL_SERVIDOR + '/admin/jogadores');
                 let dados = await res.json();
                 let div = document.getElementById('lista-jogadores');
+                document.getElementById('total-jogadores').textContent = dados.lista.length;
                 div.innerHTML = "";
                 
                 if(dados.lista.length === 0) {
@@ -195,6 +210,25 @@
                     `;
                 });
             } catch(e) { alert("Erro ao conectar com o servidor para buscar jogadores."); }
+        }
+
+        async function gerarCodigo() {
+            const qtd = parseInt(document.getElementById('qtd-diamantes').value);
+            if (!qtd || qtd <= 0) return alert("Digite uma quantidade válida de diamantes!");
+            try {
+                let res = await adminFetch(URL_SERVIDOR + '/admin/gerar-codigo', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ diamantes: qtd })
+                });
+                let dados = await res.json();
+                if (dados.sucesso) {
+                    document.getElementById('codigo-gerado').style.display = 'block';
+                    document.getElementById('codigo-texto').textContent = dados.codigo;
+                    document.getElementById('codigo-info').textContent = `💎 ${qtd} diamantes • válido para até 3 jogadores`;
+                } else {
+                    alert("Erro ao gerar código!");
+                }
+            } catch(e) { alert("Erro ao conectar com o servidor!"); }
         }
 
         async function darVIP(nick) {
