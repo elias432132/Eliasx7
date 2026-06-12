@@ -52,6 +52,31 @@ let filas = { solo: [], duo: [], squad: [] };
 let lojaDinamica = carregarLoja();
 let jogadoresGlobais = {};
 
+// Carrega loja do GitHub automaticamente ao iniciar se estiver vazia
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'elias432132';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'Eliasx7';
+
+async function carregarLojaDoGitHub() {
+    if (!GITHUB_TOKEN) return;
+    if (lojaDinamica.skins.length > 0) return; // já tem skins, não precisa
+    try {
+        const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/loja.json`;
+        const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` } });
+        const dados = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf8'));
+        if (dados.skins && dados.skins.length > 0) {
+            lojaDinamica = dados;
+            salvarLoja();
+            console.log(`✅ Loja carregada do GitHub: ${lojaDinamica.skins.length} skins`);
+        }
+    } catch (e) {
+        console.log('Loja.json não encontrado no GitHub ainda.');
+    }
+}
+
+// Executa após 3 segundos para dar tempo do servidor iniciar
+setTimeout(carregarLojaDoGitHub, 3000);
+
 // --- MIDDLEWARE DE AUTENTICAÇÃO DO PAINEL ---
 function verificarAdmin(req, res, next) {
     const senhaRecebida = req.headers['x-admin-secret'] || req.body?.adminSecret;
@@ -340,3 +365,4 @@ app.get('/painel', (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
+
