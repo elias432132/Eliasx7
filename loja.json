@@ -1,22 +1,6 @@
 {
   "skins": [
     {
-      "id": "ninja",
-      "name": "Conjunto das sombras",
-      "price": 200,
-      "priceD": 250,
-      "comportamento": "custom_isolated",
-      "config_frames": {
-        "parado": "71-88",
-        "andando": "1-6",
-        "pulando": "21-30",
-        "atirando": "31-51",
-        "ataque": "31-51",
-        "morrendo": "52-70",
-        "fps": 12
-      }
-    },
-    {
       "id": "aventureiro",
       "name": "Conjunto Aventureiro",
       "price": 15000,
