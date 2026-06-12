@@ -545,7 +545,10 @@ document.addEventListener('touchstart', (e) => {
             keys[id] = false; 
             if(id === 'weapon') trocarArma(); 
             if(id === 'skill') usarSkillAlok(); 
-        }, {passive:false}); 
+        }, {passive:false});
+        el.addEventListener('touchcancel', (e) => { 
+            keys[id] = false; 
+        }, {passive:false});
     }
 });
 
