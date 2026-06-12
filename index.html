@@ -105,10 +105,12 @@
         <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
         <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
         <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
+        <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (só no cadastro)" style="touch-action:auto; display:none;">
         <div style="display:flex;gap:10px;margin-bottom:8px;">
             <button class="btn-main" onclick="entrarConta()" style="width:50%;">ENTRAR</button>
-            <button class="btn-sub" onclick="cadastrarConta()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
+            <button class="btn-sub" onclick="mostrarCampoNick()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
         </div>
+        <button id="btn-confirmar-cadastro" onclick="cadastrarConta()" style="display:none; width:100%; padding:12px; background:#2ecc71; border:none; border-radius:6px; color:#000; font-weight:bold; cursor:pointer; margin-bottom:8px;">✅ CONFIRMAR CADASTRO</button>
         <p id="login-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
     </div>
 </div>
@@ -567,10 +569,19 @@ function loadUserGameProgress(emailChave) {
 }
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
+function mostrarCampoNick() {
+    document.getElementById('input-nick').style.display = 'block';
+    document.getElementById('btn-confirmar-cadastro').style.display = 'block';
+    document.getElementById('input-nick').focus();
+}
+
 async function cadastrarConta() {
-    let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim();
-    if (!email || !senha) return alert("Campos Vazios!"); if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
-    let nick = prompt("Nome do Sobrevivente:"); if (!nick || nick.length < 2) return;
+    let email = document.getElementById('input-email').value.trim(); 
+    let senha = document.getElementById('input-senha').value.trim();
+    let nick = document.getElementById('input-nick').value.trim();
+    if (!email || !senha) return alert("Campos Vazios!"); 
+    if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
+    if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
     document.getElementById('login-msg').innerText = "Gerando Conta...";
     dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
