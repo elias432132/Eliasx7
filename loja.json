@@ -7,12 +7,12 @@
       "priceD": 250,
       "comportamento": "custom_isolated",
       "config_frames": {
-        "parado": "1-1",
-        "andando": "2-4",
-        "pulando": "5-5",
-        "atirando": "6-6",
-        "ataque": "6-6",
-        "morrendo": "9-9",
+        "parado": "71-88",
+        "andando": "1-6",
+        "pulando": "21-30",
+        "atirando": "31-51",
+        "ataque": "31-51",
+        "morrendo": "52-70",
         "fps": 12
       }
     }
