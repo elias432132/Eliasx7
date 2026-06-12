@@ -2,9 +2,9 @@
   "skins": [
     {
       "id": "ninja",
-      "name": "Conj.Sombrio",
-      "price": 1,
-      "priceD": 1,
+      "name": "Conjunto das sombras",
+      "price": 200,
+      "priceD": 250,
       "comportamento": "custom_isolated",
       "config_frames": {
         "parado": "1-1",
