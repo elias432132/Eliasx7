@@ -15,6 +15,22 @@
         "morrendo": "52-70",
         "fps": 12
       }
+    },
+    {
+      "id": "aventureiro",
+      "name": "Conjunto Aventureiro",
+      "price": 15000,
+      "priceD": 500,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "17-28",
+        "andando": "1-16",
+        "pulando": "74-91",
+        "atirando": "29-48",
+        "ataque": "29-48",
+        "morrendo": "49-73",
+        "fps": 12
+      }
     }
   ],
   "weapons": []
