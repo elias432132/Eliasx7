@@ -281,8 +281,10 @@
             if(itensLocaisLoja.length === 0) return alert("Sua lista local está vazia. Crie skins primeiro.");
             for (let item of itensLocaisLoja) {
                 try {
+                    // Garante que o campo tipo está presente
+                    const itemComTipo = { ...item, tipo: item.tipo || 'skins' };
                     await adminFetch(URL_SERVIDOR + '/admin/add-loja', { 
-                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(item) 
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemComTipo) 
                     });
                 } catch(e) { console.error(e); }
             }
