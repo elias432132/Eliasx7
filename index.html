@@ -125,7 +125,7 @@
     </div>
 
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; max-width: 650px;">
-        <button class="btn-sub" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR</button>
+        <button class="btn-sub" id="btn-atualizar" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:16px; height:16px; font-size:10px; line-height:16px; text-align:center;">!</span></button>
         
         <div class="logo-jogo-neon" style="font-size: 26px;">NEXUS STRIKE <span style="color:#f1c40f;font-size:16px;">ONLINE</span></div>
         <p id="player-welcome" style="color:#2ecc71;font-weight:bold;margin:-5px 0 8px 0;font-size:15px; display:flex; align-items:center; justify-content:center;"></p>
@@ -590,11 +590,47 @@ function carregarLobby() {
 function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
 function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
 
-function verificarAtualizacaoDoJogo() { 
-    alert("🔄 Buscando novos dados no servidor...\nO jogo irá reiniciar completamente sem cache travado!"); 
-    if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
-    window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now()); 
+// Versão atual do jogo instalado
+const VERSAO_ATUAL = '1.0';
+const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
+
+async function checarVersaoNova() {
+    try {
+        const res = await fetch(VERSAO_JSON_URL + '?t=' + Date.now());
+        const dados = await res.json();
+        if (dados.versao && dados.versao !== VERSAO_ATUAL) {
+            // Mostra bolinha vermelha
+            const badge = document.getElementById('badge-update');
+            if (badge) badge.style.display = 'block';
+            // Muda cor do botão para vermelho
+            const btn = document.getElementById('btn-atualizar');
+            if (btn) btn.style.background = '#e74c3c';
+        }
+    } catch(e) {}
 }
+
+function verificarAtualizacaoDoJogo() {
+    fetch(VERSAO_JSON_URL + '?t=' + Date.now())
+        .then(r => r.json())
+        .then(dados => {
+            if (dados.versao && dados.versao !== VERSAO_ATUAL) {
+                if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar a atualização.`)) {
+                    window.open(dados.apk_url || 'https://github.com/elias432132/Eliasx7/releases', '_blank');
+                }
+            } else {
+                alert('✅ Você já está na versão mais recente!');
+                if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
+                window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
+            }
+        })
+        .catch(() => {
+            if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
+            window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
+        });
+}
+
+// Checa versão ao abrir o jogo
+setTimeout(checarVersaoNova, 5000);
 
 function gerarCodigoSalvar() { 
     if (!meuEmail || !dbUsuarios[meuEmail]) return alert("⚠️ Erro: Nenhuma conta logada.");
