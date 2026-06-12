@@ -893,7 +893,17 @@ function gameLoop() {
             if (keys.jump) { player.vy = -14; player.isGrounded = false; } 
         } else { player.isGrounded = false; }
 
-        if (!player.isGrounded) playerState = 'JUMP'; else if (keys.fire) playerState = 'SHOOT'; else if (keys.left || keys.right) playerState = 'RUN'; else playerState = 'IDLE';
+        // Correção de animação e direção aplicada aqui
+        let novoEstado = 'IDLE';
+        if (!player.isGrounded) novoEstado = 'JUMP';
+        else if (keys.fire) novoEstado = 'SHOOT';
+        else if (keys.left || keys.right) novoEstado = 'RUN';
+
+        if (playerState !== novoEstado) {
+            playerState = novoEstado;
+            frameAtual = 0;
+            contadorAnim = 0;
+        }
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
