@@ -244,6 +244,7 @@
     <div id="hud-top">
         <span class="hud-item" style="color:#e74c3c;" id="arena-hp">❤️ 100</span>
         <span id="hud-placar-cs">0 X 0</span>
+        <!-- NOVO HUD DE CONTAGEM DE GELO -->
         <span class="hud-item" style="color:#00ecff;" id="hud-gelo">❄️ GELO: 3</span>
         <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
     </div>
@@ -255,6 +256,7 @@
         <div class="ctrl-btn" id="btn-jump">PULO</div>
         <div class="ctrl-btn" id="btn-weapon">ARMA</div>
         <div class="ctrl-btn" id="btn-skill">ALOK</div>
+        <!-- NOVO BOTÃO DE GELO -->
         <div class="ctrl-btn" id="btn-gelo">GELO</div>
     </div>
     <div id="menu-partida-overlay" class="hidden">
@@ -538,15 +540,17 @@ function usarGelo() {
         gelosDisponiveis--;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
         
-        let distanciaFrente = 60;
-        let larguraGelo = 30;
+        let larguraGelo = 65; 
+        let alturaGelo = 85; 
+        let distanciaFrente = 50; 
+        
         let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
         
         // Empurra a barreira de gelo para os obstáculos do mapa
         obstaculosPartida.push({
             x: posGeloX, 
             w: larguraGelo, 
-            h: 85, // Altura que bloqueia o pulo fácil e o tiro
+            h: alturaGelo, 
             isGelo: true, 
             hp: 150 // Vida do gelo até quebrar
         });
@@ -799,9 +803,10 @@ let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: tr
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 
-// VARIÁVEIS DE IMAGEM DO MAPA
+// VARIÁVEIS DE IMAGEM DO MAPA E GELO
 const bgImage = new Image(); 
 const chaoImage = new Image();
+const imgGelo = new Image();
 
 /*==========================================================================
    MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
@@ -974,13 +979,26 @@ function gameLoop() {
     // RENDERIZAÇÃO DOS OBSTÁCULOS E DO GELO
     obstaculosPartida.forEach(obs => { 
         if(obs.isGelo) {
-            // Desenha o Gelo
-            ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
-            ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-            ctx.strokeStyle = "#fff"; 
-            ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
+            let itemGelo = skinsDB.find(s => s.comportamento === 'gelo');
+            
+            if (itemGelo) {
+                let urlGelo = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${itemGelo.id}.x1.png`;
+                if (imgGelo.src !== urlGelo) imgGelo.src = urlGelo; 
+                
+                if (imgGelo.complete && imgGelo.naturalWidth > 0) {
+                    ctx.drawImage(imgGelo, obs.x, gy - obs.h, obs.w, obs.h);
+                } else {
+                    ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
+                    ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
+                }
+            } else {
+                ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
+                ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
+                ctx.strokeStyle = "#fff"; 
+                ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
+            }
         } else {
-            // Desenha obstáculo comum (se houver)
+            // Desenha obstáculo comum do mapa (se houver)
             ctx.fillStyle = "#3e2723"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
             ctx.strokeStyle = "#000"; 
