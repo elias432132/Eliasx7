@@ -51,7 +51,7 @@
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: #444; color: #fff; border: none; padding: 8px 15px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         .tab-btn.active { background: #e67e22; }
-        .shop-container { display: flex; gap: 10px; overflow-x: auto; width: 90%; padding: 10px; background: #222; border-radius: 8px; border: 2px solid #444; margin-bottom: 10px; max-width: 600px; touch-action: pan-x; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+        .shop-container { display: flex; gap: 10px; overflow-x: scroll; width: 90%; padding: 10px; background: #222; border-radius: 8px; border: 2px solid #444; margin-bottom: 10px; max-width: 600px; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
         .shop-item { background: #333; border: 2px solid #555; padding: 10px; border-radius: 6px; text-align: center; min-width: 140px; flex-shrink: 0; }
         .shop-item button { background: #e67e22; color: #fff; border: none; padding: 5px; font-size: 11px; font-weight: bold; width: 100%; border-radius: 4px; cursor: pointer; }
         
@@ -163,7 +163,7 @@
     <button class="btn-sub btn-danger" style="margin-top:15px;" onclick="fecharMenu('resgatar-codigo-menu')">VOLTAR</button>
 </div>
 
-<div id="shop-menu" class="fullscreen-menu hidden">
+<div id="shop-menu" class="fullscreen-menu hidden" style="touch-action: auto !important; overflow-y: auto !important;">
     <h2 style="color:#f1c40f;">LOJA DO SERVIDOR</h2>
     <div class="shop-tabs">
         <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS</button>
@@ -893,17 +893,7 @@ function gameLoop() {
             if (keys.jump) { player.vy = -14; player.isGrounded = false; } 
         } else { player.isGrounded = false; }
 
-        // Correção de animação e direção aplicada aqui
-        let novoEstado = 'IDLE';
-        if (!player.isGrounded) novoEstado = 'JUMP';
-        else if (keys.fire) novoEstado = 'SHOOT';
-        else if (keys.left || keys.right) novoEstado = 'RUN';
-
-        if (playerState !== novoEstado) {
-            playerState = novoEstado;
-            frameAtual = 0;
-            contadorAnim = 0;
-        }
+        if (!player.isGrounded) playerState = 'JUMP'; else if (keys.fire) playerState = 'SHOOT'; else if (keys.left || keys.right) playerState = 'RUN'; else playerState = 'IDLE';
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
@@ -1073,7 +1063,23 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
-function falarComDono() { 
+// Fix scroll da loja no Android
+document.addEventListener('DOMContentLoaded', function() {
+    let shopContainer = document.getElementById('shop-items-list');
+    if (shopContainer) {
+        let startX, scrollLeft;
+        shopContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - shopContainer.offsetLeft;
+            scrollLeft = shopContainer.scrollLeft;
+        }, {passive: true});
+        shopContainer.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+            const x = e.touches[0].pageX - shopContainer.offsetLeft;
+            const walk = (startX - x);
+            shopContainer.scrollLeft = scrollLeft + walk;
+        }, {passive: true});
+    }
+});
     let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
     if(msg && msg.trim() !== '') { 
         if (socket && socket.connected) { 
