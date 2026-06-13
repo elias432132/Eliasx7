@@ -2,435 +2,1102 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Engenharia Master - NEXUS STRIKE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEXUS STRIKE - Servidor Global PvP</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        body { background: #111; font-family: sans-serif; color: #fff; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { color: #00ecff; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; text-shadow: 0 0 15px #00ecff; }
-        .card { background: #222; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #444; }
-        .card-red { border-left: 5px solid #e74c3c; }
-        .card-gold { border-left: 5px solid #f1c40f; }
-        .card-green { border-left: 5px solid #2ecc71; }
-        .card-purple { border-left: 5px solid #9b59b6; }
-        .card-blue { border-left: 5px solid #3498db; }
-        .card-orange { border-left: 5px solid #e67e22; }
-        .card-cyan { border-left: 5px solid #00ecff; }
+        * { box-sizing: border-box; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; touch-action: none; }
+        body { background-color: #111; color: #fff; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
-        input, select { width: 100%; background: #000; border: 1px solid #555; color: #fff; padding: 12px; margin-top: 8px; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; font-weight: bold; }
-        button { width: 100%; padding: 12px; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; margin-bottom: 5px; }
-        .btn-gold { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; }
-        .btn-red { background: #c0392b; color: #fff; }
-        .btn-green { background: #2ecc71; color: #000; }
-        .btn-blue { background: #3498db; color: #fff; }
-        .btn-purple { background: #9b59b6; color: #fff; }
-        .btn-orange { background: #e67e22; color: #fff; }
-        .btn-cyan { background: #00ecff; color: #000; }
+        #aviso-gire-tela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; text-align: center; padding: 20px; }
+        .icone-celular { width: 50px; height: 80px; border: 4px solid white; border-radius: 8px; position: relative; animation: girar 2s infinite ease-in-out; margin-bottom: 20px; }
+        .icone-celular::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: white; border-radius: 50%; }
+        @media (orientation: landscape) { #aviso-gire-tela { display: none !important; } }
         
-        .flex-row { display: flex; gap: 10px; }
-        .grid-loja { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 15px; }
-        .bloco-item { background: #151515; border: 1px solid #3af; border-radius: 6px; padding: 12px; text-align: center; box-shadow: 0 0 10px rgba(0,236,255,0.1); transition: 0.2s; }
-        .bloco-item:hover { transform: scale(1.03); box-shadow: 0 0 15px rgba(0,236,255,0.3); }
-        .bloco-item img { max-width: 45px; max-height: 45px; display: block; margin: 0 auto 10px auto; image-rendering: pixelated; }
-        .bloco-item .nome-item { font-size: 12px; font-weight: bold; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .bloco-item .precos-item { font-size: 11px; color: #f1c40f; margin-top: 5px; font-weight: bold; }
-        .bloco-item .id-item { font-size: 10px; color: #777; margin-top: 2px; font-family: monospace; }
-        .bloco-item .btn-remover-item { background: #c0392b; color: #fff; border: none; font-size: 9px; padding: 4px; border-radius: 3px; cursor: pointer; margin-top: 8px; width: 100%; font-weight: bold; }
+        .fullscreen-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0d1b2a, #1b263b); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; overflow-y: auto; touch-action: auto; }
+        .hidden { display: none !important; }
         
-        .console-log { background: #000; border: 1px solid #333; font-family: monospace; font-size: 11px; color: #2ecc71; padding: 8px; height: 60px; overflow-y: auto; margin-bottom: 10px; border-radius: 4px; }
-        .secao-interna { background: #1a1a1a; padding: 10px; border-radius: 4px; border: 1px dashed #555; margin-bottom: 15px; }
+        .login-box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; border: 3px solid #00ecff; box-shadow: 0 0 20px #00ecff; width: 95%; max-width: 420px; }
+        .login-box input { width: 100%; padding: 10px; margin-bottom: 12px; background: #222; color: #fff; border: 2px solid #555; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center; touch-action: auto; }
+        .login-box input:focus { border-color: #00ecff; outline: none; }
+        
+        .btn-main { background: #e67e22; color: white; border: 3px solid #d35400; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; box-shadow: 0 4px #a83f00; cursor: pointer; margin: 4px; }
+        .btn-main:hover { transform: scale(1.02); }
+        .btn-sub { background: #34495e; color: white; border: 3px solid #2c3e50; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #1a252f; margin: 4px; }
+        .btn-danger { background: #c0392b !important; border-color: #962d22 !important; box-shadow: 0 4px #6d2018 !important; }
+        
+        .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; max-width: 650px; }
+        
+        .logo-jogo-neon { color: #fff; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #fff, 0 0 10px #00ecff, 0 0 20px #00ecff, 0 0 40px #00ecff; margin: 0 0 5px 0; animation: pulsaGlow 2s infinite ease-in-out; }
+        @keyframes pulsaGlow { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+
+        .currency-display { font-size: 15px; color: #f1c40f; font-weight: bold; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .currency-display span { background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; }
+        .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; background: rgba(0,0,0,0.5); }
+        
+        @keyframes chromaShift {
+            0% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
+            20% { background: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
+            40% { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+            60% { background: #3498db; box-shadow: 0 0 10px #3498db; }
+            80% { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; }
+            100% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
+        }
+        .badge-vip-html { display: inline-flex; align-items: center; justify-content: center; color: #fff !important; font-weight: 900; font-family: sans-serif; font-size: 12px; width: 19px; height: 19px; border-radius: 50%; margin-right: 6px; border: 2px solid #fff; vertical-align: middle; animation: chromaShift 1.5s linear infinite; }
+        
+        @keyframes popVip { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        #modal-vip-lindo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 15, 26, 0.96); border: 3px solid #f1c40f; box-shadow: 0 0 35px #f1c40f; padding: 25px; border-radius: 20px; z-index: 99999; text-align: center; width: 340px; max-width: 90%; animation: popVip 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { background: #444; color: #fff; border: none; padding: 8px 15px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .tab-btn.active { background: #e67e22; }
+        .shop-container { display: flex; gap: 10px; overflow-x: scroll; width: 90%; padding: 10px; background: #222; border-radius: 8px; border: 2px solid #444; margin-bottom: 10px; max-width: 600px; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
+        .shop-item { background: #333; border: 2px solid #555; padding: 10px; border-radius: 6px; text-align: center; min-width: 140px; flex-shrink: 0; }
+        .shop-item button { background: #e67e22; color: #fff; border: none; padding: 5px; font-size: 11px; font-weight: bold; width: 100%; border-radius: 4px; cursor: pointer; }
+        
+        .server-bar { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; max-width: 400px; }
+        .bar-classic { background: linear-gradient(90deg, #2980b9, #3498db); border: 3px solid #1f618d; }
+        
+        #chat-mensagens { width: 95%; max-width: 600px; height: 180px; background: #222; border: 2px solid #555; border-radius: 8px; overflow-y: auto; padding: 10px; margin-bottom: 10px; text-align: left; font-size: 13px; touch-action: auto; }
+        #hud-editor-msg { display: none; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 8px; border: 2px solid #ff9f43; color:#ff9f43; font-weight: bold; z-index: 500; text-align:center; }
+        #hud-placar-cs { font-size: 20px; font-weight: 900; color: #f1c40f; background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 8px; border: 2px solid #f1c40f; text-shadow: 1px 1px 0px #000; }
+        
+        #game-ui { display: none; width: 100%; height: 100%; position: relative; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #hud-top { position: absolute; top: 8px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 10; pointer-events: none; flex-wrap: wrap; }
+        .hud-item { background: rgba(0,0,0,0.8); padding: 6px 12px; border-radius: 8px; border: 1px solid #555; font-weight: bold; font-size: 14px; pointer-events: auto; }
+        #btn-menu-ingame { background: #34495e; cursor: pointer; border-color: #f1c40f; color: #f1c40f; pointer-events: auto !important; }
+        
+        #controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+        .ctrl-btn { position: absolute; pointer-events: auto !important; background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; cursor: pointer; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        #joystick-base { position: absolute; pointer-events: auto !important; width: 130px; height: 130px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; z-index: 25; }
+        #joystick-knob { position: absolute; width: 55px; height: 55px; border-radius: 50%; background: #e67e22; box-shadow: 0 0 10px rgba(0,0,0,0.8); pointer-events: none; transition: transform 0.05s linear; }
+        
+        #btn-fire { width: 80px; height: 80px; background: rgba(230,126,34,0.9); border: 2px solid #d35400; color: white; font-size: 14px; z-index: 30; }
+        #btn-jump { width: 65px; height: 65px; z-index: 30; }
+        #btn-weapon { width: 55px; height: 55px; z-index: 30; }
+        #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
+        
+        #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+        .lobby-chat-lateral { width: 260px; height: 85%; background: rgba(20, 27, 38, 0.85); border: 2px solid #34495e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .lobby-chat-header { background: #1f2833; padding: 8px; font-size: 12px; font-weight: bold; text-align: center; color: #3498db; border-bottom: 1px solid #34495e; }
+        .lobby-chat-box { flex-grow: 1; padding: 8px; overflow-y: auto; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
+        .lobby-chat-input-row { display: flex; border-top: 1px solid #34495e; background: #111; }
+        .lobby-chat-input-row input { flex-grow: 1; background: transparent; border: none; padding: 8px; color: #fff; font-size: 12px; }
+        .lobby-chat-input-row button { background: #3498db; border: none; color: white; padding: 0 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⚙️ CENTRAL MASTER - NEXUS STRIKE</h1>
 
-        <div class="card card-cyan">
-            <h3 style="margin-top:0; color:#00ecff;">🏪 Vitrine Comercial da Loja</h3>
-            <span style="font-size: 11px; color: #aaa;">Skins que você já enviou. Se o servidor do jogo desligar sozinho, use o botão verde abaixo para forçar o envio da sua lista salva!</span>
-            
-            <div class="grid-loja" id="vitrine-bloquinhos"></div>
-            
-            <button class="btn-cyan" style="margin-top: 15px; font-size: 11px;" onclick="sincronizarVitrine()">🔄 1. PEGAR DO SERVIDOR</button>
-            <button class="btn-green" style="margin-top: 5px; font-size: 11px;" onclick="restaurarServidor()">⬆️ 2. RESTAURAR SERVIDOR (APÓS REINÍCIO)</button>
+<div id="aviso-gire-tela"><div class="icone-celular"></div><h1 style="color:white;font-size:24px;">Gire o celular</h1></div>
+
+<div id="modal-vip-lindo" class="hidden">
+    <span onclick="fecharModalVip()" style="position: absolute; top: 10px; right: 15px; font-size: 22px; font-weight: bold; color: #fff; cursor: pointer; text-shadow: 0 0 5px #000;">✖</span>
+    <h2 style="color: #f1c40f; margin: 0 0 12px 0; font-size: 22px; text-transform: uppercase; text-shadow: 0 0 10px #f1c40f;">👑 SISTEMA VIP 👑</h2>
+    <p style="color: #fff; font-size: 15px; line-height: 1.4; margin-bottom: 20px; font-weight: bold;">Parabéns! O Dono do servidor acabou de conceder a Tag de <span style="color: #f1c40f;">Verificado Oficial</span> para a sua conta!</p>
+    <button class="btn-main" onclick="fecharModalVip()" style="background: linear-gradient(90deg, #f1c40f, #f39c12); color: #000; width: 100%; border: none; box-shadow: 0 4px #b78a06;">SENSACIONAL!</button>
+</div>
+
+<div id="login-screen" class="fullscreen-menu">
+    <div class="login-box" id="box-login-main">
+        <div class="logo-jogo-neon">NEXUS STRIKE</div>
+        <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
+        <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
+        <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
+        <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (cadastro)" style="touch-action:auto;">
+        <div style="display:flex;gap:10px;margin-bottom:8px;">
+            <button class="btn-main" onclick="entrarConta()" style="width:50%;">ENTRAR</button>
+            <button class="btn-sub" onclick="cadastrarConta()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
         </div>
+        <p id="login-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
+    </div>
+</div>
 
-        <div class="card card-orange">
-            <h3 style="margin-top:0; color:#e67e22;">👥 Jogadores Online (Ao Vivo) — <span id="total-jogadores" style="color:#f1c40f;">0</span> online</h3>
-            <button class="btn-orange" style="font-size: 11px;" onclick="carregarJogadores()">🔄 ATUALIZAR LISTA DE JOGADORES</button>
-            <div id="lista-jogadores" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
-                <span style='color:#777;font-size:12px;text-align:center;'>Clique em atualizar para buscar os jogadores.</span>
-            </div>
-        </div>
-
-        <div class="card card-gold">
-            <h3 style="margin-top:0; color:#f1c40f;">💎 Gerador de Códigos de Diamantes</h3>
-            <span style="font-size: 11px; color: #aaa;">Gere um código válido para até 3 jogadores diferentes resgatarem. O mesmo jogador não pode resgatar duas vezes.</span>
-            <div class="flex-row" style="margin-top: 10px;">
-                <input type="number" id="qtd-diamantes" placeholder="Quantidade de diamantes" min="1">
-            </div>
-            <button class="btn-gold" onclick="gerarCodigo()" style="margin-top: 5px;">🎁 GERAR CÓDIGO</button>
-            <div id="codigo-gerado" style="margin-top: 10px; display:none; background:#000; padding: 15px; border-radius: 6px; text-align:center;">
-                <p style="color:#aaa; font-size:11px; margin:0 0 5px 0;">Código gerado:</p>
-                <p id="codigo-texto" style="color:#f1c40f; font-size:20px; font-weight:bold; letter-spacing:3px; margin:0;"></p>
-                <p id="codigo-info" style="color:#aaa; font-size:11px; margin:5px 0 0 0;"></p>
-            </div>
-        </div>
-
-        <div class="card card-green">
-            <h3 style="margin-top:0; color:#2ecc71;">🥋 Injetor Automático de Skins</h3>
-            
-            <label style="font-weight: bold; font-size: 13px;">Arquivo ZIP dos Sprites:</label>
-            <input type="file" id="zip-file" accept=".zip">
-
-            <div class="flex-row">
-                <div style="flex: 1;">
-                    <label style="font-weight: bold; font-size: 13px;">ID Frame Inicial:</label>
-                    <input type="number" id="skin-id-start" value="1">
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-weight: bold; font-size: 13px;">ID Frame Final:</label>
-                    <input type="number" id="skin-id-end" value="9">
-                </div>
-            </div>
-
-            <div class="flex-row">
-                <div style="flex: 1;">
-                    <label style="font-weight: bold; font-size: 13px;">Comportamento no Jogo:</label>
-                    <select id="comportamento-skin">
-                        <option value="custom_isolated">✨ Skin Isolada (Loja)</option>
-                    </select>
-                </div>
-            </div>
-
-            <input type="text" id="id-item-loja" placeholder="ID Interno do Sprite (ex: mestre_azul)">
-            <input type="text" id="nome-item-loja" placeholder="Nome Comercial do Item">
-            
-            <div class="flex-row">
-                <input type="number" id="preco-ouro" placeholder="Preço em Ouro">
-                <input type="number" id="preco-dima" placeholder="Preço em Diamantes">
-            </div>
-
-            <div class="secao-interna">
-                <label style="font-weight: bold; font-size: 12px; color: #2ecc71; display: block; margin-bottom: 5px;">🎬 Configuração Completa de Movimentos:</label>
-                
-                <div class="flex-row">
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Parado:</span><input type="text" id="frames-parado" value="1-1"></div>
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Andando:</span><input type="text" id="frames-andando" value="2-4"></div>
-                </div>
-                <div class="flex-row">
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Pulando:</span><input type="text" id="frames-pulando" value="5-5"></div>
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Atirando:</span><input type="text" id="frames-atirando" value="6-6"></div>
-                </div>
-                <div class="flex-row">
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Batendo:</span><input type="text" id="frames-ataque" value="6-6"></div>
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">Morrendo:</span><input type="text" id="frames-morrendo" value="9-9"></div>
-                </div>
-                <div class="flex-row">
-                    <div style="flex: 1;"><span style="font-size: 11px; color:#aaa;">FPS:</span><input type="number" id="velocidade-fps" value="12"></div>
-                </div>
-            </div>
-
-            <div class="console-log" id="console-sequenciador">> Sistema pronto...</div>
-            <button class="btn-green" id="btn-upload-zip" onclick="processarEUploadZip()">📦 FILTRAR SEQUÊNCIA E INJETAR NO JOGO</button>
-        </div>
-
-        <div class="card card-blue">
-            <h3 style="margin-top:0; color:#3498db;">🔑 GitHub Asset Manager</h3>
-            <input type="password" id="admin-secret-input" placeholder="🔐 Senha do Painel Admin (ADMIN_SECRET)">
-            <input type="password" id="gh-token" placeholder="GitHub Personal Token">
-            <input type="text" id="gh-owner" placeholder="Usuário GitHub">
-            <input type="text" id="gh-repo" placeholder="Repositório">
-            <button class="btn-blue" onclick="salvarConfigGitHub()">💾 SALVAR CREDENCIAIS</button>
+<div id="start-menu" class="fullscreen-menu hidden" style="flex-direction: row; justify-content: center; align-items: center; gap: 30px; padding: 20px;">
+    
+    <div class="lobby-chat-lateral">
+        <div class="lobby-chat-header">💬 CHAT GLOBAL ONLINE</div>
+        <div class="lobby-chat-box" id="lobby-chat-mensagens-box"></div>
+        <div class="lobby-chat-input-row">
+            <input type="text" id="input-chat-lobby" placeholder="Escreva para o servidor..." onkeydown="if(event.key === 'Enter') enviarMensagemLobby()">
+            <button onclick="enviarMensagemLobby()">Mandar</button>
         </div>
     </div>
 
-    <script>
-        const URL_SERVIDOR = "https://eliasx7.onrender.com";
-        let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; max-width: 650px;">
+        <button class="btn-sub" id="btn-atualizar" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:16px; height:16px; font-size:10px; line-height:16px; text-align:center;">!</span></button>
+        
+        <div class="logo-jogo-neon" style="font-size: 26px;">NEXUS STRIKE <span style="color:#f1c40f;font-size:16px;">ONLINE</span></div>
+        <p id="player-welcome" style="color:#2ecc71;font-weight:bold;margin:-5px 0 8px 0;font-size:15px; display:flex; align-items:center; justify-content:center;"></p>
+        
+        <div class="currency-display">
+            <span>🪙 <span id="menu-gold">0</span></span>
+            <span>💎 <span id="menu-frags">0</span></span>
+            <span id="badge-patente-menu" class="badge-patente">🏆 🟫 BRONZE ⭐1</span>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="btn-main" style="font-size:18px;padding:14px 30px;" onclick="abrirServidores()">⚔️ JOGAR (CONTRA SQUAD)</button>
+            <button class="btn-sub" onclick="abrirMenu('shop-menu')">🛒 LOJA</button>
+            <button class="btn-sub" id="btn-toggle-control" onclick="mudarTipoControle()" style="color:#f1c40f; border-color:#f39c12;">🎮 CONTROLE: <span id="label-controle-menu">BOTÕES</span></button>
+            <button class="btn-sub" onclick="entrarModoEdicaoHUD('lobby')" style="color:#f1c40f; border-color:#f39c12;">🎛️ HUD</button>
+            <button class="btn-sub" style="color:#2ecc71; border-color:#27ae60;" onclick="abrirMenu('resgatar-codigo-menu')">🎁 CÓDIGO</button>
+            <button class="btn-sub" style="color:#9b59b6;border-color:#8e44ad;" onclick="abrirMenu('chat-global-menu')">💬 EXPANDIR CHAT</button>
+            <button class="btn-sub" style="color:#e74c3c;border-color:#c0392b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
+            <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
+            <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR</button>
+            <button class="btn-sub" id="btn-recompensa-semanal" style="color:#f1c40f; background: rgba(241,196,15,0.1); border-color:#f1c40f;" onclick="resgatarPremioSemanalVip()">💎 RECOMPENSA SEMANAL</button>
+            <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
+        </div>
+    </div>
+</div>
 
-        // 🔐 Senha fixa do painel
-        const ADMIN_SECRET = localStorage.getItem('admin_secret') || 'nexusmaster';
+<div id="resgatar-codigo-menu" class="fullscreen-menu hidden">
+    <h2 style="color:#2ecc71;">🎁 RESGATAR CÓDIGO</h2>
+    <div style="background:rgba(0,0,0,0.8); padding:20px; border-radius:10px; border:2px solid #2ecc71; width:90%; max-width:400px; text-align:center;">
+        <input type="text" id="input-codigo-resgate" placeholder="Cole o código VIP ou de Dima" style="width:100%; padding:12px; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:bold; font-size:16px; border-radius:5px; touch-action:auto;">
+        <button class="btn-main" style="width:100%; background:#2ecc71; border-color:#27ae60;" onclick="processarResgate()">RESGATAR PREMIO</button>
+    </div>
+    <button class="btn-sub btn-danger" style="margin-top:15px;" onclick="fecharMenu('resgatar-codigo-menu')">VOLTAR</button>
+</div>
 
-        // Helper: fetch com autenticação admin automática
-        function adminFetch(url, options = {}) {
-            options.headers = options.headers || {};
-            options.headers['x-admin-secret'] = ADMIN_SECRET;
-            return fetch(url, options);
+<div id="shop-menu" class="fullscreen-menu hidden" style="touch-action: auto !important; overflow-y: auto !important;">
+    <h2 style="color:#f1c40f;">LOJA DO SERVIDOR</h2>
+    <div class="shop-tabs">
+        <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS</button>
+        <button class="tab-btn" id="tab-weapons" onclick="switchTab('weapons')">🔫 ARMAS</button>
+        <button class="tab-btn" id="tab-diamonds" style="background:#3498db;" onclick="switchTab('diamonds')">💎 RECARGA</button>
+    </div>
+    <div class="shop-container" id="shop-items-list"></div>
+    
+    <div id="content-diamonds" style="display:none;text-align:center;width:90%;max-width:500px;background:#222;padding:15px;border-radius:10px;border:2px solid #3498db;margin-bottom:10px;">
+        <h3 style="color:#3498db;margin-top:0;">RECARGA VIA PIX</h3>
+        <input type="number" id="input-qtd-dimas" placeholder="Ex: 250" min="250" style="touch-action:auto; margin-bottom:5px;" oninput="calcularPrecoDimaReal()">
+        <div id="label-preco-dima" style="color:#2ecc71;font-weight:bold;margin:5px 0;height:20px; font-size:18px;">Valor Cobrado: R$ 0,00</div>
+        <button id="btn-gerar-pix" class="btn-main" onclick="gerarPix(event)" style="background:#2ecc71;border-color:#27ae60;width:100%;">⚡ GERAR PIX</button>
+        
+        <div id="tela-pix-gerado" style="display:none; flex-direction:column; gap:10px; margin-top:15px; background:#111; padding:10px; border:2px dashed #2ecc71; border-radius:8px;">
+            <p style="margin:0; color:#2ecc71; font-weight:bold; font-size:12px;">CÓDIGO PIX COPIA E COLA:</p>
+            <input type="text" id="output-chave-pix" readonly style="width:100%; padding:8px; background:#000; color:#fff; border:1px solid #555; text-align:center;">
+            <button class="btn-main" onclick="copiarPix()">📋 COPIAR</button>
+        </div>
+    </div>
+    <button class="btn-sub btn-danger" onclick="fecharMenu('shop-menu')">VOLTAR</button>
+</div>
+
+<div id="chat-global-menu" class="fullscreen-menu hidden">
+    <h2>CHAT GLOBAL</h2>
+    <div id="chat-mensagens"></div>
+    <div style="display:flex;gap:5px;width:95%;max-width:600px;margin-bottom:15px;">
+        <input type="text" id="input-chat-global" placeholder="Mensagem..." style="flex-grow:1;padding:10px;background:#111;color:#fff;border:2px solid #555;touch-action:auto;" onkeydown="if(event.key === 'Enter') enviarMensagemGlobal()">
+        <button onclick="enviarMensagemGlobal()" style="background:#9b59b6;color:white;padding:0 20px;border-radius:5px;">ENVIAR</button>
+    </div>
+    <button class="btn-sub btn-danger" onclick="fecharMenu('chat-global-menu')">FECHAR</button>
+</div>
+
+<div id="upgrade-menu" class="fullscreen-menu hidden">
+    <h2>UPGRADE</h2>
+    <div class="shop-item"><h3>⚔️ DANO (Nv.<span id="lvl-dmg">1</span>)</h3><button onclick="upgradeStat('dmg')">UPAR: 500 🪙</button></div>
+    <div class="shop-item"><h3>🛡️ DEFESA (Nv.<span id="lvl-def">1</span>)</h3><button onclick="upgradeStat('def')">UPAR: 400 🪙</button></div>
+    <div class="shop-item"><h3>❤️ VIDA (Nv.<span id="lvl-hp">1</span>)</h3><button onclick="upgradeStat('hp')">UPAR: 600 🪙</button></div>
+    <button class="btn-sub btn-danger" onclick="fecharMenu('upgrade-menu')" style="margin-top:10px;">FECHAR</button>
+</div>
+
+<div id="saveload-menu" class="fullscreen-menu hidden">
+    <h2>RECUPERAR CONTA</h2>
+    <textarea id="save-code-input" style="width:80%;height:80px;touch-action:auto;" placeholder="Cole aqui seu código..."></textarea><br>
+    <button class="btn-main" onclick="gerarCodigoSalvar()">GERAR MEU CÓDIGO</button>
+    <button class="btn-main" style="background:#2ecc71; border-color:#27ae60;" onclick="carregarCodigo()">INJETAR CÓDIGO</button>
+    <button class="btn-sub btn-danger" onclick="fecharMenu('saveload-menu')" style="margin-top:10px;">VOLTAR</button>
+</div>
+
+<div id="server-menu" class="fullscreen-menu hidden">
+    <h2>SERVIDORES (CS)</h2>
+    <div class="server-bar bar-classic" onclick="abrirModos('classico')">🎮 SERVIDOR MULTIPLAYER PVP</div>
+    <button class="btn-sub btn-danger" onclick="voltarLobby()">VOLTAR</button>
+</div>
+
+<div id="mode-menu" class="fullscreen-menu hidden">
+    <h2>CONTRA SQUAD (CS)</h2>
+    <div style="display:flex; flex-direction:column; gap:10px; width:90%; max-width:300px;">
+        <button class="btn-main" onclick="procurarPartida('solo')">👤 1 VS 1 (Tirar X1)</button>
+        <button class="btn-main" onclick="procurarPartida('duo')" style="background:#8e44ad; border-color:#732d91;">👥 2 VS 2 (Duo)</button>
+        <button class="btn-main" onclick="procurarPartida('squad')" style="background:#c0392b; border-color:#922b21;">🔥 4 VS 4 (Squad)</button>
+    </div>
+    <button class="btn-sub btn-danger" onclick="voltarServidores()" style="margin-top:15px; width:90%; max-width:300px;">VOLTAR</button>
+</div>
+
+<div id="matchmaking-screen" class="fullscreen-menu hidden">
+    <div class="radar-spinner"></div>
+    <h2 style="color:#f1c40f;">PROCURANDO...</h2>
+    <p id="match-timer">00:00</p>
+    <button class="btn-sub btn-danger" onclick="cancelarBusca()">CANCELAR</button>
+</div>
+
+<div id="hud-editor-msg">MODO EDIÇÃO: Arraste os botões. Clique no fundo da tela para SALVAR!</div>
+
+<div id="game-ui">
+    <div id="hud-top">
+        <span class="hud-item" style="color:#e74c3c;" id="arena-hp">❤️ 100</span>
+        <span id="hud-placar-cs">0 X 0</span>
+        <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="controls">
+        <div id="analog-mode-ui" class="hidden"><div id="joystick-base"><div id="joystick-knob"></div></div></div>
+        <div id="btn-mode-ui"><div class="ctrl-btn" id="btn-left">◀</div><div class="ctrl-btn" id="btn-right">▶</div></div>
+        <div class="ctrl-btn" id="btn-fire">TIRO</div>
+        <div class="ctrl-btn" id="btn-jump">PULO</div>
+        <div class="ctrl-btn" id="btn-weapon">ARMA</div>
+        <div class="ctrl-btn" id="btn-skill">ALOK</div>
+    </div>
+    <div id="menu-partida-overlay" class="hidden">
+        <h2 style="color:#f1c40f; margin-bottom: 20px;">MENU DA PARTIDA</h2>
+        <div style="display:flex; flex-direction:column; gap:10px; width:80%; max-width:300px;">
+            <button class="btn-main" style="background:#e67e22;" onclick="entrarModoEdicaoHUD('partida')">📏 AJUSTAR HUD</button>
+            <button class="btn-main" style="background:#c0392b; border-color:#922b21;" onclick="sairDaPartida()">🚪 QUITAR DA SALA</button>
+            <button class="btn-sub" style="margin-top:20px;" onclick="fecharMenuPartida()">▶️ VOLTAR PARA O COMBATE</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
+somTiroEfeito.volume = 0.4;
+
+const URL_SERVIDOR = "https://eliasx7.onrender.com";
+let socket = null;
+
+let dbUsuarios = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
+let meuEmail = localStorage.getItem('ff2d_current_user') || null;
+let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
+
+let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
+let baseWeapons = [
+    { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
+    { id: 'mp40', name: '🔫 MP40', price: 500 },
+    { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
+];
+// Carrega skins da loja do cache local para não sumirem quando o servidor cai
+let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
+let skinsDB = [...baseSkins];
+_cachedShopSkins.forEach(nova => { 
+    if (nova.comportamento === 'replace_default') return;
+    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
+});
+let weaponsDB = [...baseWeapons];
+
+window.onload = function() { iniciarSistema(); };
+
+async function iniciarSistema() {
+    try {
+        const resposta = await fetch(`${URL_SERVIDOR}/status`);
+        if(resposta.ok) {
+            document.getElementById('login-msg').innerText = "";
+            if (!meuEmail) document.getElementById('login-screen').classList.remove('hidden'); 
+            else carregarLobby();
+            conectarSocket();
         }
+    } catch(e) {
+        document.getElementById('login-msg').innerText = "Servidor acordando (O Render pode levar 1 minuto)...";
+        setTimeout(iniciarSistema, 4000);
+    }
+}
 
-        window.onload = function() {
-            renderizarBloquinhos();
-            document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
-            document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
-            document.getElementById('gh-repo').value = localStorage.getItem('gh_repo') || '';
-            document.getElementById('admin-secret-input').value = localStorage.getItem('admin_secret') || 'nexusmaster';
-        };
+function vincularJogadorAoServidor() {
+    if (meuPerfil && meuPerfil.email && socket && socket.connected) {
+        socket.emit('registrar_jogador', { email: meuPerfil.email });
+        socket.emit('registrar_nick', meuPerfil.nickOriginal);
+    }
+}
 
-        function logConsole(txt) {
-            const c = document.getElementById('console-sequenciador');
-            c.innerHTML += "<br>> " + txt; c.scrollTop = c.scrollHeight;
-        }
+function fecharModalVip() { document.getElementById('modal-vip-lindo').classList.add('hidden'); }
 
-        function salvarConfigGitHub() {
-            localStorage.setItem('gh_token', document.getElementById('gh-token').value.trim());
-            localStorage.setItem('gh_owner', document.getElementById('gh-owner').value.trim());
-            localStorage.setItem('gh_repo', document.getElementById('gh-repo').value.trim());
-            const novoSecret = document.getElementById('admin-secret-input').value.trim();
-            if (novoSecret) localStorage.setItem('admin_secret', novoSecret);
-            alert("✅ Credenciais salvas!");
-        }
+function conectarSocket() {
+    try {
+        socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
+        
+        socket.on('connect', () => { 
+            vincularJogadorAoServidor(); 
+            socket.emit('pedir_loja_atualizada'); 
+        });
 
-        // SISTEMA DE JOGADORES ONLINE
-        async function carregarJogadores() {
-            try {
-                let res = await adminFetch(URL_SERVIDOR + '/admin/jogadores');
-                let dados = await res.json();
-                let div = document.getElementById('lista-jogadores');
-                document.getElementById('total-jogadores').textContent = dados.lista.length;
-                div.innerHTML = "";
-                
-                if(dados.lista.length === 0) {
-                    div.innerHTML = "<span style='color:#777;font-size:12px;text-align:center;'>Nenhum jogador online agora.</span>";
-                    return;
-                }
-                
-                dados.lista.forEach(j => {
-                    div.innerHTML += `
-                        <div style="background: #151515; padding: 10px; border: 1px solid #e67e22; border-radius: 5px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
-                            <span style="font-weight: bold; color: #fff;">👤 ${j.nick}</span>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn-gold" style="padding: 6px; font-size: 10px; margin:0;" onclick="darVIP('${j.nick}')">👑 VIP</button>
-                                <button class="btn-blue" style="padding: 6px; font-size: 10px; margin:0;" onclick="tirarVIP('${j.nick}')">❌ REMOVER VIP</button>
-                                <button class="btn-red" style="padding: 6px; font-size: 10px; margin:0;" onclick="banirJogador('${j.nick}')">🚫 BANIR</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch(e) { alert("Erro ao conectar com o servidor para buscar jogadores."); }
-        }
-
-        async function gerarCodigo() {
-            const qtd = parseInt(document.getElementById('qtd-diamantes').value);
-            if (!qtd || qtd <= 0) return alert("Digite uma quantidade válida de diamantes!");
-            try {
-                let res = await adminFetch(URL_SERVIDOR + '/admin/gerar-codigo', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ diamantes: qtd })
-                });
-                let dados = await res.json();
-                if (dados.sucesso) {
-                    document.getElementById('codigo-gerado').style.display = 'block';
-                    document.getElementById('codigo-texto').textContent = dados.codigo;
-                    document.getElementById('codigo-info').textContent = `💎 ${qtd} diamantes • válido para até 3 jogadores`;
-                } else {
-                    alert("Erro ao gerar código!");
-                }
-            } catch(e) { alert("Erro ao conectar com o servidor!"); }
-        }
-
-        async function darVIP(nick) {
-            if(!confirm(`Deseja dar a Tag de Verificado para ${nick}?`)) return;
-            await adminFetch(URL_SERVIDOR + '/admin/dar-vip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nick }) });
-            alert("👑 Ordem enviada ao servidor!");
-        }
-
-        async function tirarVIP(nick) {
-            if(!confirm(`Deseja REMOVER a Tag de Verificado de ${nick}?`)) return;
-            await adminFetch(URL_SERVIDOR + '/admin/remover-vip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nick }) });
-            alert("❌ Ordem enviada ao servidor!");
-        }
-
-        async function banirJogador(nick) {
-            if(!confirm(`🚨 ATENÇÃO: Deseja BANIR ${nick} PERMANENTEMENTE do jogo?`)) return;
-            await adminFetch(URL_SERVIDOR + '/admin/banir', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nick }) });
-            alert("🚫 Jogador Banido com sucesso!");
-            carregarJogadores();
-        }
-
-        function renderizarBloquinhos() {
-            const vitrine = document.getElementById('vitrine-bloquinhos');
-            const owner = localStorage.getItem('gh_owner') || 'owner';
-            const repo = localStorage.getItem('gh_repo') || 'repo';
+        socket.on('historico_chat', (msgs) => { 
+            document.getElementById('chat-mensagens').innerHTML = ''; 
+            document.getElementById('lobby-chat-mensagens-box').innerHTML = '';
+            msgs.forEach(m => adicionarMensagemChat(m)); 
+        });
+        
+        socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
+        
+        socket.on('partida_encontrada', (dados) => {
+            if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
+            else { meuTime = 'B'; player.x = canvas.width - 100; player.facing = -1; }
             
-            if(itensLocaisLoja.length === 0) {
-                vitrine.innerHTML = "<p style='color:#777; font-size:12px; text-align:center;'>Nenhuma roupa em exibição.</p>"; return;
+            clearInterval(intervaloBusca);
+            let contagem = 3;
+            let elTimer = document.getElementById('match-timer');
+            let elTitulo = elTimer.previousElementSibling; 
+            
+            if(elTitulo) elTitulo.innerText = "PARTIDA ENCONTRADA!";
+            elTimer.style.fontSize = "48px";
+            elTimer.style.color = "#2ecc71";
+            elTimer.innerText = contagem;
+            
+            let idContagem = setInterval(() => {
+                contagem--;
+                if(contagem <= 0) {
+                    clearInterval(idContagem);
+                    elTimer.style.fontSize = "";
+                    elTimer.style.color = "";
+                    if(elTitulo) elTitulo.innerText = "PROCURANDO...";
+                    iniciarArena(dados.sala, dados.modo);
+                } else { elTimer.innerText = contagem; }
+            }, 1000);
+        }); 
+
+        socket.on('pix_confirmado_automatico', (dados) => {
+            if (meuPerfil) {
+                meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + parseInt(dados.diamantesGanhos);
+                dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+                atualizarLobby(); document.getElementById('tela-pix-gerado').style.display = "none"; fecharMenu('shop-menu');
+                alert(`🎉 PAGAMENTO CONFIRMADO PELO BANCO!\n${dados.diamantesGanhos} Diamantes creditados!`);
             }
-            
-            vitrine.innerHTML = "";
-            itensLocaisLoja.forEach((item, index) => {
-                const imgUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/img/${item.id}.x1.png`;
-                vitrine.innerHTML += `
-                    <div class="bloco-item">
-                        <img src="${imgUrl}" onerror="this.src='https://placehold.co/45x45/222/00ecff?text=🥋'">
-                        <div class="nome-item">${item.name}</div>
-                        <div class="precos-item">🪙 ${item.price} | 💎 ${item.priceD}</div>
-                        <div class="id-item">ID: ${item.id}</div>
-                        <button class="btn-remover-item" onclick="removerBlocoLoja(${index}, '${item.id}')">Remover</button>
-                    </div>
-                `;
+        });
+
+        socket.on('forcar_vip', (dados) => {
+            if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                if(!meuPerfil.isVIP) {
+                    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; 
+                    alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus de 1.000 Diamantes!");
+                }
+                meuPerfil.isVIP = true;
+                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = true; dbUsuarios[meuEmail].dimas = meuPerfil.dimas; }
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+                atualizarLobby(); document.getElementById('modal-vip-lindo').classList.remove('hidden');
+            }
+        });
+
+        socket.on('remover_vip', (dados) => {
+            if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                meuPerfil.isVIP = false;
+                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = false; }
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+                atualizarLobby();
+                alert("⚠️ Sua Tag de Verificado Oficial foi removida pelo Dono do Servidor.");
+            }
+        });
+
+        socket.on('jogador_banido', (dados) => {
+            if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
+                delete dbUsuarios[meuEmail]; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); localStorage.removeItem('ff2d_current_user'); window.location.reload(); 
+            }
+        });
+
+        socket.on('atualizar_loja_dinamica', (itensNovos) => {
+            skinsDB = [...baseSkins];
+            if (itensNovos && itensNovos.skins) {
+                itensNovos.skins.forEach(nova => {
+                    // Ignora skins com comportamento replace_default para não sobrescrever a skin padrão
+                    if (nova.comportamento === 'replace_default') return;
+                    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
+                });
+                // Salva as skins da loja no cache local para sobreviver reinicializações do servidor
+                let skinsSomenteLoja = skinsDB.filter(s => !baseSkins.find(b => b.id === s.id));
+                localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsSomenteLoja));
+            }
+            weaponsDB = [...baseWeapons];
+            if (itensNovos && itensNovos.weapons) {
+                itensNovos.weapons.forEach(nova => {
+                    if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
+                });
+            }
+            if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
+        });
+
+        socket.on('nova_mensagem_sistema', (dados) => { alert(dados.msg); });
+    } catch(e) {}
+}
+
+const PATENTES = [{ nome: '🟫 BRONZE', max: 3 }, { nome: '⬜ PRATA', max: 4 }, { nome: '🟨 OURO', max: 4 }, { nome: '🔷 PLATINA', max: 5 }, { nome: '💎 DIAMANTE', max: 5 }, { nome: '💀 BÁRBARO', max: 5 }, { nome: '🔥 TITAN', max: 50 }, { nome: '👑 TITAN ELITE', max: 999 }];
+
+function atualizarLobby() {
+    if(!meuPerfil) return;
+    let tagV = meuPerfil.isVIP ? `<span class="badge-vip-html">V</span> ` : "";
+    document.getElementById('player-welcome').innerHTML = "Bem-vindo, " + tagV + meuPerfil.nickOriginal + "!";
+    document.getElementById('menu-gold').innerText = meuPerfil.ouro || 0;
+    document.getElementById('menu-frags').innerText = meuPerfil.dimas || 0;
+    
+    let p = meuPerfil.patente || { nome: '🟫 BRONZE', estrelas: 1 };
+    document.getElementById('badge-patente-menu').innerText = `🏆 ${p.nome} ⭐${p.estrelas}`;
+}
+
+function resgatarPremioSemanalVip() {
+    if(!meuPerfil) return;
+    if(!meuPerfil.isVIP) return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
+    let agora = Date.now(); let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000; let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
+    if(agora - ultimoResgate < umaSemanaEmMs) {
+        let diasRestantes = Math.ceil((umaSemanaEmMs - (agora - ultimoResgate)) / (24 * 60 * 60 * 1000));
+        return alert(`⏳ Calma Sobrevivente! Volte em ${diasRestantes} dias.`);
+    }
+    let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados; meuPerfil.ultimoResgateSemanal = agora;
+    dbUsuarios[meuEmail] = meuPerfil; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+    atualizarLobby(); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
+}
+
+function processarFimDePartida(ganhou) {
+    if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
+    let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
+    if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
+    if (ganhou) {
+        p.estrelas++;
+        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
+    } else {
+        p.estrelas--;
+        if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
+    }
+    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby();
+    gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
+}
+
+function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) ? meuPerfil.pStats.lvlDmg : 1; }
+
+let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
+let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
+const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 } };
+['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
+let modoEdicaoHUDActive = false; let origemEdicaoHUD = 'lobby';
+
+function aplicarLayoutHUD() {
+    let lbl = document.getElementById('label-controle-menu'); if(lbl) lbl.innerText = tipoControle.toUpperCase();
+    if (tipoControle === 'analogico') { document.getElementById('btn-mode-ui').classList.add('hidden'); document.getElementById('analog-mode-ui').classList.remove('hidden'); } else { document.getElementById('btn-mode-ui').classList.remove('hidden'); document.getElementById('analog-mode-ui').classList.add('hidden'); }
+    Object.entries(hudPosicoes).forEach(([id, pos]) => {
+        let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id);
+        if (el && pos) { el.style.top = "auto"; el.style.bottom = "auto"; el.style.left = "auto"; el.style.right = "auto"; if (pos.bottom !== undefined) el.style.bottom = pos.bottom + "px"; if (pos.top !== undefined) el.style.top = pos.top + "px"; if (pos.left !== undefined) el.style.left = pos.left + "px"; if (pos.right !== undefined) el.style.right = pos.right + "px"; }
+    });
+}
+function mudarTipoControle() { tipoControle = (tipoControle === 'botoes') ? 'analogico' : 'botoes'; localStorage.setItem('ff2d_tipo_controle', tipoControle); aplicarLayoutHUD(); }
+function entrarModoEdicaoHUD(origem) {
+    origemEdicaoHUD = origem || 'lobby'; modoEdicaoHUDActive = true;
+    document.querySelectorAll('.fullscreen-menu').forEach(el => el.classList.add('hidden')); document.getElementById('menu-partida-overlay').classList.add('hidden');
+    document.getElementById('game-ui').style.display = 'block'; document.getElementById('hud-editor-msg').style.display = 'block'; aplicarLayoutHUD();
+    let botoesAjustaveis = tipoControle === 'analogico' ? ['jump', 'fire', 'analog', 'weapon', 'skill'] : ['left', 'right', 'jump', 'fire', 'weapon', 'skill'];
+    botoesAjustaveis.forEach(id => {
+        let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return; el.style.border = "3px dashed #ff9f43";
+        el.addEventListener('touchmove', (e) => {
+            if (!modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); 
+            let touch = e.touches[0]; let x = touch.clientX; let y = window.innerHeight - touch.clientY;
+            if (!hudPosicoes[id]) hudPosicoes[id] = {};
+            if (id === 'left' || id === 'right' || id === 'analog') { hudPosicoes[id].bottom = Math.max(10, y - 30); hudPosicoes[id].left = Math.max(10, x - 30); delete hudPosicoes[id].top; delete hudPosicoes[id].right; } 
+            else if (id === 'skill') { hudPosicoes[id].top = Math.max(10, touch.clientY - 30); hudPosicoes[id].right = Math.max(10, window.innerWidth - x - 30); delete hudPosicoes[id].bottom; delete hudPosicoes[id].left; } 
+            else { hudPosicoes[id].bottom = Math.max(10, y - 30); hudPosicoes[id].right = Math.max(10, window.innerWidth - x - 30); delete hudPosicoes[id].top; delete hudPosicoes[id].left; }
+            aplicarLayoutHUD();
+        }, {passive: false});
+    });
+    setTimeout(() => { canvas.addEventListener('touchstart', salvarConfiguracaoHUD, {passive:false}); }, 500);
+}
+function salvarConfiguracaoHUD() {
+    if (!modoEdicaoHUDActive) return; modoEdicaoHUDActive = false; localStorage.setItem('ff2d_hud_layout', JSON.stringify(hudPosicoes)); document.getElementById('hud-editor-msg').style.display = 'none';
+    ['left', 'right', 'jump', 'fire', 'analog', 'weapon', 'skill'].forEach(id => { let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return;
+        if (id === 'analog') el.style.border = "2px solid rgba(255,255,255,0.2)"; else if (id === 'fire') el.style.border = "2px solid #d35400"; else if (id === 'skill') el.style.border = "2px solid #2ecc71"; else el.style.border = "1px solid rgba(255,255,255,0.3)";
+    });
+    canvas.removeEventListener('touchstart', salvarConfiguracaoHUD); alert("⚙️ Layout salvo!");
+    if (origemEdicaoHUD === 'lobby') { document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
+}
+
+function mostrarMensagemHUD(msg) { let el = document.getElementById('hud-editor-msg'); el.innerText = msg; el.style.display = 'block'; setTimeout(() => { if(!modoEdicaoHUDActive) el.style.display = 'none'; }, 2000); }
+function abrirMenuPartida() { document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
+function fecharMenuPartida() { document.getElementById('menu-partida-overlay').classList.add('hidden'); }
+function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
+
+let keys = { left: false, right: false, jump: false, fire: false };
+let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
+function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
+function usarSkillAlok() {
+    if(Date.now() > skillCooldown) {
+        auraAtiva = true; player.hp = Math.min(100, player.hp + 30); document.getElementById('arena-hp').innerText = `❤️ ${player.hp}`;
+        mostrarMensagemHUD("🟢 ALOK ATIVADO!"); skillCooldown = Date.now() + 15000; setTimeout(() => { auraAtiva = false; }, 3000);
+    }
+}
+
+// CORREÇÃO DOS EVENTOS DE TOQUE E TIROS QUE NÃO SAÍAM
+document.addEventListener('touchstart', (e) => { 
+    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
+    // Removida a trava global que impedia o touch dos botões
+}, {passive: false});
+
+['left','right','jump','fire','weapon','skill'].forEach(id => {
+    let el = document.getElementById('btn-' + id);
+    if(el) { 
+        el.addEventListener('touchstart', (e) => { 
+            e.stopPropagation(); // Evita que o evento escape e seja bloqueado
+            if(e.cancelable) e.preventDefault(); 
+            if(!modoEdicaoHUDActive) keys[id] = true; 
+        }, {passive:false}); 
+        el.addEventListener('touchend', (e) => { 
+            e.stopPropagation(); 
+            if(e.cancelable) e.preventDefault(); 
+            keys[id] = false; 
+            if(id === 'weapon') trocarArma(); 
+            if(id === 'skill') usarSkillAlok(); 
+        }, {passive:false});
+        el.addEventListener('touchcancel', (e) => { 
+            keys[id] = false; 
+        }, {passive:false});
+    }
+});
+
+const joyBase = document.getElementById('joystick-base'); const joyKnob = document.getElementById('joystick-knob');
+let joyActive = false; let joyCenter = {x:0, y:0};
+joyBase.addEventListener('touchstart', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = true; let rect = joyBase.getBoundingClientRect(); joyCenter = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }; handleJoyMove(e.touches[0]); }, {passive:false});
+joyBase.addEventListener('touchmove', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); if(joyActive) handleJoyMove(e.touches[0]); }, {passive:false});
+joyBase.addEventListener('touchend', (e) => { e.stopPropagation(); if(modoEdicaoHUDActive) return; if(e.cancelable) e.preventDefault(); joyActive = false; joyKnob.style.transform = `translate(0px, 0px)`; keys.left = false; keys.right = false; }, {passive:false});
+function handleJoyMove(touch) {
+    let dx = touch.clientX - joyCenter.x; let dy = touch.clientY - joyCenter.y; let distance = Math.sqrt(dx*dx + dy*dy); let maxDist = 35; 
+    if (distance > maxDist) { dx = (dx / distance) * maxDist; dy = (dy / distance) * maxDist; }
+    joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    if (dx < -15) { keys.left = true; keys.right = false; } else if (dx > 15) { keys.right = true; keys.left = false; } else { keys.left = false; keys.right = false; }
+}
+
+function loadUserGameProgress(emailChave) {
+    meuPerfil = dbUsuarios[emailChave]; if (!meuPerfil) return;
+    if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
+    if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
+    if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
+}
+function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
+function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
+function mostrarCampoNick() {
+    document.getElementById('input-nick').style.display = 'block';
+    document.getElementById('btn-confirmar-cadastro').style.display = 'block';
+    document.getElementById('input-nick').focus();
+}
+
+async function cadastrarConta() {
+    let email = document.getElementById('input-email').value.trim(); 
+    let senha = document.getElementById('input-senha').value.trim();
+    let nick = document.getElementById('input-nick').value.trim();
+    if (!email || !senha) return alert("Campos Vazios!"); 
+    if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
+    if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
+    document.getElementById('login-msg').innerText = "Gerando Conta...";
+    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
+}
+function entrarConta() {
+    let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim();
+    if (dbUsuarios[email] && atob(dbUsuarios[email].senha) === senha) { meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); } else { document.getElementById('login-msg').innerText = "Senha incorreta!"; }
+}
+function carregarLobby() { 
+    meuPerfil = dbUsuarios[meuEmail]; 
+    if (!meuPerfil) return fazerLogout(); 
+    loadUserGameProgress(meuEmail); 
+    document.getElementById('login-screen').classList.add('hidden'); 
+    document.getElementById('start-menu').classList.remove('hidden'); 
+    aplicarLayoutHUD(); vincularJogadorAoServidor(); 
+}
+function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
+function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
+
+// Versão atual do jogo instalado
+const VERSAO_ATUAL = '1.0';
+const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
+
+async function checarVersaoNova() {
+    try {
+        const res = await fetch(VERSAO_JSON_URL + '?t=' + Date.now());
+        const dados = await res.json();
+        if (dados.versao && dados.versao !== VERSAO_ATUAL) {
+            // Mostra bolinha vermelha
+            const badge = document.getElementById('badge-update');
+            if (badge) badge.style.display = 'block';
+            // Muda cor do botão para vermelho
+            const btn = document.getElementById('btn-atualizar');
+            if (btn) btn.style.background = '#e74c3c';
+        }
+    } catch(e) {}
+}
+
+function verificarAtualizacaoDoJogo() {
+    fetch(VERSAO_JSON_URL + '?t=' + Date.now())
+        .then(r => r.json())
+        .then(dados => {
+            if (dados.versao && dados.versao !== VERSAO_ATUAL) {
+                if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar a atualização.`)) {
+                    window.open(dados.apk_url || 'https://github.com/elias432132/Eliasx7/releases', '_blank');
+                }
+            } else {
+                alert('✅ Você já está na versão mais recente!');
+                if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
+                window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
+            }
+        })
+        .catch(() => {
+            if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
+            window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
+        });
+}
+
+// Checa versão ao abrir o jogo
+setTimeout(checarVersaoNova, 5000);
+
+function gerarCodigoSalvar() { 
+    if (!meuEmail || !dbUsuarios[meuEmail]) return alert("⚠️ Erro: Nenhuma conta logada.");
+    try {
+        let dados = JSON.stringify(dbUsuarios[meuEmail]);
+        let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
+        let inputArea = document.getElementById('save-code-input');
+        inputArea.value = codigoGerado; inputArea.select(); document.execCommand("copy");
+        alert("✅ Código gerado e COPIADO!"); 
+    } catch(e) { alert("Erro ao gerar: " + e.message); }
+}
+
+function carregarCodigo() { 
+    let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; 
+    try { 
+        let decodificado = decodeURIComponent(escape(atob(codigo))); let d = JSON.parse(decodificado); 
+        if (d && d.email) { 
+            dbUsuarios[d.email] = d; 
+            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+            meuEmail = d.email;
+            localStorage.setItem('ff2d_current_user', d.email);
+            alert("✅ Conta recuperada! Entrando..."); 
+            fecharMenu('saveload-menu');
+            carregarLobby();
+        } 
+    } catch(e) { alert("Erro no código. Verifique se copiou corretamente."); } 
+}
+
+async function processarResgate() {
+    let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!");
+    try {
+        let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
+        let dados = await resp.json();
+        if (dados.sucesso) {
+            meuPerfil.dimas += dados.diamantesGanhos; alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
+            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
+        } else { alert("❌ " + (dados.erro || "Código Inválido")); }
+    } catch (e) { alert("❌ Servidor desligado."); }
+}
+
+function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
+
+function renderShopList() { 
+    let container = document.getElementById('shop-items-list'); container.innerHTML = ''; 
+    let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; 
+    
+    db.forEach(item => { 
+        let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); 
+        let btnHTML = '';
+        if (isOwned) {
+            let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id);
+            btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
+        } else {
+            if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } 
+            else { btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`; }
+        }
+        container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3>${btnHTML}</div>`); 
+    }); 
+}
+
+function comprarItem(id, tipo, preco, moeda) { 
+    let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
+    if (!owned.includes(id)) { 
+        if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); meuPerfil.dimas -= preco; } 
+        else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); meuPerfil.ouro -= preco; }
+        owned.push(id); 
+    } 
+    if (tipo === 'skins') meuPerfil.equippedSkin = id; 
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
+}
+
+function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
+
+async function gerarPix(event) {
+    let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) return alert("Mínimo 250!");
+    let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true;
+    let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; };
+    try { 
+        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); 
+        let dados = await resp.json(); 
+        if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
+    } catch(e) { alert("⚠️ Erro ao gerar Pix: " + e.message); }
+    btnGerar.innerText = "⚡ GERAR PIX"; btnGerar.disabled = false;
+}
+
+function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
+
+function enviarMensagemGlobal() { 
+    let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
+    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
+}
+
+function enviarMensagemLobby() { 
+    let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
+    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
+    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
+}
+
+function adicionarMensagemChat(msg) { 
+    let container = document.getElementById('chat-mensagens'); let lobbyContainer = document.getElementById('lobby-chat-mensagens-box'); 
+    let cor = msg.isVIP ? '#f1c40f' : '#2ecc71'; let tagV = msg.isVIP ? '<span class="badge-vip-html" style="transform:scale(0.7); margin-right:2px;">V</span>' : ''; 
+    let htmlMsg = `<div style="margin-bottom:5px;"><span style="color:${cor};font-weight:bold;">${tagV}${msg.nick}:</span> <span style="color:#fff;">${msg.texto}</span></div>`;
+    if(container) { container.insertAdjacentHTML('beforeend', htmlMsg); container.scrollTop = container.scrollHeight; }
+    if(lobbyContainer) { lobbyContainer.insertAdjacentHTML('beforeend', htmlMsg); lobbyContainer.scrollTop = lobbyContainer.scrollHeight; }
+}
+
+function abrirServidores() { document.getElementById('start-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
+function voltarLobby() { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
+function voltarServidores() { document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
+function abrirModos(servidor) { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('mode-menu').classList.remove('hidden'); }
+
+let tempoBusca = 0, intervaloBusca = null;
+function procurarPartida(modo) {
+    document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden');
+    tempoBusca = 0; document.getElementById('match-timer').innerText = "0s";
+    intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000);
+    if (socket && socket.connected) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo });
+}
+function cancelarBusca() { clearInterval(intervaloBusca); if (socket && socket.connected) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
+
+const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+let gameRunning = false, loopAtivo = false, salaAtual = "";
+let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: true };
+let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
+let placarCS = { A: 0, B: 0 }; let roundRodando = true;
+const bgImage = new Image(); 
+
+function criarBot(time, index) {
+    const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
+    let lvl = getSafeDmgLvl(); 
+    let multiplicador = 1 + (lvl * 0.12); 
+    let posX = time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
+    
+    return {
+        id: 'bot_' + time + '_' + index, x: posX, y: -20, vy: -15, 
+        hp: 100 * multiplicador, speed: (4.6 + Math.random()) * multiplicador, 
+        facing: time === 'A' ? 1 : -1, isGrounded: false, state: 'JUMP', 
+        nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99),
+        isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
+        taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
+        frameAtual: 0, contadorAnim: 0,
+        skinId: 'padrao'
+    };
+}
+
+function iniciarArena(idSala, modo) {
+    clearInterval(intervaloBusca); document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+    placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true; obstaculosPartida = []; 
+    
+    let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
+    botsAtivos = []; 
+    
+    window.iniciarRound = function() {
+        let fundoAleatorio = Math.floor(Math.random() * 50) + 1;
+        bgImage.src = `img/fase${fundoAleatorio}.jpg`;
+        bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
+        
+        if (botsAtivos.length === 0) {
+            for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
+            for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
+        } else {
+            let lvl = getSafeDmgLvl(); let multiplicador = 1 + (lvl * 0.1); 
+            botsAtivos.forEach(bot => {
+                bot.hp = 100 * multiplicador; bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
+                bot.y = -20; bot.vy = -15; bot.isGrounded = false; bot.state = 'JUMP';
+                bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*400;
             });
         }
+        document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`; roundRodando = true;
+    };
+    
+    iniciarRound();
+    if (!loopAtivo) { loopAtivo = true; requestAnimationFrame(gameLoop); }
+}
 
-        async function removerBlocoLoja(index, idItem) {
-            if(!confirm("Deseja retirar essa skin?")) return;
-            itensLocaisLoja.splice(index, 1);
-            localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
-            renderizarBloquinhos();
-            try { await adminFetch(URL_SERVIDOR + '/admin/remover-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: idItem }) }); } catch(e) {}
+const playerSprites = {}; 
+/*==========================================================================
+   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
+  ==========================================================================*/
+const GITHUB_OWNER = "elias432132"; // <-- MUDE PARA O SEU USUÁRIO
+const GITHUB_REPO = "Eliasx7";      // <-- MUDE PARA O SEU REPOSITORIO
+
+function carregarImagensDaSkin(prefix) {
+    if (playerSprites[prefix]) return; 
+    playerSprites[prefix] = [];
+    for (let i = 1; i <= 100; i++) { 
+        const img = new Image(); 
+        if (prefix === 'free' || prefix === 'padrao') {
+            img.src = `img/${prefix}.x${i}.png`; 
+        } else {
+            img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${prefix}.x${i}.png`; 
         }
+        playerSprites[prefix].push(img); 
+    }
+}
+carregarImagensDaSkin('free'); 
 
-        async function sincronizarVitrine() {
-            const token = localStorage.getItem('gh_token');
-            const owner = localStorage.getItem('gh_owner');
-            const repo = localStorage.getItem('gh_repo');
-            
-            // Tenta carregar do GitHub primeiro (persistência permanente)
-            if (token && owner && repo) {
-                try {
-                    await adminFetch(URL_SERVIDOR + '/proxy/carregar-loja-github', {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ token, owner, repo })
-                    });
-                } catch(e) {}
+function getAnimFramesForSkin(skinId, state) {
+    // Fallback APENAS para skin padrão azul
+    const padraoFallback = { 'RUN': [8,9,24,25,29,31,32,33,34,35,36,37,43,44,48].map(n=>n-1), 'IDLE': [81,82,83,84,85,86,87,88].map(n=>n-1), 'SHOOT': [26,30].map(n=>n-1), 'JUMP': [50,51,52].map(n=>n-1) };
+
+    // Skin padrão — usa frames da azul
+    if (!skinId || skinId === 'padrao') return padraoFallback[state] || [0];
+
+    let traduzir = (str) => {
+        if(!str) return null;
+        let pts = str.split('-');
+        let inicio = parseInt(pts[0]);
+        let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
+        let arr = [];
+        for(let i = inicio; i <= fim; i++) arr.push(i - 1);
+        return arr;
+    };
+
+    let infoDaLoja = skinsDB.find(s => s.id === skinId);
+    if (infoDaLoja && infoDaLoja.config_frames) {
+        let cf = infoDaLoja.config_frames;
+        if (state === 'IDLE' && cf.parado) return traduzir(cf.parado) || [0];
+        if (state === 'RUN' && cf.andando) return traduzir(cf.andando) || [0,1,2,3,4,5,6,7,8];
+        if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando) || [3];
+        if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando) || [5];
+    }
+
+    // Skin customizada SEM config_frames — usa frames 1-9 simples, NUNCA os da azul
+    const customFallback = { 'RUN': [0,1,2,3,4,5,6,7,8], 'IDLE': [0], 'SHOOT': [5], 'JUMP': [3] };
+    return customFallback[state] || [0];
+}
+
+let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
+
+function gameLoop() {
+    requestAnimationFrame(gameLoop); if (!gameRunning || modoEdicaoHUDActive) return;
+    let gy = canvas.height * 0.75;
+    
+    if (player.hp > 0) {
+        if (!player.isGrounded) { player.vy += 0.6; player.y += player.vy; }
+        let nextX = player.x;
+        if (keys.left) { nextX -= player.speed; player.facing = -1; } 
+        if (keys.right) { nextX += player.speed; player.facing = 1; }
+        
+        let chaoAtual = 0; let colidiuLateral = false;
+        for (let obs of obstaculosPartida) {
+            if (player.x + 15 > obs.x && player.x - 15 < obs.x + obs.w) {
+                if (player.y <= -obs.h || (player.y - player.vy <= -obs.h)) { if (-obs.h < chaoAtual) chaoAtual = -obs.h; }
             }
-
-            try {
-                let res = await adminFetch(URL_SERVIDOR + '/admin/loja');
-                let dados = await res.json();
-                if(dados && dados.itens && dados.itens.length > 0) {
-                    itensLocaisLoja = dados.itens;
-                    localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
-                    renderizarBloquinhos();
-                    alert("✅ Vitrine sincronizada com o servidor!");
-                } else {
-                    alert("⚠️ O servidor do jogo está VAZIO! Use o botão 'RESTAURAR SERVIDOR' para enviar suas skins salvas para lá.");
-                }
-            } catch(e) { alert("Erro de conexão."); }
+            if (nextX + 15 > obs.x && nextX - 15 < obs.x + obs.w) { if (player.y > -obs.h + 5) colidiuLateral = true; }
         }
+        
+        if (!colidiuLateral) player.x = nextX;
+        if (player.y >= chaoAtual) { 
+            player.y = chaoAtual; player.vy = 0; player.isGrounded = true; 
+            if (keys.jump) { player.vy = -14; player.isGrounded = false; } 
+        } else { player.isGrounded = false; }
 
-        async function restaurarServidor() {
-            if(itensLocaisLoja.length === 0) return alert("Sua lista local está vazia. Crie skins primeiro.");
-            for (let item of itensLocaisLoja) {
-                try {
-                    // Garante que o campo tipo está presente
-                    const itemComTipo = { ...item, tipo: item.tipo || 'skins' };
-                    await adminFetch(URL_SERVIDOR + '/admin/add-loja', { 
-                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemComTipo) 
-                    });
-                } catch(e) { console.error(e); }
+        if (!player.isGrounded) playerState = 'JUMP'; else if (keys.fire) playerState = 'SHOOT'; else if (keys.left || keys.right) playerState = 'RUN'; else playerState = 'IDLE';
+        
+        if (keys.fire && Date.now() - lastShotTime > 350) { 
+            bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
+            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+        }
+        
+        let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
+        contadorAnim++; 
+        if(contadorAnim > 5) { 
+            frameAtual = (frameAtual + 1) % framesDoJogador.length; 
+            contadorAnim = 0; 
+        }
+    } else { playerState = 'IDLE'; }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
+    ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
+    ctx.fillStyle = "#3e2723"; obstaculosPartida.forEach(obs => { ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#000"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); });
+
+    botsAtivos.forEach(bot => {
+        if(bot.hp <= 0) return;
+        if (!bot.isGrounded) { bot.vy += 0.6; bot.y += bot.vy; }
+        
+        let alvo = null; let menorDist = Infinity;
+        if (bot.time === 'B' && player.hp > 0) { let d = Math.abs(player.x - bot.x); if(d < menorDist){ menorDist = d; alvo = player; } }
+        botsAtivos.forEach(outroBot => { if (outroBot.hp > 0 && outroBot.time !== bot.time) { let d = Math.abs(outroBot.x - bot.x); if (d < menorDist) { menorDist = d; alvo = outroBot; } } });
+
+        let nextBotX = bot.x;
+        if (alvo) {
+            let distToAlvo = alvo.x - bot.x; let distAbs = Math.abs(distToAlvo);
+            if (distAbs > 450) { 
+                bot.facing = distToAlvo > 0 ? 1 : -1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; 
+            } else if (distAbs < 60) { 
+                bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
+            } else { 
+                bot.state = 'IDLE'; 
+                if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } 
+                if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } 
+                bot.facing = distToAlvo > 0 ? 1 : -1; 
             }
-            // Salva loja.json no GitHub para persistência permanente
-            const token = localStorage.getItem('gh_token');
-            const owner = localStorage.getItem('gh_owner');
-            const repo = localStorage.getItem('gh_repo');
-            if (token && owner && repo) {
-                try {
-                    await adminFetch(URL_SERVIDOR + '/proxy/salvar-loja-github', {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ token, owner, repo })
-                    });
-                } catch(e) {}
+            if (Date.now() > bot.lastShot + bot.taxaTiro) { 
+                bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
             }
-            alert("✅ Servidor curado! Suas skins foram salvas permanentemente no GitHub!");
         }
-
-        async function processarEUploadZip() {
-            const token = document.getElementById('gh-token').value.trim();
-            const owner = document.getElementById('gh-owner').value.trim();
-            const repo = document.getElementById('gh-repo').value.trim();
-            const zipInput = document.getElementById('zip-file').files[0];
-            
-            const idStart = parseInt(document.getElementById('skin-id-start').value) || 1;
-            const idEnd = parseInt(document.getElementById('skin-id-end').value) || 9;
-            const itemID = document.getElementById('id-item-loja').value.trim().toLowerCase();
-            const itemNome = document.getElementById('nome-item-loja').value.trim();
-            const precoOuro = parseInt(document.getElementById('preco-ouro').value) || 0;
-            const precoDima = parseInt(document.getElementById('preco-dima').value) || 0;
-            const comportamentoSkin = document.getElementById('comportamento-skin').value;
-
-            if(!token || !owner || !repo) return alert("Configure as credenciais!");
-            if(!zipInput) return alert("Selecione o arquivo!");
-            if(!itemID || !itemNome) return alert("Preencha ID e Nome!");
-
-            const btn = document.getElementById('btn-upload-zip');
-            btn.innerText = "⏳ SUBINDO ARQUIVOS..."; btn.disabled = true;
-
-            try {
-                const zip = await JSZip.loadAsync(zipInput);
-                let arquivosFila = [];
-                zip.forEach((path, file) => { if (!file.dir && path.match(/\.(png|jpg|jpeg)$/i)) arquivosFila.push(file); });
-                arquivosFila.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
-
-                for(let idx = 0; idx < arquivosFila.length; idx++) {
-                    let numeroFrame = idStart + idx;
-                    if (numeroFrame > idEnd) break;
-
-                    const base64Data = await arquivosFila[idx].async("base64");
-                    const filename = `img/${itemID}.x${numeroFrame}.png`;
-
-                    // Busca SHA via proxy do servidor (evita CORS)
-                    let sha = null;
-                    try {
-                        let shaRes = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
-                            method: 'POST', headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ token, owner, repo, path: filename })
-                        });
-                        let shaData = await shaRes.json();
-                        if (shaData.sha) sha = shaData.sha;
-                    } catch(err) {}
-
-                    // Upload via proxy do servidor (evita CORS)
-                    let resPut = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ token, owner, repo, path: filename, content: base64Data, sha })
-                    });
-                    if(!resPut.ok) {
-                        const errData = await resPut.json().catch(() => ({}));
-                        throw new Error(`Falha no frame ${numeroFrame}: ${errData.erro || resPut.status}`);
-                    }
-                    logConsole(`✅ Frame ${numeroFrame} enviado!`);
-                    // Pequena pausa para não sobrecarregar o servidor
-                    await new Promise(r => setTimeout(r, 300));
-                }
-
-                const skinConfigCompleta = { 
-                    tipo: 'skins', 
-                    id: itemID, 
-                    name: itemNome, 
-                    price: precoOuro, 
-                    priceD: precoDima, 
-                    comportamento: comportamentoSkin,
-                    config_frames: {
-                        parado: document.getElementById('frames-parado').value.trim(),
-                        andando: document.getElementById('frames-andando').value.trim(),
-                        pulando: document.getElementById('frames-pulando').value.trim(),
-                        atirando: document.getElementById('frames-atirando').value.trim(),
-                        ataque: document.getElementById('frames-ataque').value.trim(),
-                        morrendo: document.getElementById('frames-morrendo').value.trim(),
-                        fps: parseInt(document.getElementById('velocidade-fps').value) || 12
-                    },
-                    v: Date.now() 
-                };
-
-                itensLocaisLoja = itensLocaisLoja.filter(i => i.id !== itemID);
-                itensLocaisLoja.push(skinConfigCompleta);
-                localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
-                renderizarBloquinhos();
-
-                // Tenta registrar no servidor — se falhar não para o processo
-                try {
-                    await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
-                    alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens enviadas ao GitHub e registradas no servidor!`);
-                } catch(serverErr) {
-                    alert(`✅ IMAGENS ENVIADAS AO GITHUB!\n⚠️ Servidor offline — use o botão RESTAURAR SERVIDOR depois que ele voltar.`);
-                }
-            } catch(e) { alert("Erro: " + e.message); }
-            
-            btn.innerText = "📦 FILTRAR SEQUÊNCIA E INJETAR"; btn.disabled = false;
+        
+        let chaoAtualBot = 0; let colidiuLateralBot = false;
+        for (let obs of obstaculosPartida) {
+            if (bot.x + 15 > obs.x && bot.x - 15 < obs.x + obs.w) { if (bot.y <= -obs.h || (bot.y - bot.vy <= -obs.h)) { if (-obs.h < chaoAtualBot) chaoAtualBot = -obs.h; } }
+            if (nextBotX + 15 > obs.x && nextBotX - 15 < obs.x + obs.w) { if (bot.y > -obs.h + 5) colidiuLateralBot = true; }
         }
-    </script>
+        
+        if (colidiuLateralBot) { if (bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } } else { bot.x = nextBotX; }
+        if (bot.y >= chaoAtualBot) { bot.y = chaoAtualBot; bot.vy = 0; bot.isGrounded = true; } else { bot.isGrounded = false; }
+        if (!bot.isGrounded) bot.state = 'JUMP';
+        
+        let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
+        bot.contadorAnim++; 
+        if(bot.contadorAnim > 5) { 
+            bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; 
+            bot.contadorAnim = 0; 
+        }
+        let botFrameReal = framesDoBot[bot.frameAtual] !== undefined ? framesDoBot[bot.frameAtual] : 0;
+
+        desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, botFrameReal, bot.time !== meuTime, false, false);
+    });
+
+    for(let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i]; b.x += b.vx;
+        ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
+        let donoTime = b.owner === 'local' ? meuTime : (b.owner.includes('_A_') ? 'A' : 'B'); let removeBala = false;
+        for (let obs of obstaculosPartida) { if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { removeBala = true; break; } }
+        
+        if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
+            player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
+        }
+        if (!removeBala) {
+            for (let bot of botsAtivos) {
+                if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
+                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; break;
+                }
+            }
+        }
+        if (removeBala || b.x < 0 || b.x > canvas.width) { bullets.splice(i, 1); }
+    }
+
+    if (player.hp > 0) {
+        let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
+        
+        let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
+        let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
+
+        desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, playerFrameReal, false, auraAtiva, localPlayerTitan);
+    }
+    
+    if (roundRodando) {
+        let vivosA = player.hp > 0 ? 1 : 0; let vivosB = 0;
+        botsAtivos.forEach(b => { if(b.hp > 0) { if(b.time === 'A') vivosA++; else vivosB++; } });
+        if (vivosA === 0 || vivosB === 0) {
+            roundRodando = false; if (vivosA === 0) placarCS.B++; else placarCS.A++; document.getElementById('hud-placar-cs').innerText = `${placarCS.A} X ${placarCS.B}`;
+            if (placarCS.A === 4 || placarCS.B === 4) { setTimeout(() => { processarFimDePartida(placarCS.A === 4); }, 2000); } else { setTimeout(() => { iniciarRound(); }, 3000); }
+        }
+    }
+}
+
+// ==========================================
+// SOLUÇÃO FINAL: CORTE DE SKIN E ISOLAMENTO
+// ==========================================
+function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
+    ctx.save(); ctx.translate(x, baseY); 
+
+    if (isTitan) {
+        ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+    }
+    if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
+    
+    ctx.save(); ctx.scale(facing, 1); 
+    
+    let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
+    carregarImagensDaSkin(prefixoSkin);
+
+    let img = null;
+    let usarFallback = false;
+
+    if (prefixoSkin === 'free') {
+        // Skin padrão — usa direto
+        img = playerSprites['free'] ? playerSprites['free'][fIdx] : null;
+    } else {
+        // Skin customizada — só usa se o frame já carregou completamente
+        let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null;
+        if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) {
+            img = frameCustom;
+        } else {
+            // Frame ainda carregando — fica invisível, NÃO mostra a azul
+            usarFallback = true;
+        }
+    }
+
+    if (usarFallback) {
+        // Aguarda carregar sem piscar para a skin azul
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(-37.5, -75, 75, 75);
+    } else if (img && img.complete && img.naturalWidth > 0) {
+        if (img.naturalWidth > img.naturalHeight * 1.5) {
+            // Sprite sheet — faz o corte do frame correto
+            let totalFrames = 9;
+            let larguraFrame = img.naturalWidth / totalFrames;
+            let alturaFrame = img.naturalHeight;
+            let frameRecorte = fIdx % totalFrames;
+            ctx.drawImage(img, frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, -37.5, -75, 75, 75);
+        } else {
+            // Imagem individual
+            ctx.drawImage(img, -37.5, -75, 75, 75);
+        }
+    } else {
+        // Imagem padrão ainda carregando — invisível
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(-37.5, -75, 75, 75);
+    }
+    ctx.restore(); 
+    
+    if (isVIP) { 
+        ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; ctx.beginPath(); ctx.arc(0, -112, 9, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 11px Arial"; ctx.fillStyle = "#ffffff"; ctx.fillText("V", 0, -112); 
+    }
+    
+    ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
+}
+
+// Fix scroll da loja no Android
+document.addEventListener('DOMContentLoaded', function() {
+    let shopContainer = document.getElementById('shop-items-list');
+    if (shopContainer) {
+        let startX, scrollLeft;
+        shopContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - shopContainer.offsetLeft;
+            scrollLeft = shopContainer.scrollLeft;
+        }, {passive: true});
+        shopContainer.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+            const x = e.touches[0].pageX - shopContainer.offsetLeft;
+            const walk = (startX - x);
+            shopContainer.scrollLeft = scrollLeft + walk;
+        }, {passive: true});
+    }
+});
+    let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
+    if(msg && msg.trim() !== '') { 
+        if (socket && socket.connected) { 
+            socket.emit('mensagem_para_dono', msg); 
+            alert("Mensagem enviada!"); 
+        } else { 
+            alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
+        } 
+    } 
+}
+</script>
+
 </body>
 </html>
