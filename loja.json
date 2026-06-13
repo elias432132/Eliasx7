@@ -18,13 +18,13 @@
     },
     {
       "id": "topcriminal",
-      "name": "Conjunto TOP.Criminal",
-      "price": 25000,
-      "priceD": 900,
+      "name": "TopCrkiminal",
+      "price": 15000,
+      "priceD": 500,
       "comportamento": "custom_isolated",
       "config_frames": {
         "parado": "6-9",
-        "andando": "15-18",
+        "andando": "14-28",
         "pulando": "10-13",
         "atirando": "19-22",
         "ataque": "19-22",
