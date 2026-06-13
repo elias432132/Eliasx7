@@ -1,22 +1,6 @@
 {
   "skins": [
     {
-      "id": "aventureiro",
-      "name": "Conjunto Aventureiro",
-      "price": 15000,
-      "priceD": 500,
-      "comportamento": "custom_isolated",
-      "config_frames": {
-        "parado": "1-12",
-        "andando": "13-28",
-        "pulando": "69-85",
-        "atirando": "54-68",
-        "ataque": "54-68",
-        "morrendo": "29-53",
-        "fps": 12
-      }
-    },
-    {
       "id": "topcriminal",
       "name": "TopCrimimal",
       "price": 15000,
