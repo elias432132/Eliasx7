@@ -268,18 +268,20 @@
 
 <script>
 // ==========================================
-// EFEITOS SONOROS (SFX) - VERSÃO MP3 (ALTO E CLARO)
+// EFEITOS SONOROS (SFX) - CLONADOR MULTICANAL
 // ==========================================
-const somTiro = new Audio('https://www.soundjay.com/mechanical/sounds/gun-gunshot-01.mp3'); 
-const somGelo = new Audio('https://www.soundjay.com/nature/sounds/ice-cracking-01.mp3');
-const somVitoria = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
-const somDano = new Audio('https://actions.google.com/sounds/v1/impacts/crash.ogg');
+// Links novos e abertos (sem bloqueio de servidor)
+const URL_TIRO = 'https://www.myinstants.com/media/sounds/ak47-1.mp3'; 
+const URL_GELO = 'https://www.myinstants.com/media/sounds/minecraft-glass-break.mp3'; 
+const URL_VITORIA = 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg';
+const URL_DANO = 'https://actions.google.com/sounds/v1/impacts/crash.ogg';
 
-// Ajuste de volumes (Tiro e Gelo mais altos agora)
-somTiro.volume = 0.8;
-somGelo.volume = 1.0; 
-somVitoria.volume = 0.5;
-somDano.volume = 0.3;
+// Essa função cria um "novo áudio" toda vez, permitindo vários tiros ao mesmo tempo!
+function tocarSom(url, volume = 0.5) {
+    let som = new Audio(url);
+    som.volume = volume;
+    som.play().catch(e => console.log("Áudio bloqueado", e));
+}
 
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -473,7 +475,7 @@ function processarFimDePartida(ganhou) {
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
-        somVitoria.currentTime = 0; somVitoria.play().catch(e=>{});
+        tocarSom(URL_VITORIA, 0.6); // Toca o som de vitória clonado!
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
@@ -554,8 +556,7 @@ function usarGelo() {
         gelosDisponiveis--;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
         
-        somGelo.currentTime = 0; 
-        somGelo.play().catch(e=>{});
+        tocarSom(URL_GELO, 1.0); // Som garantido do gelo
         
         let larguraGelo = 65; 
         let alturaGelo = 85; 
@@ -966,7 +967,7 @@ function gameLoop() {
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
             lastShotTime = Date.now(); 
-            somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
+            tocarSom(URL_TIRO, 0.5); // CHAMA A FUNÇÃO DE SOM CLONADO
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -1037,7 +1038,7 @@ function gameLoop() {
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
                 bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
-                somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
+                tocarSom(URL_TIRO, 0.2); // TOCA O SOM DO BOT TAMBÉM (mais baixinho)
             }
         }
         
@@ -1081,7 +1082,7 @@ function gameLoop() {
         
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
-            somDano.currentTime = 0; somDano.play().catch(e=>{});
+            tocarSom(URL_DANO, 0.4); // TOCA O IMPACTO
         }
         if (!removeBala) {
             for (let bot of botsAtivos) {
