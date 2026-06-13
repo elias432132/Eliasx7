@@ -15,6 +15,22 @@
         "morrendo": "29-53",
         "fps": 12
       }
+    },
+    {
+      "id": "topcriminal",
+      "name": "Conjunto TOP.Criminal",
+      "price": 25000,
+      "priceD": 900,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "6-9",
+        "andando": "15-18",
+        "pulando": "10-13",
+        "atirando": "19-22",
+        "ataque": "19-22",
+        "morrendo": "1-5",
+        "fps": 12
+      }
     }
   ],
   "weapons": []
