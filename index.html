@@ -661,8 +661,16 @@ function carregarCodigo() {
     let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; 
     try { 
         let decodificado = decodeURIComponent(escape(atob(codigo))); let d = JSON.parse(decodificado); 
-        if (d && d.email) { dbUsuarios[d.email] = d; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); alert("Conta recuperada!"); fazerLogout(); } 
-    } catch(e) { alert("Erro no código."); } 
+        if (d && d.email) { 
+            dbUsuarios[d.email] = d; 
+            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+            meuEmail = d.email;
+            localStorage.setItem('ff2d_current_user', d.email);
+            alert("✅ Conta recuperada! Entrando..."); 
+            fecharMenu('saveload-menu');
+            carregarLobby();
+        } 
+    } catch(e) { alert("Erro no código. Verifique se copiou corretamente."); } 
 }
 
 async function processarResgate() {
