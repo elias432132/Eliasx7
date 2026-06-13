@@ -31,6 +31,22 @@
         "morrendo": "1-5",
         "fps": 12
       }
+    },
+    {
+      "id": "topcriminald",
+      "name": "TopDourado",
+      "price": 25000,
+      "priceD": 900,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "1-4",
+        "andando": "5-10",
+        "pulando": "11-14",
+        "atirando": "15-18",
+        "ataque": "15-18",
+        "morrendo": "19-20",
+        "fps": 12
+      }
     }
   ],
   "weapons": []
