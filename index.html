@@ -268,16 +268,16 @@
 
 <script>
 // ==========================================
-// EFEITOS SONOROS (SFX)
+// EFEITOS SONOROS (SFX) - VERSÃO MP3 (ALTO E CLARO)
 // ==========================================
-const somTiro = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
-const somGelo = new Audio('https://actions.google.com/sounds/v1/water/ice_cracking.ogg');
+const somTiro = new Audio('https://www.soundjay.com/mechanical/sounds/gun-gunshot-01.mp3'); 
+const somGelo = new Audio('https://www.soundjay.com/nature/sounds/ice-cracking-01.mp3');
 const somVitoria = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
 const somDano = new Audio('https://actions.google.com/sounds/v1/impacts/crash.ogg');
 
-// Ajuste dos volumes para não estourar o áudio
-somTiro.volume = 0.4;
-somGelo.volume = 0.7;
+// Ajuste de volumes (Tiro e Gelo mais altos agora)
+somTiro.volume = 0.8;
+somGelo.volume = 1.0; 
 somVitoria.volume = 0.5;
 somDano.volume = 0.3;
 
@@ -473,7 +473,7 @@ function processarFimDePartida(ganhou) {
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
-        somVitoria.currentTime = 0; somVitoria.play().catch(e=>{}); // TOCA O SOM DE VITORIA AQUI
+        somVitoria.currentTime = 0; somVitoria.play().catch(e=>{});
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
@@ -549,13 +549,11 @@ function usarSkillAlok() {
     }
 }
 
-// SISTEMA DO GELO (AGORA COM SOM)
 function usarGelo() {
     if (gelosDisponiveis > 0 && player.hp > 0 && gameRunning && !modoEdicaoHUDActive) {
         gelosDisponiveis--;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
         
-        // TOCA O SOM DO GELO AQUI
         somGelo.currentTime = 0; 
         somGelo.play().catch(e=>{});
         
@@ -968,7 +966,6 @@ function gameLoop() {
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
             lastShotTime = Date.now(); 
-            // TOCA SOM DO TIRO
             somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
         }
         
@@ -993,7 +990,6 @@ function gameLoop() {
             let itemGelo = skinsDB.find(s => s.comportamento === 'gelo');
             
             if (itemGelo && itemGelo.id !== 'gelo') { 
-                // Se for gelo injetado pelo painel (com id diferente de 'gelo' padrão)
                 let urlGelo = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${itemGelo.id}.x1.png`;
                 if (imgGelo.src !== urlGelo) imgGelo.src = urlGelo; 
                 
@@ -1041,7 +1037,6 @@ function gameLoop() {
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
                 bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
-                // TOCA O SOM DE TIRO DO BOT TBM
                 somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
             }
         }
@@ -1086,7 +1081,6 @@ function gameLoop() {
         
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
-            // TOCA O SOM DE DANO QUANDO VOCÊ TOMA UM TIRO
             somDano.currentTime = 0; somDano.play().catch(e=>{});
         }
         if (!removeBala) {
@@ -1128,7 +1122,7 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     
     ctx.save(); ctx.scale(facing, 1); 
     
-    let prefixoSkin = (skinId === 'padrao' || !skinId || skinId === 'gelo') ? 'free' : skinId; // Gelo nao tem sprite de player
+    let prefixoSkin = (skinId === 'padrao' || !skinId || skinId === 'gelo') ? 'free' : skinId;
     carregarImagensDaSkin(prefixoSkin);
 
     let img = null;
