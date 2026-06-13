@@ -18,9 +18,9 @@
     },
     {
       "id": "topcriminal",
-      "name": "TopCrkiminal",
+      "name": "TopCrimimal",
       "price": 15000,
-      "priceD": 500,
+      "priceD": 900,
       "comportamento": "custom_isolated",
       "config_frames": {
         "parado": "6-9",
