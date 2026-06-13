@@ -105,12 +105,11 @@
         <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
         <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
         <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
-        <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (só no cadastro)" style="touch-action:auto; display:none;">
+        <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (cadastro)" style="touch-action:auto;">
         <div style="display:flex;gap:10px;margin-bottom:8px;">
             <button class="btn-main" onclick="entrarConta()" style="width:50%;">ENTRAR</button>
-            <button class="btn-sub" onclick="mostrarCampoNick()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
+            <button class="btn-sub" onclick="cadastrarConta()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
         </div>
-        <button id="btn-confirmar-cadastro" onclick="cadastrarConta()" style="display:none; width:100%; padding:12px; background:#2ecc71; border:none; border-radius:6px; color:#000; font-weight:bold; cursor:pointer; margin-bottom:8px;">✅ CONFIRMAR CADASTRO</button>
         <p id="login-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
     </div>
 </div>
