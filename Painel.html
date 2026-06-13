@@ -101,6 +101,7 @@
                     <label style="font-weight: bold; font-size: 13px;">Comportamento no Jogo:</label>
                     <select id="comportamento-skin">
                         <option value="custom_isolated">✨ Skin Isolada (Loja)</option>
+                        <option value="gelo">❄️ Parede de Gelo (Loja)</option>
                     </select>
                 </div>
             </div>
@@ -137,6 +138,47 @@
             <button class="btn-green" id="btn-upload-zip" onclick="processarEUploadZip()">📦 FILTRAR SEQUÊNCIA E INJETAR NO JOGO</button>
         </div>
 
+        <!-- NOVO CARD: INJETOR DE CENÁRIOS (MAPAS 1 A 25) -->
+        <div class="card card-purple">
+            <h3 style="margin-top:0; color:#9b59b6;">🌍 Injetor de Cenários (Mapas 1 a 25)</h3>
+            <span style="font-size: 11px; color: #aaa;">Selecione o número do mapa correspondente e envie o arquivo ZIP contendo as imagens estáveis do fundo e do chão.</span>
+            
+            <label style="font-weight: bold; font-size: 13px; margin-top: 10px; display: block;">Selecione o Slot do Mapa:</label>
+            <select id="mapa-id">
+                <option value="1">Mapa Slot 01</option>
+                <option value="2">Mapa Slot 02</option>
+                <option value="3">Mapa Slot 03</option>
+                <option value="4">Mapa Slot 04</option>
+                <option value="5">Mapa Slot 05</option>
+                <option value="6">Mapa Slot 06</option>
+                <option value="7">Mapa Slot 07</option>
+                <option value="8">Mapa Slot 08</option>
+                <option value="9">Mapa Slot 09</option>
+                <option value="10">Mapa Slot 10</option>
+                <option value="11">Mapa Slot 11</option>
+                <option value="12">Mapa Slot 12</option>
+                <option value="13">Mapa Slot 13</option>
+                <option value="14">Mapa Slot 14</option>
+                <option value="15">Mapa Slot 15</option>
+                <option value="16">Mapa Slot 16</option>
+                <option value="17">Mapa Slot 17</option>
+                <option value="18">Mapa Slot 18</option>
+                <option value="19">Mapa Slot 19</option>
+                <option value="20">Mapa Slot 20</option>
+                <option value="21">Mapa Slot 21</option>
+                <option value="22">Mapa Slot 22</option>
+                <option value="23">Mapa Slot 23</option>
+                <option value="24">Mapa Slot 24</option>
+                <option value="25">Mapa Slot 25</option>
+            </select>
+
+            <label style="font-weight: bold; font-size: 13px;">Arquivo ZIP do Cenário:</label>
+            <input type="file" id="zip-cenario" accept=".zip">
+
+            <div class="console-log" id="console-cenario">> Aguardando arquivo de mapa...</div>
+            <button class="btn-purple" id="btn-upload-cenario" onclick="processarEUploadCenario()">🌍 DESPACHAR CENÁRIO PARA O GITHUB</button>
+        </div>
+
         <div class="card card-blue">
             <h3 style="margin-top:0; color:#3498db;">🔑 GitHub Asset Manager</h3>
             <input type="password" id="admin-secret-input" placeholder="🔐 Senha do Painel Admin (ADMIN_SECRET)">
@@ -151,10 +193,8 @@
         const URL_SERVIDOR = "https://eliasx7.onrender.com";
         let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
 
-        // 🔐 Senha fixa do painel
         const ADMIN_SECRET = localStorage.getItem('admin_secret') || 'nexusmaster';
 
-        // Helper: fetch com autenticação admin automática
         function adminFetch(url, options = {}) {
             options.headers = options.headers || {};
             options.headers['x-admin-secret'] = ADMIN_SECRET;
@@ -174,6 +214,11 @@
             c.innerHTML += "<br>> " + txt; c.scrollTop = c.scrollHeight;
         }
 
+        function logConsoleCenario(txt) {
+            const c = document.getElementById('console-cenario');
+            c.innerHTML += "<br>> " + txt; c.scrollTop = c.scrollHeight;
+        }
+
         function salvarConfigGitHub() {
             localStorage.setItem('gh_token', document.getElementById('gh-token').value.trim());
             localStorage.setItem('gh_owner', document.getElementById('gh-owner').value.trim());
@@ -183,7 +228,6 @@
             alert("✅ Credenciais salvas!");
         }
 
-        // SISTEMA DE JOGADORES ONLINE
         async function carregarJogadores() {
             try {
                 let res = await adminFetch(URL_SERVIDOR + '/admin/jogadores');
@@ -262,9 +306,10 @@
             vitrine.innerHTML = "";
             itensLocaisLoja.forEach((item, index) => {
                 const imgUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/img/${item.id}.x1.png`;
+                const prefixoTipo = item.comportamento === 'gelo' ? '❄️' : '🥋';
                 vitrine.innerHTML += `
                     <div class="bloco-item">
-                        <img src="${imgUrl}" onerror="this.src='https://placehold.co/45x45/222/00ecff?text=🥋'">
+                        <img src="${imgUrl}" onerror="this.src='https://placehold.co/45x45/222/00ecff?text=${prefixoTipo}'">
                         <div class="nome-item">${item.name}</div>
                         <div class="precos-item">🪙 ${item.price} | 💎 ${item.priceD}</div>
                         <div class="id-item">ID: ${item.id}</div>
@@ -287,7 +332,6 @@
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             
-            // Tenta carregar do GitHub primeiro (persistência permanente)
             if (token && owner && repo) {
                 try {
                     await adminFetch(URL_SERVIDOR + '/proxy/carregar-loja-github', {
@@ -315,14 +359,12 @@
             if(itensLocaisLoja.length === 0) return alert("Sua lista local está vazia. Crie skins primeiro.");
             for (let item of itensLocaisLoja) {
                 try {
-                    // Garante que o campo tipo está presente
                     const itemComTipo = { ...item, tipo: item.tipo || 'skins' };
                     await adminFetch(URL_SERVIDOR + '/admin/add-loja', { 
                         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemComTipo) 
                     });
                 } catch(e) { console.error(e); }
             }
-            // Salva loja.json no GitHub para persistência permanente
             const token = localStorage.getItem('gh_token');
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
@@ -371,7 +413,6 @@
                     const base64Data = await arquivosFila[idx].async("base64");
                     const filename = `img/${itemID}.x${numeroFrame}.png`;
 
-                    // Busca SHA via proxy do servidor (evita CORS)
                     let sha = null;
                     try {
                         let shaRes = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
@@ -382,7 +423,6 @@
                         if (shaData.sha) sha = shaData.sha;
                     } catch(err) {}
 
-                    // Upload via proxy do servidor (evita CORS)
                     let resPut = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ token, owner, repo, path: filename, content: base64Data, sha })
@@ -392,7 +432,6 @@
                         throw new Error(`Falha no frame ${numeroFrame}: ${errData.erro || resPut.status}`);
                     }
                     logConsole(`✅ Frame ${numeroFrame} enviado!`);
-                    // Pequena pausa para não sobrecarregar o servidor
                     await new Promise(r => setTimeout(r, 300));
                 }
 
@@ -402,7 +441,7 @@
                     name: itemNome, 
                     price: precoOuro, 
                     priceD: precoDima, 
-                    comportamento: comportamentoSkin,
+                    comportamento: comportamientoSkin,
                     config_frames: {
                         parado: document.getElementById('frames-parado').value.trim(),
                         andando: document.getElementById('frames-andando').value.trim(),
@@ -420,7 +459,6 @@
                 localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
                 renderizarBloquinhos();
 
-                // Tenta registrar no servidor — se falhar não para o processo
                 try {
                     await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
                     alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens enviadas ao GitHub e registradas no servidor!`);
@@ -430,6 +468,84 @@
             } catch(e) { alert("Erro: " + e.message); }
             
             btn.innerText = "📦 FILTRAR SEQUÊNCIA E INJETAR"; btn.disabled = false;
+        }
+
+        // ==========================================================
+        // SISTEMA DE UPSTREAM DE CENÁRIOS (MAPAS 1 A 25)
+        // ==========================================================
+        async function processarEUploadCenario() {
+            const token = document.getElementById('gh-token').value.trim();
+            const owner = document.getElementById('gh-owner').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const zipInput = document.getElementById('zip-cenario').files[0];
+            const mapaId = document.getElementById('mapa-id').value;
+
+            if(!token || !owner || !repo) return alert("Configure as credenciais do GitHub!");
+            if(!zipInput) return alert("Selecione o arquivo ZIP contendo as imagens fundo e chao!");
+
+            const btn = document.getElementById('btn-upload-cenario');
+            btn.innerText = "⏳ DISTRIBUINDO MAPA..."; btn.disabled = true;
+
+            try {
+                const zip = await JSZip.loadAsync(zipInput);
+                let arquivosCenario = {};
+                
+                zip.forEach((path, file) => {
+                    if (!file.dir) {
+                        if (path.toLowerCase().includes('fundo')) arquivosCenario.fundo = file;
+                        if (path.toLowerCase().includes('chao') || path.toLowerCase().includes('chão')) arquivosCenario.chao = file;
+                    }
+                });
+
+                if(!arquivosCenario.fundo || !arquivosCenario.chao) {
+                    throw new Error("O arquivo ZIP deve conter um arquivo com o nome 'fundo' e outro com o nome 'chao'!");
+                }
+
+                // Processa e faz upload do Fundo
+                const base64Fundo = await arquivosCenario.fundo.async("base64");
+                const pathFundo = `mapas/fundo${mapaId}.png`;
+                let shaFundo = null;
+                try {
+                    let res = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ token, owner, repo, path: pathFundo })
+                    });
+                    let data = await res.json();
+                    if (data.sha) shaFundo = data.sha;
+                } catch(e) {}
+
+                let uploadFundo = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token, owner, repo, path: pathFundo, content: base64Fundo, sha: shaFundo })
+                });
+                if(!uploadFundo.ok) throw new Error("Erro ao subir imagem de fundo do cenário.");
+                logConsoleCenario(`✅ Imagem de fundo do Mapa ${mapaId} injetada!`);
+
+                // Processa e faz upload do Chão
+                const base64Chao = await arquivosCenario.chao.async("base64");
+                const pathChao = `mapas/chao${mapaId}.png`;
+                let shaChao = null;
+                try {
+                    let res = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ token, owner, repo, path: pathChao })
+                    });
+                    let data = await res.json();
+                    if (data.sha) shaChao = data.sha;
+                } catch(e) {}
+
+                let uploadChao = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token, owner, repo, path: pathChao, content: base64Chao, sha: shaChao })
+                });
+                if(!uploadChao.ok) throw new Error("Erro ao subir imagem do chão do cenário.");
+                logConsoleCenario(`✅ Imagem do chão do Mapa ${mapaId} injetada!`);
+
+                alert(`🌍 MAPA ${mapaId} PUBLICADO COM SUCESSO NO GITHUB!`);
+            } catch(e) {
+                alert("Erro no Cenário: " + e.message);
+            }
+            btn.innerText = "🌍 DESPACHAR CENÁRIO PARA O GITHUB"; btn.disabled = false;
         }
     </script>
 </body>
