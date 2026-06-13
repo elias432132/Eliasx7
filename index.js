@@ -229,32 +229,45 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     }
 });
 
+// ==========================================
+// 💸 SISTEMA DE PAGAMENTO BLINDADO - MERCADO PAGO
+// ==========================================
+
 app.post('/gerar-pix', async (req, res) => {
-    const { valor, nome, Nick, cpfCnpj } = req.body;
-    const nomeComprador = nome || Nick;
-    if (!valor || valor <= 0 || !nomeComprador) {
-        return res.status(400).json({ sucesso: false, erro: 'Campos valor e nome são obrigatórios.' });
+    // 1. Recebe APENAS a quantidade de diamantes e quem está comprando
+    const { diamantes, nome, Nick, cpfCnpj, email } = req.body;
+    const nomeComprador = nome || Nick || 'Sobrevivente';
+    const qtdDiamantes = parseInt(diamantes);
+
+    if (!qtdDiamantes || qtdDiamantes < 250) {
+        return res.status(400).json({ sucesso: false, erro: 'Mínimo de 250 diamantes.' });
     }
 
+    // 2. O SERVIDOR CALCULA O PREÇO (Segurança Máxima contra hackers)
+    // Se 1 Dima custa R$ 0,02, o servidor faz a matemática:
+    const valorRealCobrado = Number((qtdDiamantes * 0.02).toFixed(2));
+
     try {
-        const emailGenerico = 'jogador@freex7.com';
+        const emailGenerico = email || 'jogador@freex7.com';
         const cpfGenerico = (cpfCnpj || '01234567890').replace(/\D/g, '');
 
         const dadosPagamento = {
-            transaction_amount: Number(valor),
-            description: `Compra de diamantes no Nexus Strike - ${nomeComprador}`,
+            transaction_amount: valorRealCobrado,
+            description: `Pacote de ${qtdDiamantes} Diamantes - Nexus Strike`,
             payment_method_id: 'pix',
             payer: {
                 email: emailGenerico,
                 first_name: nomeComprador,
                 identification: { type: 'CPF', number: cpfGenerico }
-            }
+            },
+            // A JOGADA DE MESTRE: Mandamos o Nick do jogador e a QTD de Dimas escondidos para o Banco
+            external_reference: `${Nick}||${qtdDiamantes}` 
         };
 
         const mpResponse = await axios.post('https://api.mercadopago.com/v1/payments', dadosPagamento, {
             headers: {
                 'Authorization': `Bearer ${MERCADOPG_TOKEN}`,
-                'X-Idempotency-Key': `pix-${Date.now()}`
+                'X-Idempotency-Key': `pix-nexus-${Date.now()}`
             }
         });
 
@@ -263,10 +276,63 @@ app.post('/gerar-pix', async (req, res) => {
         const cobrancaId = mpResponse.data.id;
 
         if (!copiaECola) throw new Error('Mercado Pago não retornou a chave PIX.');
+        
         res.json({ sucesso: true, copia_e_cola: copiaECola, qrcode_base64: qrCodeBase64, cobranca_id: cobrancaId });
     } catch (error) {
         console.error('Erro ao gerar PIX:', error.response?.data || error.message);
         res.status(500).json({ sucesso: false, erro: 'Erro interno no Mercado Pago.' });
+    }
+});
+
+// ==========================================
+// 📡 WEBHOOK: O Banco avisa o Servidor que o Pix foi pago!
+// ==========================================
+
+app.post('/notificacao-pagamento', async (req, res) => {
+    // O Mercado Pago exige que a gente responda "200 OK" imediatamente
+    res.sendStatus(200); 
+
+    const { action, type, data } = req.body;
+    
+    // Se a notificação for de uma atualização de pagamento
+    if (action === 'payment.updated' || type === 'payment') {
+        try {
+            const paymentId = data.id;
+            
+            // Pergunta ao Mercado Pago o status oficial dessa cobrança
+            const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+                headers: { 'Authorization': `Bearer ${MERCADOPG_TOKEN}` }
+            });
+            
+            const pagamento = mpRes.data;
+            
+            // Se o status for "approved" (Pago com sucesso)
+            if (pagamento.status === 'approved' && pagamento.external_reference) {
+                // Recupera os dados que escondemos lá no /gerar-pix
+                const [nickJogador, qtdDiamantesString] = pagamento.external_reference.split('||');
+                const dimasComprados = parseInt(qtdDiamantesString);
+
+                console.log(`🤑 PIX APROVADO! Enviando ${dimasComprados} Dimas para ${nickJogador}`);
+
+                // Procura na lista de Sockets qual ID pertence a esse Nick
+                let socketIdDoPagador = null;
+                for (const [idSocket, infoJogador] of Object.entries(jogadoresGlobais)) {
+                    if (infoJogador.nick === nickJogador) {
+                        socketIdDoPagador = idSocket;
+                        break;
+                    }
+                }
+
+                // Se o cara ainda estiver com o jogo aberto, manda os dimas direto pra tela dele!
+                if (socketIdDoPagador) {
+                    io.to(socketIdDoPagador).emit('pix_confirmado_automatico', { 
+                        diamantesGanhos: dimasComprados 
+                    });
+                }
+            }
+        } catch(error) {
+            console.error('Erro ao processar notificação do MP:', error.message);
+        }
     }
 });
 
@@ -365,4 +431,3 @@ app.get('/painel', (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
-
