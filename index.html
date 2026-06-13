@@ -78,6 +78,7 @@
         #btn-jump { width: 65px; height: 65px; z-index: 30; }
         #btn-weapon { width: 55px; height: 55px; z-index: 30; }
         #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
+        /* NOVO BOTÃO DE GELO */
         #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 12px; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
@@ -267,21 +268,8 @@
 </div>
 
 <script>
-// ==========================================
-// EFEITOS SONOROS (SFX) - CLONADOR MULTICANAL
-// ==========================================
-// Links novos e abertos (sem bloqueio de servidor)
-const URL_TIRO = 'https://www.myinstants.com/media/sounds/ak47-1.mp3'; 
-const URL_GELO = 'https://www.myinstants.com/media/sounds/minecraft-glass-break.mp3'; 
-const URL_VITORIA = 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg';
-const URL_DANO = 'https://actions.google.com/sounds/v1/impacts/crash.ogg';
-
-// Essa função cria um "novo áudio" toda vez, permitindo vários tiros ao mesmo tempo!
-function tocarSom(url, volume = 0.5) {
-    let som = new Audio(url);
-    som.volume = volume;
-    som.play().catch(e => console.log("Áudio bloqueado", e));
-}
+const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
+somTiroEfeito.volume = 0.4;
 
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -290,19 +278,12 @@ let dbUsuarios = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
 let meuEmail = localStorage.getItem('ff2d_current_user') || null;
 let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
 
-// LOJA FIXA COM O GELO PADRÃO
-let baseSkins = [
-    { id: 'padrao', name: '👕 Padrão', price: 0 },
-    { id: 'gelo', name: '❄️ Gelo Padrão', price: 0, comportamento: 'gelo' },
-    { id: 'dourado', name: '🌟 Lendário', price: 800 }
-];
-
+let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
 let baseWeapons = [
     { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
     { id: 'mp40', name: '🔫 MP40', price: 500 },
     { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
 ];
-
 let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
 let skinsDB = [...baseSkins];
 _cachedShopSkins.forEach(nova => { 
@@ -475,7 +456,6 @@ function processarFimDePartida(ganhou) {
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
-        tocarSom(URL_VITORIA, 0.6); // Toca o som de vitória clonado!
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
@@ -490,6 +470,7 @@ function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pS
 
 let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
+// INCLUSÃO DO BOTÃO DE GELO NO LAYOUT DEFAULT
 const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 }, gelo: { bottom: 120, right: 220 } };
 ['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill', 'gelo'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
 let modoEdicaoHUDActive = false; let origemEdicaoHUD = 'lobby';
@@ -541,7 +522,7 @@ function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getEle
 
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
-let gelosDisponiveis = 3; 
+let gelosDisponiveis = 3; // MUNIÇÃO DO GELO
 
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
 function usarSkillAlok() {
@@ -551,25 +532,23 @@ function usarSkillAlok() {
     }
 }
 
+// SISTEMA DO GELO - CRIA UMA PAREDE FÍSICA NO MAPA
 function usarGelo() {
     if (gelosDisponiveis > 0 && player.hp > 0 && gameRunning && !modoEdicaoHUDActive) {
         gelosDisponiveis--;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
         
-        tocarSom(URL_GELO, 1.0); // Som garantido do gelo
-        
-        let larguraGelo = 65; 
-        let alturaGelo = 85; 
-        let distanciaFrente = 50; 
-        
+        let distanciaFrente = 60;
+        let larguraGelo = 30;
         let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
         
+        // Empurra a barreira de gelo para os obstáculos do mapa
         obstaculosPartida.push({
             x: posGeloX, 
             w: larguraGelo, 
-            h: alturaGelo, 
+            h: 85, // Altura que bloqueia o pulo fácil e o tiro
             isGelo: true, 
-            hp: 150 
+            hp: 150 // Vida do gelo até quebrar
         });
         
         mostrarMensagemHUD("❄️ GELO COLOCADO!");
@@ -596,7 +575,7 @@ document.addEventListener('touchstart', (e) => {
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
             if(id === 'weapon') trocarArma(); 
             if(id === 'skill') usarSkillAlok(); 
-            if(id === 'gelo') usarGelo(); 
+            if(id === 'gelo') usarGelo(); // ATIVA O GELO AO SOLTAR O DEDO DO BOTÃO
         }, {passive:false});
         el.addEventListener('touchcancel', (e) => { 
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
@@ -820,12 +799,15 @@ let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: tr
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 
+// VARIÁVEIS DE IMAGEM DO MAPA
 const bgImage = new Image(); 
 const chaoImage = new Image();
-const imgGelo = new Image();
 
-const GITHUB_OWNER = "elias432132";
-const GITHUB_REPO = "Eliasx7";      
+/*==========================================================================
+   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
+  ==========================================================================*/
+const GITHUB_OWNER = "elias432132"; // <-- SEU USUÁRIO
+const GITHUB_REPO = "Eliasx7";      // <-- SEU REPOSITÓRIO
 
 function criarBot(time, index) {
     const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
@@ -854,15 +836,17 @@ function iniciarArena(idSala, modo) {
     botsAtivos = []; 
     
     window.iniciarRound = function() {
+        // SORTEADOR DE CENÁRIOS (PEGA MAPAS DE 1 A 25 DO SEU GITHUB)
         let fundoAleatorio = Math.floor(Math.random() * 25) + 1;
         bgImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/fundo${fundoAleatorio}.png`;
         chaoImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/chao${fundoAleatorio}.png`;
 
+        // RECARREGA OS GELOS A CADA ROUND
         gelosDisponiveis = 3;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
 
         bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
-        obstaculosPartida = []; 
+        obstaculosPartida = []; // Limpa gelos do round anterior
         
         if (botsAtivos.length === 0) {
             for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
@@ -966,8 +950,7 @@ function gameLoop() {
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
-            lastShotTime = Date.now(); 
-            tocarSom(URL_TIRO, 0.5); // CHAMA A FUNÇÃO DE SOM CLONADO
+            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -980,33 +963,24 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // RENDERIZAÇÃO DO FUNDO INJETADO
     if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); 
     else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
     
+    // RENDERIZAÇÃO DO CHÃO INJETADO
     if (chaoImage.complete && chaoImage.naturalWidth > 0) ctx.drawImage(chaoImage, 0, gy, canvas.width, canvas.height - gy);
     else { ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy); }
 
+    // RENDERIZAÇÃO DOS OBSTÁCULOS E DO GELO
     obstaculosPartida.forEach(obs => { 
         if(obs.isGelo) {
-            let itemGelo = skinsDB.find(s => s.comportamento === 'gelo');
-            
-            if (itemGelo && itemGelo.id !== 'gelo') { 
-                let urlGelo = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${itemGelo.id}.x1.png`;
-                if (imgGelo.src !== urlGelo) imgGelo.src = urlGelo; 
-                
-                if (imgGelo.complete && imgGelo.naturalWidth > 0) {
-                    ctx.drawImage(imgGelo, obs.x, gy - obs.h, obs.w, obs.h);
-                } else {
-                    ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
-                    ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-                }
-            } else {
-                ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
-                ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-                ctx.strokeStyle = "#fff"; 
-                ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
-            }
+            // Desenha o Gelo
+            ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
+            ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
+            ctx.strokeStyle = "#fff"; 
+            ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
         } else {
+            // Desenha obstáculo comum (se houver)
             ctx.fillStyle = "#3e2723"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
             ctx.strokeStyle = "#000"; 
@@ -1037,8 +1011,7 @@ function gameLoop() {
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
-                tocarSom(URL_TIRO, 0.2); // TOCA O SOM DO BOT TAMBÉM (mais baixinho)
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
             }
         }
         
@@ -1073,8 +1046,8 @@ function gameLoop() {
             if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { 
                 removeBala = true; 
                 if(obs.isGelo) {
-                    obs.hp -= 25; 
-                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); 
+                    obs.hp -= 25; // O Gelo leva dano do tiro
+                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); // Gelo quebra se zerar a vida
                 }
                 break; 
             } 
@@ -1082,7 +1055,6 @@ function gameLoop() {
         
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
-            tocarSom(URL_DANO, 0.4); // TOCA O IMPACTO
         }
         if (!removeBala) {
             for (let bot of botsAtivos) {
@@ -1123,7 +1095,7 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     
     ctx.save(); ctx.scale(facing, 1); 
     
-    let prefixoSkin = (skinId === 'padrao' || !skinId || skinId === 'gelo') ? 'free' : skinId;
+    let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
     carregarImagensDaSkin(prefixoSkin);
 
     let img = null;
