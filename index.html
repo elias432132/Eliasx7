@@ -78,7 +78,6 @@
         #btn-jump { width: 65px; height: 65px; z-index: 30; }
         #btn-weapon { width: 55px; height: 55px; z-index: 30; }
         #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
-        /* NOVO BOTÃO DE GELO */
         #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 12px; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
@@ -244,7 +243,6 @@
     <div id="hud-top">
         <span class="hud-item" style="color:#e74c3c;" id="arena-hp">❤️ 100</span>
         <span id="hud-placar-cs">0 X 0</span>
-        <!-- NOVO HUD DE CONTAGEM DE GELO -->
         <span class="hud-item" style="color:#00ecff;" id="hud-gelo">❄️ GELO: 3</span>
         <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
     </div>
@@ -256,7 +254,6 @@
         <div class="ctrl-btn" id="btn-jump">PULO</div>
         <div class="ctrl-btn" id="btn-weapon">ARMA</div>
         <div class="ctrl-btn" id="btn-skill">ALOK</div>
-        <!-- NOVO BOTÃO DE GELO -->
         <div class="ctrl-btn" id="btn-gelo">GELO</div>
     </div>
     <div id="menu-partida-overlay" class="hidden">
@@ -270,8 +267,19 @@
 </div>
 
 <script>
-const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
-somTiroEfeito.volume = 0.4;
+// ==========================================
+// EFEITOS SONOROS (SFX)
+// ==========================================
+const somTiro = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
+const somGelo = new Audio('https://actions.google.com/sounds/v1/water/ice_cracking.ogg');
+const somVitoria = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
+const somDano = new Audio('https://actions.google.com/sounds/v1/impacts/crash.ogg');
+
+// Ajuste dos volumes para não estourar o áudio
+somTiro.volume = 0.4;
+somGelo.volume = 0.7;
+somVitoria.volume = 0.5;
+somDano.volume = 0.3;
 
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -280,12 +288,19 @@ let dbUsuarios = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
 let meuEmail = localStorage.getItem('ff2d_current_user') || null;
 let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
 
-let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
+// LOJA FIXA COM O GELO PADRÃO
+let baseSkins = [
+    { id: 'padrao', name: '👕 Padrão', price: 0 },
+    { id: 'gelo', name: '❄️ Gelo Padrão', price: 0, comportamento: 'gelo' },
+    { id: 'dourado', name: '🌟 Lendário', price: 800 }
+];
+
 let baseWeapons = [
     { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
     { id: 'mp40', name: '🔫 MP40', price: 500 },
     { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
 ];
+
 let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
 let skinsDB = [...baseSkins];
 _cachedShopSkins.forEach(nova => { 
@@ -458,6 +473,7 @@ function processarFimDePartida(ganhou) {
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
+        somVitoria.currentTime = 0; somVitoria.play().catch(e=>{}); // TOCA O SOM DE VITORIA AQUI
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
@@ -472,7 +488,6 @@ function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pS
 
 let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
-// INCLUSÃO DO BOTÃO DE GELO NO LAYOUT DEFAULT
 const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 }, gelo: { bottom: 120, right: 220 } };
 ['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill', 'gelo'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
 let modoEdicaoHUDActive = false; let origemEdicaoHUD = 'lobby';
@@ -524,7 +539,7 @@ function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getEle
 
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
-let gelosDisponiveis = 3; // MUNIÇÃO DO GELO
+let gelosDisponiveis = 3; 
 
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
 function usarSkillAlok() {
@@ -534,11 +549,15 @@ function usarSkillAlok() {
     }
 }
 
-// SISTEMA DO GELO - CRIA UMA PAREDE FÍSICA NO MAPA
+// SISTEMA DO GELO (AGORA COM SOM)
 function usarGelo() {
     if (gelosDisponiveis > 0 && player.hp > 0 && gameRunning && !modoEdicaoHUDActive) {
         gelosDisponiveis--;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
+        
+        // TOCA O SOM DO GELO AQUI
+        somGelo.currentTime = 0; 
+        somGelo.play().catch(e=>{});
         
         let larguraGelo = 65; 
         let alturaGelo = 85; 
@@ -546,13 +565,12 @@ function usarGelo() {
         
         let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
         
-        // Empurra a barreira de gelo para os obstáculos do mapa
         obstaculosPartida.push({
             x: posGeloX, 
             w: larguraGelo, 
             h: alturaGelo, 
             isGelo: true, 
-            hp: 150 // Vida do gelo até quebrar
+            hp: 150 
         });
         
         mostrarMensagemHUD("❄️ GELO COLOCADO!");
@@ -579,7 +597,7 @@ document.addEventListener('touchstart', (e) => {
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
             if(id === 'weapon') trocarArma(); 
             if(id === 'skill') usarSkillAlok(); 
-            if(id === 'gelo') usarGelo(); // ATIVA O GELO AO SOLTAR O DEDO DO BOTÃO
+            if(id === 'gelo') usarGelo(); 
         }, {passive:false});
         el.addEventListener('touchcancel', (e) => { 
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
@@ -803,16 +821,12 @@ let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: tr
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 
-// VARIÁVEIS DE IMAGEM DO MAPA E GELO
 const bgImage = new Image(); 
 const chaoImage = new Image();
 const imgGelo = new Image();
 
-/*==========================================================================
-   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
-  ==========================================================================*/
-const GITHUB_OWNER = "elias432132"; // <-- SEU USUÁRIO
-const GITHUB_REPO = "Eliasx7";      // <-- SEU REPOSITÓRIO
+const GITHUB_OWNER = "elias432132";
+const GITHUB_REPO = "Eliasx7";      
 
 function criarBot(time, index) {
     const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
@@ -841,17 +855,15 @@ function iniciarArena(idSala, modo) {
     botsAtivos = []; 
     
     window.iniciarRound = function() {
-        // SORTEADOR DE CENÁRIOS (PEGA MAPAS DE 1 A 25 DO SEU GITHUB)
         let fundoAleatorio = Math.floor(Math.random() * 25) + 1;
         bgImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/fundo${fundoAleatorio}.png`;
         chaoImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/chao${fundoAleatorio}.png`;
 
-        // RECARREGA OS GELOS A CADA ROUND
         gelosDisponiveis = 3;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
 
         bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
-        obstaculosPartida = []; // Limpa gelos do round anterior
+        obstaculosPartida = []; 
         
         if (botsAtivos.length === 0) {
             for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
@@ -955,7 +967,9 @@ function gameLoop() {
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
-            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+            lastShotTime = Date.now(); 
+            // TOCA SOM DO TIRO
+            somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -968,20 +982,18 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // RENDERIZAÇÃO DO FUNDO INJETADO
     if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); 
     else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
     
-    // RENDERIZAÇÃO DO CHÃO INJETADO
     if (chaoImage.complete && chaoImage.naturalWidth > 0) ctx.drawImage(chaoImage, 0, gy, canvas.width, canvas.height - gy);
     else { ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy); }
 
-    // RENDERIZAÇÃO DOS OBSTÁCULOS E DO GELO
     obstaculosPartida.forEach(obs => { 
         if(obs.isGelo) {
             let itemGelo = skinsDB.find(s => s.comportamento === 'gelo');
             
-            if (itemGelo) {
+            if (itemGelo && itemGelo.id !== 'gelo') { 
+                // Se for gelo injetado pelo painel (com id diferente de 'gelo' padrão)
                 let urlGelo = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${itemGelo.id}.x1.png`;
                 if (imgGelo.src !== urlGelo) imgGelo.src = urlGelo; 
                 
@@ -998,7 +1010,6 @@ function gameLoop() {
                 ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
             }
         } else {
-            // Desenha obstáculo comum do mapa (se houver)
             ctx.fillStyle = "#3e2723"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
             ctx.strokeStyle = "#000"; 
@@ -1029,7 +1040,9 @@ function gameLoop() {
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
+                // TOCA O SOM DE TIRO DO BOT TBM
+                somTiro.currentTime = 0; somTiro.play().catch(e => {}); 
             }
         }
         
@@ -1064,8 +1077,8 @@ function gameLoop() {
             if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { 
                 removeBala = true; 
                 if(obs.isGelo) {
-                    obs.hp -= 25; // O Gelo leva dano do tiro
-                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); // Gelo quebra se zerar a vida
+                    obs.hp -= 25; 
+                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); 
                 }
                 break; 
             } 
@@ -1073,6 +1086,8 @@ function gameLoop() {
         
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
+            // TOCA O SOM DE DANO QUANDO VOCÊ TOMA UM TIRO
+            somDano.currentTime = 0; somDano.play().catch(e=>{});
         }
         if (!removeBala) {
             for (let bot of botsAtivos) {
@@ -1113,7 +1128,7 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     
     ctx.save(); ctx.scale(facing, 1); 
     
-    let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
+    let prefixoSkin = (skinId === 'padrao' || !skinId || skinId === 'gelo') ? 'free' : skinId; // Gelo nao tem sprite de player
     carregarImagensDaSkin(prefixoSkin);
 
     let img = null;
