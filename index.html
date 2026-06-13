@@ -78,7 +78,8 @@
         #btn-jump { width: 65px; height: 65px; z-index: 30; }
         #btn-weapon { width: 55px; height: 55px; z-index: 30; }
         #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
-        
+        #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 10px; }
+
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
         .lobby-chat-lateral { width: 260px; height: 85%; background: rgba(20, 27, 38, 0.85); border: 2px solid #34495e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
@@ -168,6 +169,7 @@
     <div class="shop-tabs">
         <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS</button>
         <button class="tab-btn" id="tab-weapons" onclick="switchTab('weapons')">🔫 ARMAS</button>
+        <button class="tab-btn" id="tab-gelos" style="background:#00ecff; color:#000;" onclick="switchTab('gelos')">🧊 GELOS</button>
         <button class="tab-btn" id="tab-diamonds" style="background:#3498db;" onclick="switchTab('diamonds')">💎 RECARGA</button>
     </div>
     <div class="shop-container" id="shop-items-list"></div>
@@ -252,6 +254,7 @@
         <div class="ctrl-btn" id="btn-jump">PULO</div>
         <div class="ctrl-btn" id="btn-weapon">ARMA</div>
         <div class="ctrl-btn" id="btn-skill">ALOK</div>
+        <div class="ctrl-btn" id="btn-gelo">GELO (<span id="qtd-gelo-hud">3</span>)</div>
     </div>
     <div id="menu-partida-overlay" class="hidden">
         <h2 style="color:#f1c40f; margin-bottom: 20px;">MENU DA PARTIDA</h2>
@@ -264,8 +267,26 @@
 </div>
 
 <script>
-const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
-somTiroEfeito.volume = 0.4;
+// ==========================================
+// 🔊 SISTEMA PROFISSIONAL DE ÁUDIO (AudioFX)
+// ==========================================
+const AudioFX = {
+    tiro: new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg'),
+    pulo: new Audio('https://actions.google.com/sounds/v1/foley/whoosh.ogg'),
+    dano: new Audio('https://actions.google.com/sounds/v1/impacts/punch.ogg'),
+    menu: new Audio('https://actions.google.com/sounds/v1/ui/click.ogg'),
+    
+    tocar: function(nome) {
+        if(this[nome]) {
+            this[nome].currentTime = 0; 
+            this[nome].play().catch(() => {}); 
+        }
+    }
+};
+AudioFX.tiro.volume = 0.3;
+AudioFX.pulo.volume = 0.2;
+AudioFX.dano.volume = 0.4;
+AudioFX.menu.volume = 0.2;
 
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -280,7 +301,8 @@ let baseWeapons = [
     { id: 'mp40', name: '🔫 MP40', price: 500 },
     { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
 ];
-// Carrega skins da loja do cache local para não sumirem quando o servidor cai
+let baseGelos = [{ id: 'padrao', name: '🧊 Gelo Azul', price: 0 }];
+
 let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
 let skinsDB = [...baseSkins];
 _cachedShopSkins.forEach(nova => { 
@@ -288,6 +310,12 @@ _cachedShopSkins.forEach(nova => {
     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
 });
 let weaponsDB = [...baseWeapons];
+let gelosDB = [...baseGelos];
+
+// Mecânicas de Jogo das Paredes de Gelo
+let paredesDeGelo = [];
+let meuGelo = 3;
+let ultimoGeloTempo = 0;
 
 window.onload = function() { iniciarSistema(); };
 
@@ -313,7 +341,7 @@ function vincularJogadorAoServidor() {
     }
 }
 
-function fecharModalVip() { document.getElementById('modal-vip-lindo').classList.add('hidden'); }
+function fecharModalVip() { AudioFX.tocar('menu'); document.getElementById('modal-vip-lindo').classList.add('hidden'); }
 
 function conectarSocket() {
     try {
@@ -402,11 +430,9 @@ function conectarSocket() {
             skinsDB = [...baseSkins];
             if (itensNovos && itensNovos.skins) {
                 itensNovos.skins.forEach(nova => {
-                    // Ignora skins com comportamento replace_default para não sobrescrever a skin padrão
                     if (nova.comportamento === 'replace_default') return;
                     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
                 });
-                // Salva as skins da loja no cache local para sobreviver reinicializações do servidor
                 let skinsSomenteLoja = skinsDB.filter(s => !baseSkins.find(b => b.id === s.id));
                 localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsSomenteLoja));
             }
@@ -414,6 +440,12 @@ function conectarSocket() {
             if (itensNovos && itensNovos.weapons) {
                 itensNovos.weapons.forEach(nova => {
                     if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
+                });
+            }
+            gelosDB = [...baseGelos];
+            if (itensNovos && itensNovos.gelos) {
+                itensNovos.gelos.forEach(nova => {
+                    if (!gelosDB.find(g => g.id === nova.id)) gelosDB.push(nova);
                 });
             }
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
@@ -437,6 +469,7 @@ function atualizarLobby() {
 }
 
 function resgatarPremioSemanalVip() {
+    AudioFX.tocar('menu');
     if(!meuPerfil) return;
     if(!meuPerfil.isVIP) return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
     let agora = Date.now(); let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000; let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
@@ -450,27 +483,56 @@ function resgatarPremioSemanalVip() {
     atualizarLobby(); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
 }
 
+// LÓGICA DE FIM DE PARTIDA ATUALIZADA COM AS RECOMPENSAS DE OURO SOLICITADAS
 function processarFimDePartida(ganhou) {
+    let ouroGanhado = 0;
+    if (ganhou) {
+        ouroGanhado = Math.floor(Math.random() * (75 - 30 + 1)) + 30; // 30 a 75 de ouro se vencer
+    } else {
+        ouroGanhado = Math.floor(Math.random() * (45 - 15 + 1)) + 15; // 15 a 45 de ouro se perder
+    }
+    meuPerfil.ouro = (parseInt(meuPerfil.ouro) || 0) + ouroGanhado;
+
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
+    
+    let msgSubidaPatente = "";
     if (ganhou) {
         p.estrelas++;
-        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
+        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { 
+            p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; 
+            msgSubidaPatente = `\n🎉 SUBISTE DE PATENTE PARA ${p.nome}!`; 
+        }
     } else {
         p.estrelas--;
-        if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
+        if (p.estrelas < 0) { 
+            if (idx > 0) { 
+                p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; 
+                msgSubidaPatente = `\n💀 CAÍSTE DE PATENTE PARA ${p.nome}!`; 
+            } else { p.estrelas = 0; } 
+        }
     }
-    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby();
-    gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
+    meuPerfil.patente = p;
+    dbUsuarios[meuEmail] = meuPerfil;
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
+    atualizarLobby();
+    
+    alert(`FIM DA PARTIDA!\n\n${ganhou ? '🏆 VITÓRIA (BOOYAH)!' : '☠️ DERROTA!'}\n🪙 Recompensa: +${ouroGanhado} de Ouro!${msgSubidaPatente}\n(Lembrete: Diamantes só podem ser comprados ou por Codiguin)`);
+    
+    gameRunning = false; 
+    botsAtivos = [];
+    paredesDeGelo = [];
+    document.getElementById('game-ui').style.display = 'none'; 
+    document.getElementById('start-menu').classList.remove('hidden');
 }
 
 function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) ? meuPerfil.pStats.lvlDmg : 1; }
 
 let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
-const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 } };
-['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
+const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 }, gelo: { bottom: 110, right: 40 } };
+['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill', 'gelo'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
 let modoEdicaoHUDActive = false; let origemEdicaoHUD = 'lobby';
 
 function aplicarLayoutHUD() {
@@ -481,12 +543,13 @@ function aplicarLayoutHUD() {
         if (el && pos) { el.style.top = "auto"; el.style.bottom = "auto"; el.style.left = "auto"; el.style.right = "auto"; if (pos.bottom !== undefined) el.style.bottom = pos.bottom + "px"; if (pos.top !== undefined) el.style.top = pos.top + "px"; if (pos.left !== undefined) el.style.left = pos.left + "px"; if (pos.right !== undefined) el.style.right = pos.right + "px"; }
     });
 }
-function mudarTipoControle() { tipoControle = (tipoControle === 'botoes') ? 'analogico' : 'botoes'; localStorage.setItem('ff2d_tipo_controle', tipoControle); aplicarLayoutHUD(); }
+function mudarTipoControle() { AudioFX.tocar('menu'); tipoControle = (tipoControle === 'botoes') ? 'analogico' : 'botoes'; localStorage.setItem('ff2d_tipo_controle', tipoControle); aplicarLayoutHUD(); }
 function entrarModoEdicaoHUD(origem) {
+    AudioFX.tocar('menu');
     origemEdicaoHUD = origem || 'lobby'; modoEdicaoHUDActive = true;
     document.querySelectorAll('.fullscreen-menu').forEach(el => el.classList.add('hidden')); document.getElementById('menu-partida-overlay').classList.add('hidden');
     document.getElementById('game-ui').style.display = 'block'; document.getElementById('hud-editor-msg').style.display = 'block'; aplicarLayoutHUD();
-    let botoesAjustaveis = tipoControle === 'analogico' ? ['jump', 'fire', 'analog', 'weapon', 'skill'] : ['left', 'right', 'jump', 'fire', 'weapon', 'skill'];
+    let botoesAjustaveis = tipoControle === 'analogico' ? ['jump', 'fire', 'analog', 'weapon', 'skill', 'gelo'] : ['left', 'right', 'jump', 'fire', 'weapon', 'skill', 'gelo'];
     botoesAjustaveis.forEach(id => {
         let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return; el.style.border = "3px dashed #ff9f43";
         el.addEventListener('touchmove', (e) => {
@@ -503,19 +566,19 @@ function entrarModoEdicaoHUD(origem) {
 }
 function salvarConfiguracaoHUD() {
     if (!modoEdicaoHUDActive) return; modoEdicaoHUDActive = false; localStorage.setItem('ff2d_hud_layout', JSON.stringify(hudPosicoes)); document.getElementById('hud-editor-msg').style.display = 'none';
-    ['left', 'right', 'jump', 'fire', 'analog', 'weapon', 'skill'].forEach(id => { let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return;
-        if (id === 'analog') el.style.border = "2px solid rgba(255,255,255,0.2)"; else if (id === 'fire') el.style.border = "2px solid #d35400"; else if (id === 'skill') el.style.border = "2px solid #2ecc71"; else el.style.border = "1px solid rgba(255,255,255,0.3)";
+    ['left', 'right', 'jump', 'fire', 'analog', 'weapon', 'skill', 'gelo'].forEach(id => { let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return;
+        if (id === 'analog') el.style.border = "2px solid rgba(255,255,255,0.2)"; else if (id === 'fire') el.style.border = "2px solid #d35400"; else if (id === 'skill') el.style.border = "2px solid #2ecc71"; else if (id === 'gelo') el.style.border = "2px solid #00ecff"; else el.style.border = "1px solid rgba(255,255,255,0.3)";
     });
     canvas.removeEventListener('touchstart', salvarConfiguracaoHUD); alert("⚙️ Layout salvo!");
     if (origemEdicaoHUD === 'lobby') { document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
 }
 
 function mostrarMensagemHUD(msg) { let el = document.getElementById('hud-editor-msg'); el.innerText = msg; el.style.display = 'block'; setTimeout(() => { if(!modoEdicaoHUDActive) el.style.display = 'none'; }, 2000); }
-function abrirMenuPartida() { document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
-function fecharMenuPartida() { document.getElementById('menu-partida-overlay').classList.add('hidden'); }
-function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
+function abrirMenuPartida() { AudioFX.tocar('menu'); document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
+function fecharMenuPartida() { AudioFX.tocar('menu'); document.getElementById('menu-partida-overlay').classList.add('hidden'); }
+function sairDaPartida() { AudioFX.tocar('menu'); gameRunning = false; botsAtivos = []; paredesDeGelo = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
 
-let keys = { left: false, right: false, jump: false, fire: false };
+let keys = { left: false, right: false, jump: false, fire: false, gelo: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
 function usarSkillAlok() {
@@ -525,17 +588,34 @@ function usarSkillAlok() {
     }
 }
 
-// CORREÇÃO DOS EVENTOS DE TOQUE E TIROS QUE NÃO SAÍAM
+// LANÇAMENTO DA PAREDE DE GELO DO FREE FIRE (GLOO WALL)
+function usarGelo() {
+    if (meuGelo > 0 && Date.now() - ultimoGeloTempo > 800) {
+        let posXGelo = player.x + (65 * player.facing);
+        paredesDeGelo.push({
+            x: posXGelo,
+            y: player.y,
+            width: 32,
+            height: 85,
+            hp: 120,
+            skinId: meuPerfil.equippedGelo || 'padrao'
+        });
+        meuGelo--;
+        document.getElementById('qtd-gelo-hud').innerText = meuGelo;
+        ultimoGeloTempo = Date.now();
+        AudioFX.tocar('menu');
+    }
+}
+
 document.addEventListener('touchstart', (e) => { 
     if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
-    // Removida a trava global que impedia o touch dos botões
 }, {passive: false});
 
-['left','right','jump','fire','weapon','skill'].forEach(id => {
+['left','right','jump','fire','weapon','skill','gelo'].forEach(id => {
     let el = document.getElementById('btn-' + id);
     if(el) { 
         el.addEventListener('touchstart', (e) => { 
-            e.stopPropagation(); // Evita que o evento escape e seja bloqueado
+            e.stopPropagation(); 
             if(e.cancelable) e.preventDefault(); 
             if(!modoEdicaoHUDActive) keys[id] = true; 
         }, {passive:false}); 
@@ -545,10 +625,9 @@ document.addEventListener('touchstart', (e) => {
             keys[id] = false; 
             if(id === 'weapon') trocarArma(); 
             if(id === 'skill') usarSkillAlok(); 
+            if(id === 'gelo') usarGelo();
         }, {passive:false});
-        el.addEventListener('touchcancel', (e) => { 
-            keys[id] = false; 
-        }, {passive:false});
+        el.addEventListener('touchcancel', (e) => { keys[id] = false; }, {passive:false});
     }
 });
 
@@ -566,12 +645,16 @@ function handleJoyMove(touch) {
 
 function loadUserGameProgress(emailChave) {
     meuPerfil = dbUsuarios[emailChave]; if (!meuPerfil) return;
-    if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
-    if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
+    if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; 
+    if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
+    if(!meuPerfil.ownedGelos) meuPerfil.ownedGelos = ['padrao'];
+    if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; 
+    if(!meuPerfil.equippedGelo) meuPerfil.equippedGelo = 'padrao';
+    if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
 }
-function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
-function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
+function abrirMenu(id) { AudioFX.tocar('menu'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
+function fecharMenu(id) { AudioFX.tocar('menu'); document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
 function mostrarCampoNick() {
     document.getElementById('input-nick').style.display = 'block';
     document.getElementById('btn-confirmar-cadastro').style.display = 'block';
@@ -586,7 +669,7 @@ async function cadastrarConta() {
     if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
     if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
     document.getElementById('login-msg').innerText = "Gerando Conta...";
-    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
+    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], ownedGelos: ['padrao'], equippedSkin: 'padrao', equippedGelo: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
 }
 function entrarConta() {
@@ -601,10 +684,9 @@ function carregarLobby() {
     document.getElementById('start-menu').classList.remove('hidden'); 
     aplicarLayoutHUD(); vincularJogadorAoServidor(); 
 }
-function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
-function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
+function fazerLogout() { AudioFX.tocar('menu'); meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
+function upgradeStat(tipo) { AudioFX.tocar('menu'); let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
 
-// Versão atual do jogo instalado
 const VERSAO_ATUAL = '1.0';
 const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
 
@@ -613,10 +695,8 @@ async function checarVersaoNova() {
         const res = await fetch(VERSAO_JSON_URL + '?t=' + Date.now());
         const dados = await res.json();
         if (dados.versao && dados.versao !== VERSAO_ATUAL) {
-            // Mostra bolinha vermelha
             const badge = document.getElementById('badge-update');
             if (badge) badge.style.display = 'block';
-            // Muda cor do botão para vermelho
             const btn = document.getElementById('btn-atualizar');
             if (btn) btn.style.background = '#e74c3c';
         }
@@ -628,11 +708,11 @@ function verificarAtualizacaoDoJogo() {
         .then(r => r.json())
         .then(dados => {
             if (dados.versao && dados.versao !== VERSAO_ATUAL) {
-                if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar a atualização.`)) {
+                if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar.`)) {
                     window.open(dados.apk_url || 'https://github.com/elias432132/Eliasx7/releases', '_blank');
                 }
             } else {
-                alert('✅ Você já está na versão mais recente!');
+                alert('✅ Já estás na versão mais recente!');
                 if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
                 window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
             }
@@ -643,7 +723,6 @@ function verificarAtualizacaoDoJogo() {
         });
 }
 
-// Checa versão ao abrir o jogo
 setTimeout(checarVersaoNova, 5000);
 
 function gerarCodigoSalvar() { 
@@ -670,7 +749,7 @@ function carregarCodigo() {
             fecharMenu('saveload-menu');
             carregarLobby();
         } 
-    } catch(e) { alert("Erro no código. Verifique se copiou corretamente."); } 
+    } catch(e) { alert("Erro no código."); } 
 }
 
 async function processarResgate() {
@@ -679,23 +758,27 @@ async function processarResgate() {
         let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
         let dados = await resp.json();
         if (dados.sucesso) {
-            meuPerfil.dimas += dados.diamantesGanhos; alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
+            meuPerfil.dimas += dados.diamantesGanhos; alert(`🎉 Ganhaste ${dados.diamantesGanhos} Diamantes!`);
             localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
         } else { alert("❌ " + (dados.erro || "Código Inválido")); }
-    } catch (e) { alert("❌ Servidor desligado."); }
+    } catch (e) { alert("❌ Servidor offline."); }
 }
 
-function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
+function switchTab(tab) { AudioFX.tocar('menu'); currentShopTab = tab; document.getElementById('shop-items-list').style.display = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
 
 function renderShopList() { 
     let container = document.getElementById('shop-items-list'); container.innerHTML = ''; 
-    let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; 
+    let db = currentShopTab === 'skins' ? skinsDB : (currentShopTab === 'weapons' ? weaponsDB : gelosDB); 
     
     db.forEach(item => { 
-        let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); 
+        let isOwned = false;
+        if (currentShopTab === 'skins') isOwned = meuPerfil.ownedSkins.includes(item.id);
+        else if (currentShopTab === 'weapons') isOwned = meuPerfil.ownedWeapons.includes(item.id);
+        else if (currentShopTab === 'gelos') isOwned = (meuPerfil.ownedGelos || ['padrao']).includes(item.id);
+
         let btnHTML = '';
         if (isOwned) {
-            let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id);
+            let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id) || (currentShopTab === 'gelos' && (meuPerfil.equippedGelo || 'padrao') === item.id);
             btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
         } else {
             if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } 
@@ -706,24 +789,39 @@ function renderShopList() {
 }
 
 function comprarItem(id, tipo, preco, moeda) { 
-    let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
+    AudioFX.tocar('menu');
+    if (tipo === 'gelos' && !meuPerfil.ownedGelos) meuPerfil.ownedGelos = ['padrao'];
+    let owned = tipo === 'skins' ? meuPerfil.ownedSkins : (tipo === 'weapons' ? meuPerfil.ownedWeapons : meuPerfil.ownedGelos); 
+    
     if (!owned.includes(id)) { 
         if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); meuPerfil.dimas -= preco; } 
         else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); meuPerfil.ouro -= preco; }
         owned.push(id); 
     } 
     if (tipo === 'skins') meuPerfil.equippedSkin = id; 
+    if (tipo === 'gelos') meuPerfil.equippedGelo = id; 
+    
+    dbUsuarios[meuEmail] = meuPerfil;
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
 }
 
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
 
+// CORREÇÃO DA COMUNICAÇÃO DO PIX DE ACORDO COM A BLINDAGEM DO SERVER.JS
 async function gerarPix(event) {
     let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) return alert("Mínimo 250!");
     let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true;
     let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; };
     try { 
-        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); 
+        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { 
+            method: 'POST', 
+            headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify({ 
+                Nick: meuPerfil.nickOriginal, 
+                email: meuPerfil.email, 
+                diamantes: qtd 
+            }) 
+        }); 
         let dados = await resp.json(); 
         if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
     } catch(e) { alert("⚠️ Erro ao gerar Pix: " + e.message); }
@@ -734,13 +832,13 @@ function copiarPix() { let inputPix = document.getElementById('output-chave-pix'
 
 function enviarMensagemGlobal() { 
     let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
+    if (!socket || !socket.connected) { return alert("⚠️ Servidor reconectando."); }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
 function enviarMensagemLobby() { 
     let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
+    if (!socket || !socket.connected) { return alert("⚠️ Servidor reconectando."); }
     socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
 }
 
@@ -752,19 +850,20 @@ function adicionarMensagemChat(msg) {
     if(lobbyContainer) { lobbyContainer.insertAdjacentHTML('beforeend', htmlMsg); lobbyContainer.scrollTop = lobbyContainer.scrollHeight; }
 }
 
-function abrirServidores() { document.getElementById('start-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
-function voltarLobby() { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
-function voltarServidores() { document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
-function abrirModos(servidor) { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('mode-menu').classList.remove('hidden'); }
+function abrirServidores() { AudioFX.tocar('menu'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
+function voltarLobby() { AudioFX.tocar('menu'); document.getElementById('server-menu').classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
+function voltarServidores() { AudioFX.tocar('menu'); document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
+function abrirModos(servidor) { AudioFX.tocar('menu'); document.getElementById('server-menu').classList.add('hidden'); document.getElementById('mode-menu').classList.remove('hidden'); }
 
 let tempoBusca = 0, intervaloBusca = null;
 function procurarPartida(modo) {
+    AudioFX.tocar('menu');
     document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden');
     tempoBusca = 0; document.getElementById('match-timer').innerText = "0s";
     intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000);
     if (socket && socket.connected) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo });
 }
-function cancelarBusca() { clearInterval(intervaloBusca); if (socket && socket.connected) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
+function cancelarBusca() { AudioFX.tocar('menu'); clearInterval(intervaloBusca); if (socket && socket.connected) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
 
 const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
 let gameRunning = false, loopAtivo = false, salaAtual = "";
@@ -786,8 +885,7 @@ function criarBot(time, index) {
         nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99),
         isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
         taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
-        frameAtual: 0, contadorAnim: 0,
-        skinId: 'padrao'
+        frameAtual: 0, contadorAnim: 0, skinId: 'padrao'
     };
 }
 
@@ -802,7 +900,12 @@ function iniciarArena(idSala, modo) {
     window.iniciarRound = function() {
         let fundoAleatorio = Math.floor(Math.random() * 50) + 1;
         bgImage.src = `img/fase${fundoAleatorio}.jpg`;
-        bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
+        bullets = []; 
+        paredesDeGelo = [];
+        meuGelo = 3;
+        document.getElementById('qtd-gelo-hud').innerText = meuGelo;
+        
+        player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
         
         if (botsAtivos.length === 0) {
             for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
@@ -823,16 +926,14 @@ function iniciarArena(idSala, modo) {
 }
 
 const playerSprites = {}; 
-/*==========================================================================
-   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
-  ==========================================================================*/
-const GITHUB_OWNER = "elias432132"; // <-- MUDE PARA O SEU USUÁRIO
-const GITHUB_REPO = "Eliasx7";      // <-- MUDE PARA O SEU REPOSITORIO
+const GITHUB_OWNER = "elias432132"; 
+const GITHUB_REPO = "Eliasx7";      
 
 function carregarImagensDaSkin(prefix) {
     if (playerSprites[prefix]) return; 
     playerSprites[prefix] = [];
-    for (let i = 1; i <= 100; i++) { 
+    // ATUALIZADO PARA SUPORTAR O MÁXIMO DA BASE OTIMIZADA DE 22 FRAMES
+    for (let i = 1; i <= 22; i++) { 
         const img = new Image(); 
         if (prefix === 'free' || prefix === 'padrao') {
             img.src = `img/${prefix}.x${i}.png`; 
@@ -845,10 +946,7 @@ function carregarImagensDaSkin(prefix) {
 carregarImagensDaSkin('free'); 
 
 function getAnimFramesForSkin(skinId, state) {
-    // Fallback APENAS para skin padrão azul
     const padraoFallback = { 'RUN': [8,9,24,25,29,31,32,33,34,35,36,37,43,44,48].map(n=>n-1), 'IDLE': [81,82,83,84,85,86,87,88].map(n=>n-1), 'SHOOT': [26,30].map(n=>n-1), 'JUMP': [50,51,52].map(n=>n-1) };
-
-    // Skin padrão — usa frames da azul
     if (!skinId || skinId === 'padrao') return padraoFallback[state] || [0];
 
     let traduzir = (str) => {
@@ -869,8 +967,6 @@ function getAnimFramesForSkin(skinId, state) {
         if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando) || [3];
         if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando) || [5];
     }
-
-    // Skin customizada SEM config_frames — usa frames 1-9 simples, NUNCA os da azul
     const customFallback = { 'RUN': [0,1,2,3,4,5,6,7,8], 'IDLE': [0], 'SHOOT': [5], 'JUMP': [3] };
     return customFallback[state] || [0];
 }
@@ -898,24 +994,26 @@ function gameLoop() {
         if (!colidiuLateral) player.x = nextX;
         if (player.y >= chaoAtual) { 
             player.y = chaoAtual; player.vy = 0; player.isGrounded = true; 
-            if (keys.jump) { player.vy = -14; player.isGrounded = false; } 
+            if (keys.jump) { 
+                player.vy = -14; player.isGrounded = false; 
+                AudioFX.tocar('pulo'); 
+            } 
         } else { player.isGrounded = false; }
 
-        // Correção de animação e direção aplicada aqui
         let novoEstado = 'IDLE';
-        if (!player.isGrounded) novoEstado = 'JUMP';
-        else if (keys.fire) novoEstado = 'SHOOT';
+        if (!player.isGrounded) novoEstado = 'JUMP'; 
+        else if (keys.fire) novoEstado = 'SHOOT'; 
         else if (keys.left || keys.right) novoEstado = 'RUN';
 
         if (playerState !== novoEstado) {
             playerState = novoEstado;
-            frameAtual = 0;
-            contadorAnim = 0;
+            frameAtual = 0; contadorAnim = 0;
         }
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
-            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+            lastShotTime = Date.now(); 
+            AudioFX.tocar('tiro'); 
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -930,6 +1028,26 @@ function gameLoop() {
     if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
     ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
     ctx.fillStyle = "#3e2723"; obstaculosPartida.forEach(obs => { ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#000"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); });
+
+    // FÍSICA E DESENHO DAS PAREDES DE GELO (GLOO WALLS) NO MAPA
+    paredesDeGelo.forEach(gelo => {
+        if (gelo.skinId && gelo.skinId !== 'padrao') {
+            carregarImagensDaSkin(gelo.skinId);
+            let imgGelo = playerSprites[gelo.skinId] ? playerSprites[gelo.skinId][0] : null;
+            if (imgGelo && imgGelo.complete && imgGelo.naturalWidth > 0) {
+                ctx.drawImage(imgGelo, gelo.x, gy + gelo.y - gelo.height, gelo.width, gelo.height);
+            } else {
+                ctx.fillStyle = 'rgba(0, 236, 255, 0.6)';
+                ctx.fillRect(gelo.x, gy + gelo.y - gelo.height, gelo.width, gelo.height);
+            }
+        } else {
+            ctx.fillStyle = 'rgba(0, 236, 255, 0.7)';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(gelo.x, gy + gelo.y - gelo.height, gelo.width, gelo.height);
+            ctx.strokeRect(gelo.x, gy + gelo.y - gelo.height, gelo.width, gelo.height);
+        }
+    });
 
     botsAtivos.forEach(bot => {
         if(bot.hp <= 0) return;
@@ -954,7 +1072,8 @@ function gameLoop() {
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
+                AudioFX.tocar('tiro'); 
             }
         }
         
@@ -983,10 +1102,26 @@ function gameLoop() {
         let b = bullets[i]; b.x += b.vx;
         ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
         let donoTime = b.owner === 'local' ? meuTime : (b.owner.includes('_A_') ? 'A' : 'B'); let removeBala = false;
+        
         for (let obs of obstaculosPartida) { if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { removeBala = true; break; } }
         
+        // INTERCEPTAÇÃO DE BALA PELA PAREDE DE GELO
+        if (!removeBala) {
+            for (let j = paredesDeGelo.length - 1; j >= 0; j--) {
+                let gelo = paredesDeGelo[j];
+                if (b.x > gelo.x && b.x < gelo.x + gelo.width && b.y > -gelo.y && b.y < -gelo.y + gelo.height) {
+                    gelo.hp -= 25; 
+                    removeBala = true;
+                    AudioFX.tocar('dano');
+                    if (gelo.hp <= 0) { paredesDeGelo.splice(j, 1); }
+                    break;
+                }
+            }
+        }
+
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
+            AudioFX.tocar('dano');
         }
         if (!removeBala) {
             for (let bot of botsAtivos) {
@@ -1000,7 +1135,6 @@ function gameLoop() {
 
     if (player.hp > 0) {
         let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
-        
         let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
         let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
 
@@ -1017,9 +1151,6 @@ function gameLoop() {
     }
 }
 
-// ==========================================
-// SOLUÇÃO FINAL: CORTE DE SKIN E ISOLAMENTO
-// ==========================================
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
 
@@ -1029,7 +1160,6 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
     
     ctx.save(); ctx.scale(facing, 1); 
-    
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
     carregarImagensDaSkin(prefixoSkin);
 
@@ -1037,39 +1167,21 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     let usarFallback = false;
 
     if (prefixoSkin === 'free') {
-        // Skin padrão — usa direto
         img = playerSprites['free'] ? playerSprites['free'][fIdx] : null;
     } else {
-        // Skin customizada — só usa se o frame já carregou completamente
         let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null;
-        if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) {
-            img = frameCustom;
-        } else {
-            // Frame ainda carregando — fica invisível, NÃO mostra a azul
-            usarFallback = true;
-        }
+        if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) { img = frameCustom; } else { usarFallback = true; }
     }
 
     if (usarFallback) {
-        // Aguarda carregar sem piscar para a skin azul
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(-37.5, -75, 75, 75);
+        ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-37.5, -75, 75, 75);
     } else if (img && img.complete && img.naturalWidth > 0) {
         if (img.naturalWidth > img.naturalHeight * 1.5) {
-            // Sprite sheet — faz o corte do frame correto
-            let totalFrames = 9;
-            let larguraFrame = img.naturalWidth / totalFrames;
-            let alturaFrame = img.naturalHeight;
-            let frameRecorte = fIdx % totalFrames;
+            let totalFrames = 9; let larguraFrame = img.naturalWidth / totalFrames; let alturaFrame = img.naturalHeight; let frameRecorte = fIdx % totalFrames;
             ctx.drawImage(img, frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, -37.5, -75, 75, 75);
-        } else {
-            // Imagem individual
-            ctx.drawImage(img, -37.5, -75, 75, 75);
-        }
+        } else { ctx.drawImage(img, -37.5, -75, 75, 75); }
     } else {
-        // Imagem padrão ainda carregando — invisível
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(-37.5, -75, 75, 75);
+        ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-37.5, -75, 75, 75);
     }
     ctx.restore(); 
     
@@ -1081,7 +1193,6 @@ function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasA
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
-// Fix scroll da loja no Android
 document.addEventListener('DOMContentLoaded', function() {
     let shopContainer = document.getElementById('shop-items-list');
     if (shopContainer) {
@@ -1100,17 +1211,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function falarComDono() {
+    AudioFX.tocar('menu');
     let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
     if(msg && msg.trim() !== '') { 
         if (socket && socket.connected) { 
             socket.emit('mensagem_para_dono', msg); 
             alert("Mensagem enviada!"); 
         } else { 
-            alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
+            alert("⚠️ Servidor desconectado. Tente novamente."); 
         } 
     } 
 }
 </script>
-
 </body>
 </html>
