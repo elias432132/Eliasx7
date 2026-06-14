@@ -170,6 +170,7 @@
     <div class="shop-tabs">
         <button class="tab-btn active" id="tab-skins" onclick="switchTab('skins')">👕 SKINS</button>
         <button class="tab-btn" id="tab-weapons" onclick="switchTab('weapons')">🔫 ARMAS</button>
+        <button class="tab-btn" id="tab-ice" onclick="switchTab('ice')">❄️ GELO</button>
         <button class="tab-btn" id="tab-diamonds" style="background:#3498db;" onclick="switchTab('diamonds')">💎 RECARGA</button>
     </div>
     <div class="shop-container" id="shop-items-list"></div>
@@ -383,6 +384,10 @@ let baseWeapons = [
     { id: 'mp40', name: '🔫 MP40', price: 500 },
     { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
 ];
+let baseIce = [
+    { id: 'gelo_padrao', name: '❄️ Gelo Padrão', price: 0 }
+];
+
 let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
 let skinsDB = [...baseSkins];
 _cachedShopSkins.forEach(nova => { 
@@ -390,6 +395,7 @@ _cachedShopSkins.forEach(nova => {
     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
 });
 let weaponsDB = [...baseWeapons];
+let iceDB = [...baseIce];
 
 window.onload = function() { iniciarSistema(); };
 
@@ -520,6 +526,12 @@ function conectarSocket() {
             if (itensNovos && itensNovos.weapons) {
                 itensNovos.weapons.forEach(nova => {
                     if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
+                });
+            }
+            iceDB = [...baseIce];
+            if (itensNovos && itensNovos.ice) {
+                itensNovos.ice.forEach(nova => {
+                    if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova);
                 });
             }
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
@@ -707,8 +719,9 @@ function handleJoyMove(touch) {
 
 function loadUserGameProgress(emailChave) {
     meuPerfil = dbUsuarios[emailChave]; if (!meuPerfil) return;
-    if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola'];
-    if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
+    if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola']; if(!meuPerfil.ownedIce) meuPerfil.ownedIce = ['gelo_padrao'];
+    if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.equippedIce) meuPerfil.equippedIce = 'gelo_padrao';
+    if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
 }
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
@@ -727,7 +740,7 @@ async function cadastrarConta() {
     if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
     if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
     document.getElementById('login-msg').innerText = "Gerando Conta...";
-    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
+    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], ownedIce: ['gelo_padrao'], equippedSkin: 'padrao', equippedIce: 'gelo_padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); playSound('buy');
 }
 function entrarConta() {
@@ -817,29 +830,37 @@ function carregarCodigo() {
     } catch(e) { playSound('error'); alert("Erro no código. Verifique se copiou corretamente."); } 
 }
 
-async function processarResgate() {
-    let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!");
-    try {
-        let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
-        let dados = await resp.json();
-        if (dados.sucesso) {
-            meuPerfil.dimas += dados.diamantesGanhos; playSound('buy'); alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
-        } else { playSound('error'); alert("❌ " + (dados.erro || "Código Inválido")); }
-    } catch (e) { alert("❌ Servidor desligado."); }
-}
+function switchTab(tab) { 
+    currentShopTab = tab; 
+    document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; 
+    document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; 
+    
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if(document.getElementById('tab-' + tab)) document.getElementById('tab-' + tab).classList.add('active');
 
-function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; if (tab !== 'diamonds') renderShopList(); }
+    if (tab !== 'diamonds') renderShopList(); 
+}
 
 function renderShopList() { 
     let container = document.getElementById('shop-items-list'); container.innerHTML = ''; 
-    let db = currentShopTab === 'skins' ? skinsDB : weaponsDB; 
+    
+    let db;
+    if (currentShopTab === 'skins') db = skinsDB;
+    else if (currentShopTab === 'weapons') db = weaponsDB;
+    else db = iceDB;
     
     db.forEach(item => { 
-        let isOwned = (currentShopTab === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons).includes(item.id); 
+        let isOwned = false;
+        if (currentShopTab === 'skins') isOwned = meuPerfil.ownedSkins.includes(item.id);
+        else if (currentShopTab === 'weapons') isOwned = meuPerfil.ownedWeapons.includes(item.id);
+        else if (currentShopTab === 'ice') isOwned = meuPerfil.ownedIce.includes(item.id);
+
         let btnHTML = '';
         if (isOwned) {
-            let isEq = (currentShopTab === 'skins' && meuPerfil.equippedSkin === item.id);
+            let isEq = false;
+            if (currentShopTab === 'skins') isEq = (meuPerfil.equippedSkin === item.id);
+            else if (currentShopTab === 'ice') isEq = (meuPerfil.equippedIce === item.id);
+
             btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
         } else {
             if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } 
@@ -850,15 +871,33 @@ function renderShopList() {
 }
 
 function comprarItem(id, tipo, preco, moeda) { 
-    let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
+    let owned;
+    if (tipo === 'skins') owned = meuPerfil.ownedSkins;
+    else if (tipo === 'weapons') owned = meuPerfil.ownedWeapons;
+    else if (tipo === 'ice') owned = meuPerfil.ownedIce;
+
     if (!owned.includes(id)) { 
         if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) { playSound('error'); return alert("Diamantes insuficientes!");} meuPerfil.dimas -= preco; } 
         else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) { playSound('error'); return alert("Ouro insuficiente!"); } meuPerfil.ouro -= preco; }
         owned.push(id); 
     } 
     if (tipo === 'skins') meuPerfil.equippedSkin = id; 
+    if (tipo === 'ice') meuPerfil.equippedIce = id;
+
     playSound('buy');
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
+}
+
+async function processarResgate() {
+    let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!");
+    try {
+        let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
+        let dados = await resp.json();
+        if (dados.sucesso) {
+            meuPerfil.dimas += dados.diamantesGanhos; playSound('buy'); alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
+            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
+        } else { playSound('error'); alert("❌ " + (dados.erro || "Código Inválido")); }
+    } catch (e) { alert("❌ Servidor desligado."); }
 }
 
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
