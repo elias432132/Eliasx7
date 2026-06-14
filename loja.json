@@ -31,6 +31,22 @@
         "morrendo": "1-5",
         "fps": 12
       }
+    },
+    {
+      "id": "maniaco",
+      "name": "Gel Maníaco",
+      "price": 10000,
+      "priceD": 200,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "14-17",
+        "andando": "5-10",
+        "pulando": "18-21",
+        "atirando": "1-4",
+        "ataque": "1-4",
+        "morrendo": "11-13",
+        "fps": 12
+      }
     }
   ],
   "weapons": []
