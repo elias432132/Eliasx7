@@ -268,6 +268,105 @@
 </div>
 
 <script>
+// ==========================================
+// 🔊 SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API)
+// ==========================================
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+
+    switch(type) {
+        case 'click':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            break;
+        case 'jump':
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(350, now + 0.2);
+            gainNode.gain.setValueAtTime(0.05, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+            break;
+        case 'shoot':
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            break;
+        case 'hit': 
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(100, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+            break;
+        case 'skill':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+            break;
+        case 'gelo':
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1200, now);
+            osc.frequency.exponentialRampToValueAtTime(2000, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            break;
+        case 'buy': 
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.setValueAtTime(1200, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+            break;
+        case 'error':
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+            break;
+    }
+}
+
+// Intercepta todos os cliques para botões
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SPAN' && e.target.onclick || e.target.classList.contains('server-bar')) {
+        playSound('click');
+    }
+});
+// ==========================================
+
+
 const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
 somTiroEfeito.volume = 0.4;
 
@@ -348,6 +447,7 @@ function conectarSocket() {
             elTimer.style.fontSize = "48px";
             elTimer.style.color = "#2ecc71";
             elTimer.innerText = contagem;
+            playSound('buy'); // Toca som feliz quando acha partida
             
             let idContagem = setInterval(() => {
                 contagem--;
@@ -357,7 +457,7 @@ function conectarSocket() {
                     elTimer.style.color = "";
                     if(elTitulo) elTitulo.innerText = "PROCURANDO...";
                     iniciarArena(dados.sala, dados.modo);
-                } else { elTimer.innerText = contagem; }
+                } else { elTimer.innerText = contagem; playSound('click');}
             }, 1000);
         }); 
 
@@ -367,6 +467,7 @@ function conectarSocket() {
                 dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
                 atualizarLobby(); document.getElementById('tela-pix-gerado').style.display = "none"; fecharMenu('shop-menu');
+                playSound('buy');
                 alert(`🎉 PAGAMENTO CONFIRMADO PELO BANCO!\n${dados.diamantesGanhos} Diamantes creditados!`);
             }
         });
@@ -375,12 +476,14 @@ function conectarSocket() {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
                 if(!meuPerfil.isVIP) {
                     meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; 
+                    playSound('buy');
                     alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus de 1.000 Diamantes!");
                 }
                 meuPerfil.isVIP = true;
                 if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = true; dbUsuarios[meuEmail].dimas = meuPerfil.dimas; }
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
                 atualizarLobby(); document.getElementById('modal-vip-lindo').classList.remove('hidden');
+                playSound('skill');
             }
         });
 
@@ -390,12 +493,14 @@ function conectarSocket() {
                 if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = false; }
                 localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
                 atualizarLobby();
+                playSound('error');
                 alert("⚠️ Sua Tag de Verificado Oficial foi removida pelo Dono do Servidor.");
             }
         });
 
         socket.on('jogador_banido', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
+                playSound('error');
                 alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
                 delete dbUsuarios[meuEmail]; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); localStorage.removeItem('ff2d_current_user'); window.location.reload(); 
             }
@@ -439,16 +544,17 @@ function atualizarLobby() {
 
 function resgatarPremioSemanalVip() {
     if(!meuPerfil) return;
-    if(!meuPerfil.isVIP) return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!");
+    if(!meuPerfil.isVIP) { playSound('error'); return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!"); }
     let agora = Date.now(); let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000; let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
     if(agora - ultimoResgate < umaSemanaEmMs) {
+        playSound('error');
         let diasRestantes = Math.ceil((umaSemanaEmMs - (agora - ultimoResgate)) / (24 * 60 * 60 * 1000));
         return alert(`⏳ Calma Sobrevivente! Volte em ${diasRestantes} dias.`);
     }
     let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
     meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados; meuPerfil.ultimoResgateSemanal = agora;
     dbUsuarios[meuEmail] = meuPerfil; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-    atualizarLobby(); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
+    atualizarLobby(); playSound('buy'); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
 }
 
 function processarFimDePartida(ganhou) {
@@ -456,9 +562,11 @@ function processarFimDePartida(ganhou) {
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
     if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     if (ganhou) {
+        playSound('buy');
         p.estrelas++;
         if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
     } else {
+        playSound('error');
         p.estrelas--;
         if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
     }
@@ -470,7 +578,6 @@ function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pS
 
 let tipoControle = localStorage.getItem('ff2d_tipo_controle') || 'analogico'; 
 let hudPosicoes = JSON.parse(localStorage.getItem('ff2d_hud_layout')) || {};
-// INCLUSÃO DO BOTÃO DE GELO NO LAYOUT DEFAULT
 const defaultLayout = { left: { bottom: 40, left: 40 }, right: { bottom: 40, left: 120 }, analog: { bottom: 30, left: 50 }, fire: { bottom: 30, right: 80 }, jump: { bottom: 40, right: 180 }, weapon: { bottom: 120, right: 140 }, skill: { top: 50, right: 100 }, gelo: { bottom: 120, right: 220 } };
 ['left', 'right', 'analog', 'fire', 'jump', 'weapon', 'skill', 'gelo'].forEach(k => { if(!hudPosicoes[k]) hudPosicoes[k] = defaultLayout[k]; });
 let modoEdicaoHUDActive = false; let origemEdicaoHUD = 'lobby';
@@ -511,7 +618,7 @@ function salvarConfiguracaoHUD() {
     ['left', 'right', 'jump', 'fire', 'analog', 'weapon', 'skill', 'gelo'].forEach(id => { let el = document.getElementById(id === 'analog' ? 'joystick-base' : 'btn-' + id); if(!el) return;
         if (id === 'analog') el.style.border = "2px solid rgba(255,255,255,0.2)"; else if (id === 'fire') el.style.border = "2px solid #d35400"; else if (id === 'skill') el.style.border = "2px solid #2ecc71"; else if (id === 'gelo') el.style.border = "2px solid #00ecff"; else el.style.border = "1px solid rgba(255,255,255,0.3)";
     });
-    canvas.removeEventListener('touchstart', salvarConfiguracaoHUD); alert("⚙️ Layout salvo!");
+    canvas.removeEventListener('touchstart', salvarConfiguracaoHUD); alert("⚙️ Layout salvo!"); playSound('buy');
     if (origemEdicaoHUD === 'lobby') { document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
 }
 
@@ -522,17 +629,19 @@ function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getEle
 
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
-let gelosDisponiveis = 3; // MUNIÇÃO DO GELO
+let gelosDisponiveis = 3; 
 
-function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); } }
+function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); playSound('click'); } }
 function usarSkillAlok() {
     if(Date.now() > skillCooldown) {
+        playSound('skill');
         auraAtiva = true; player.hp = Math.min(100, player.hp + 30); document.getElementById('arena-hp').innerText = `❤️ ${player.hp}`;
         mostrarMensagemHUD("🟢 ALOK ATIVADO!"); skillCooldown = Date.now() + 15000; setTimeout(() => { auraAtiva = false; }, 3000);
+    } else {
+        playSound('error');
     }
 }
 
-// SISTEMA DO GELO - CRIA UMA PAREDE FÍSICA NO MAPA
 function usarGelo() {
     if (gelosDisponiveis > 0 && player.hp > 0 && gameRunning && !modoEdicaoHUDActive) {
         gelosDisponiveis--;
@@ -542,17 +651,18 @@ function usarGelo() {
         let larguraGelo = 30;
         let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
         
-        // Empurra a barreira de gelo para os obstáculos do mapa
         obstaculosPartida.push({
             x: posGeloX, 
             w: larguraGelo, 
-            h: 85, // Altura que bloqueia o pulo fácil e o tiro
+            h: 85, 
             isGelo: true, 
-            hp: 150 // Vida do gelo até quebrar
+            hp: 150 
         });
         
+        playSound('gelo');
         mostrarMensagemHUD("❄️ GELO COLOCADO!");
     } else if (gelosDisponiveis <= 0) {
+        playSound('error');
         mostrarMensagemHUD("❌ SEM GELOS!");
     }
 }
@@ -575,7 +685,7 @@ document.addEventListener('touchstart', (e) => {
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
             if(id === 'weapon') trocarArma(); 
             if(id === 'skill') usarSkillAlok(); 
-            if(id === 'gelo') usarGelo(); // ATIVA O GELO AO SOLTAR O DEDO DO BOTÃO
+            if(id === 'gelo') usarGelo(); 
         }, {passive:false});
         el.addEventListener('touchcancel', (e) => { 
             if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
@@ -618,11 +728,11 @@ async function cadastrarConta() {
     if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
     document.getElementById('login-msg').innerText = "Gerando Conta...";
     dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], equippedSkin: 'padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby();
+    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); playSound('buy');
 }
 function entrarConta() {
     let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim();
-    if (dbUsuarios[email] && atob(dbUsuarios[email].senha) === senha) { meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); } else { document.getElementById('login-msg').innerText = "Senha incorreta!"; }
+    if (dbUsuarios[email] && atob(dbUsuarios[email].senha) === senha) { meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); playSound('buy'); } else { document.getElementById('login-msg').innerText = "Senha incorreta!"; playSound('error'); }
 }
 function carregarLobby() { 
     meuPerfil = dbUsuarios[meuEmail]; 
@@ -633,7 +743,12 @@ function carregarLobby() {
     aplicarLayoutHUD(); vincularJogadorAoServidor(); 
 }
 function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
-function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) return alert("Ouro insuficiente!"); meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); alert("✅ Upgrade realizado!"); }
+function upgradeStat(tipo) { 
+    let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; 
+    if ((meuPerfil.ouro || 0) < precos[tipo]) { playSound('error'); return alert("Ouro insuficiente!"); }
+    meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); 
+    playSound('buy'); alert("✅ Upgrade realizado!"); 
+}
 
 const VERSAO_ATUAL = '1.0';
 const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
@@ -680,6 +795,7 @@ function gerarCodigoSalvar() {
         let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
         let inputArea = document.getElementById('save-code-input');
         inputArea.value = codigoGerado; inputArea.select(); document.execCommand("copy");
+        playSound('skill');
         alert("✅ Código gerado e COPIADO!"); 
     } catch(e) { alert("Erro ao gerar: " + e.message); }
 }
@@ -693,11 +809,12 @@ function carregarCodigo() {
             localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
             meuEmail = d.email;
             localStorage.setItem('ff2d_current_user', d.email);
+            playSound('buy');
             alert("✅ Conta recuperada! Entrando..."); 
             fecharMenu('saveload-menu');
             carregarLobby();
         } 
-    } catch(e) { alert("Erro no código. Verifique se copiou corretamente."); } 
+    } catch(e) { playSound('error'); alert("Erro no código. Verifique se copiou corretamente."); } 
 }
 
 async function processarResgate() {
@@ -706,9 +823,9 @@ async function processarResgate() {
         let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
         let dados = await resp.json();
         if (dados.sucesso) {
-            meuPerfil.dimas += dados.diamantesGanhos; alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
+            meuPerfil.dimas += dados.diamantesGanhos; playSound('buy'); alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
             localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
-        } else { alert("❌ " + (dados.erro || "Código Inválido")); }
+        } else { playSound('error'); alert("❌ " + (dados.erro || "Código Inválido")); }
     } catch (e) { alert("❌ Servidor desligado."); }
 }
 
@@ -735,25 +852,26 @@ function renderShopList() {
 function comprarItem(id, tipo, preco, moeda) { 
     let owned = tipo === 'skins' ? meuPerfil.ownedSkins : meuPerfil.ownedWeapons; 
     if (!owned.includes(id)) { 
-        if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) return alert("Diamantes insuficientes!"); meuPerfil.dimas -= preco; } 
-        else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) return alert("Ouro insuficiente!"); meuPerfil.ouro -= preco; }
+        if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) { playSound('error'); return alert("Diamantes insuficientes!");} meuPerfil.dimas -= preco; } 
+        else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) { playSound('error'); return alert("Ouro insuficiente!"); } meuPerfil.ouro -= preco; }
         owned.push(id); 
     } 
     if (tipo === 'skins') meuPerfil.equippedSkin = id; 
+    playSound('buy');
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
 }
 
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
 
 async function gerarPix(event) {
-    let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) return alert("Mínimo 250!");
+    let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) { playSound('error'); return alert("Mínimo 250!"); }
     let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true;
     let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; };
     try { 
         let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); 
         let dados = await resp.json(); 
-        if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
-    } catch(e) { alert("⚠️ Erro ao gerar Pix: " + e.message); }
+        if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); playSound('skill'); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
+    } catch(e) { playSound('error'); alert("⚠️ Erro ao gerar Pix: " + e.message); }
     btnGerar.innerText = "⚡ GERAR PIX"; btnGerar.disabled = false;
 }
 
@@ -799,15 +917,11 @@ let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: tr
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
 let placarCS = { A: 0, B: 0 }; let roundRodando = true;
 
-// VARIÁVEIS DE IMAGEM DO MAPA
 const bgImage = new Image(); 
 const chaoImage = new Image();
 
-/*==========================================================================
-   MUDE AQUI EM BAIXO PARA O SEU NOME DE USUÁRIO DO GITHUB PARA AS SKINS FUNCIONAREM
-  ==========================================================================*/
-const GITHUB_OWNER = "elias432132"; // <-- SEU USUÁRIO
-const GITHUB_REPO = "Eliasx7";      // <-- SEU REPOSITÓRIO
+const GITHUB_OWNER = "elias432132"; 
+const GITHUB_REPO = "Eliasx7";      
 
 function criarBot(time, index) {
     const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
@@ -836,17 +950,15 @@ function iniciarArena(idSala, modo) {
     botsAtivos = []; 
     
     window.iniciarRound = function() {
-        // SORTEADOR DE CENÁRIOS (PEGA MAPAS DE 1 A 25 DO SEU GITHUB)
         let fundoAleatorio = Math.floor(Math.random() * 25) + 1;
         bgImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/fundo${fundoAleatorio}.png`;
         chaoImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/chao${fundoAleatorio}.png`;
 
-        // RECARREGA OS GELOS A CADA ROUND
         gelosDisponiveis = 3;
         document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
 
         bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
-        obstaculosPartida = []; // Limpa gelos do round anterior
+        obstaculosPartida = []; 
         
         if (botsAtivos.length === 0) {
             for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
@@ -934,7 +1046,7 @@ function gameLoop() {
         if (!colidiuLateral) player.x = nextX;
         if (player.y >= chaoAtual) { 
             player.y = chaoAtual; player.vy = 0; player.isGrounded = true; 
-            if (keys.jump) { player.vy = -14; player.isGrounded = false; } 
+            if (keys.jump) { player.vy = -14; player.isGrounded = false; playSound('jump'); } 
         } else { player.isGrounded = false; }
 
         let novoEstado = 'IDLE';
@@ -950,7 +1062,7 @@ function gameLoop() {
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
-            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+            lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); playSound('shoot');
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -963,24 +1075,19 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // RENDERIZAÇÃO DO FUNDO INJETADO
     if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); 
     else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
     
-    // RENDERIZAÇÃO DO CHÃO INJETADO
     if (chaoImage.complete && chaoImage.naturalWidth > 0) ctx.drawImage(chaoImage, 0, gy, canvas.width, canvas.height - gy);
     else { ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy); }
 
-    // RENDERIZAÇÃO DOS OBSTÁCULOS E DO GELO
     obstaculosPartida.forEach(obs => { 
         if(obs.isGelo) {
-            // Desenha o Gelo
             ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
             ctx.strokeStyle = "#fff"; 
             ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
         } else {
-            // Desenha obstáculo comum (se houver)
             ctx.fillStyle = "#3e2723"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
             ctx.strokeStyle = "#000"; 
@@ -1011,7 +1118,7 @@ function gameLoop() {
             }
             if (Date.now() > bot.lastShot + bot.taxaTiro) { 
                 bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); 
+                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
             }
         }
         
@@ -1044,22 +1151,22 @@ function gameLoop() {
         for (let j = obstaculosPartida.length - 1; j >= 0; j--) { 
             let obs = obstaculosPartida[j];
             if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { 
-                removeBala = true; 
+                removeBala = true; playSound('hit');
                 if(obs.isGelo) {
-                    obs.hp -= 25; // O Gelo leva dano do tiro
-                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); // Gelo quebra se zerar a vida
+                    obs.hp -= 25; 
+                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); 
                 }
                 break; 
             } 
         }
         
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
-            player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true;
+            player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true; playSound('hit');
         }
         if (!removeBala) {
             for (let bot of botsAtivos) {
                 if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
-                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; break;
+                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; playSound('hit'); break;
                 }
             }
         }
@@ -1161,8 +1268,10 @@ function falarComDono() {
     if(msg && msg.trim() !== '') { 
         if (socket && socket.connected) { 
             socket.emit('mensagem_para_dono', msg); 
+            playSound('skill');
             alert("Mensagem enviada!"); 
         } else { 
+            playSound('error');
             alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
         } 
     } 
