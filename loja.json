@@ -1,6 +1,22 @@
 {
   "skins": [
     {
+      "id": "topcriminal",
+      "name": "TOP.crimimal(Black)",
+      "price": 15000,
+      "priceD": 600,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "6-9",
+        "andando": "14-18",
+        "pulando": "10-13",
+        "atirando": "19-22",
+        "ataque": "19-22",
+        "morrendo": "1-5",
+        "fps": 12
+      }
+    },
+    {
       "id": "topcriminald",
       "name": "TopDourado",
       "price": 25000,
