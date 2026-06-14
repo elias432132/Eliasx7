@@ -78,7 +78,6 @@
         #btn-jump { width: 65px; height: 65px; z-index: 30; }
         #btn-weapon { width: 55px; height: 55px; z-index: 30; }
         #btn-skill { width: 65px; height: 65px; border: 2px solid #2ecc71; color: #2ecc71; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(46,204,113,0.4); z-index: 30; }
-        /* NOVO BOTÃO DE GELO */
         #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 12px; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
@@ -394,8 +393,18 @@ _cachedShopSkins.forEach(nova => {
     if (nova.comportamento === 'replace_default') return;
     if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
 });
+
+let _cachedShopWeapons = JSON.parse(localStorage.getItem('ff2d_cache_loja_weapons')) || [];
 let weaponsDB = [...baseWeapons];
+_cachedShopWeapons.forEach(nova => {
+    if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
+});
+
+let _cachedShopIce = JSON.parse(localStorage.getItem('ff2d_cache_loja_ice')) || [];
 let iceDB = [...baseIce];
+_cachedShopIce.forEach(nova => {
+    if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova);
+});
 
 window.onload = function() { iniciarSistema(); };
 
@@ -453,7 +462,7 @@ function conectarSocket() {
             elTimer.style.fontSize = "48px";
             elTimer.style.color = "#2ecc71";
             elTimer.innerText = contagem;
-            playSound('buy'); // Toca som feliz quando acha partida
+            playSound('buy'); 
             
             let idContagem = setInterval(() => {
                 contagem--;
@@ -514,26 +523,30 @@ function conectarSocket() {
 
         socket.on('atualizar_loja_dinamica', (itensNovos) => {
             skinsDB = [...baseSkins];
-            if (itensNovos && itensNovos.skins) {
-                itensNovos.skins.forEach(nova => {
-                    if (nova.comportamento === 'replace_default') return;
-                    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova);
-                });
-                let skinsSomenteLoja = skinsDB.filter(s => !baseSkins.find(b => b.id === s.id));
-                localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsSomenteLoja));
-            }
             weaponsDB = [...baseWeapons];
-            if (itensNovos && itensNovos.weapons) {
-                itensNovos.weapons.forEach(nova => {
-                    if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
-                });
-            }
             iceDB = [...baseIce];
-            if (itensNovos && itensNovos.ice) {
-                itensNovos.ice.forEach(nova => {
-                    if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova);
+
+            let addSkin = (nova) => { if (nova.comportamento !== 'replace_default' && !skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); };
+            let addWeapon = (nova) => { if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova); };
+            let addIce = (nova) => { if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova); };
+
+            if (Array.isArray(itensNovos)) {
+                itensNovos.forEach(nova => {
+                    if (nova.categoria === 'skins' || nova.categoria === 'skin') addSkin(nova);
+                    else if (nova.categoria === 'weapons' || nova.categoria === 'arma') addWeapon(nova);
+                    else if (nova.categoria === 'gelo' || nova.categoria === 'ice') addIce(nova);
                 });
+            } else if (itensNovos) {
+                if (itensNovos.skins) itensNovos.skins.forEach(addSkin);
+                if (itensNovos.weapons) itensNovos.weapons.forEach(addWeapon);
+                if (itensNovos.gelo) itensNovos.gelo.forEach(addIce);
+                if (itensNovos.ice) itensNovos.ice.forEach(addIce);
             }
+
+            localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsDB.filter(s => !baseSkins.find(b => b.id === s.id))));
+            localStorage.setItem('ff2d_cache_loja_weapons', JSON.stringify(weaponsDB.filter(s => !baseWeapons.find(b => b.id === s.id))));
+            localStorage.setItem('ff2d_cache_loja_ice', JSON.stringify(iceDB.filter(s => !baseIce.find(b => b.id === s.id))));
+
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
         });
 
@@ -668,7 +681,8 @@ function usarGelo() {
             w: larguraGelo, 
             h: 85, 
             isGelo: true, 
-            hp: 150 
+            hp: 150,
+            skinId: meuPerfil.equippedIce 
         });
         
         playSound('gelo');
@@ -1062,6 +1076,17 @@ function getAnimFramesForSkin(skinId, state) {
     return customFallback[state] || [0];
 }
 
+const geloSprites = {};
+function getGeloImage(skinId) {
+    if (!skinId || skinId === 'gelo_padrao') return null;
+    if (!geloSprites[skinId]) {
+        const img = new Image();
+        img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${skinId}.png`;
+        geloSprites[skinId] = img;
+    }
+    return geloSprites[skinId];
+}
+
 let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
 
 function gameLoop() {
@@ -1122,10 +1147,15 @@ function gameLoop() {
 
     obstaculosPartida.forEach(obs => { 
         if(obs.isGelo) {
-            ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
-            ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-            ctx.strokeStyle = "#fff"; 
-            ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
+            let imgGelo = getGeloImage(obs.skinId);
+            if (imgGelo && imgGelo.complete && imgGelo.naturalWidth > 0) {
+                ctx.drawImage(imgGelo, obs.x, gy - obs.h, obs.w, obs.h);
+            } else {
+                ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
+                ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
+                ctx.strokeStyle = "#fff"; 
+                ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
+            }
         } else {
             ctx.fillStyle = "#3e2723"; 
             ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
