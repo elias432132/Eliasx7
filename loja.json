@@ -84,7 +84,7 @@
       "id": "criminalwhite",
       "name": "Criminalwhite",
       "price": 20000,
-      "priceD": 299,
+      "priceD": 499,
       "comportamento": "custom_isolated",
       "config_frames": {
         "parado": "1-6",
