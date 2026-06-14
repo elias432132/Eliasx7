@@ -96,7 +96,7 @@
                 </div>
             </div>
 
-            <!-- OPÇÃO ADICIONADA AQUI COM SEGURANÇA -->
+            <!-- MENU COM A SKIN DE GELO ADICIONADA -->
             <div class="flex-row">
                 <div style="flex: 1;">
                     <label style="font-weight: bold; font-size: 13px;">Categoria na Loja:</label>
@@ -160,10 +160,10 @@
         const URL_SERVIDOR = "https://eliasx7.onrender.com";
         let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
 
-        // 🔐 Senha fixa do painel
+        // 🔐 Senha fixa do painel restaurada
         const ADMIN_SECRET = localStorage.getItem('admin_secret') || 'nexusmaster';
 
-        // Helper: fetch com autenticação admin automática
+        // Conexão com o backend devolvida 100%
         function adminFetch(url, options = {}) {
             options.headers = options.headers || {};
             options.headers['x-admin-secret'] = ADMIN_SECRET;
@@ -192,7 +192,7 @@
             alert("✅ Credenciais salvas!");
         }
 
-        // SISTEMA DE JOGADORES ONLINE
+        // SISTEMA DE JOGADORES ONLINE (Funcionando novamente)
         async function carregarJogadores() {
             try {
                 let res = await adminFetch(URL_SERVIDOR + '/admin/jogadores');
@@ -296,7 +296,6 @@
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             
-            // Tenta carregar do GitHub primeiro (persistência permanente)
             if (token && owner && repo) {
                 try {
                     await adminFetch(URL_SERVIDOR + '/proxy/carregar-loja-github', {
@@ -324,14 +323,13 @@
             if(itensLocaisLoja.length === 0) return alert("Sua lista local está vazia. Crie skins primeiro.");
             for (let item of itensLocaisLoja) {
                 try {
-                    // Garante que o campo tipo está presente
                     const itemComTipo = { ...item, tipo: item.tipo || 'skins' };
                     await adminFetch(URL_SERVIDOR + '/admin/add-loja', { 
                         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemComTipo) 
                     });
                 } catch(e) { console.error(e); }
             }
-            // Salva loja.json no GitHub para persistência permanente
+            
             const token = localStorage.getItem('gh_token');
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
@@ -359,7 +357,9 @@
             const precoOuro = parseInt(document.getElementById('preco-ouro').value) || 0;
             const precoDima = parseInt(document.getElementById('preco-dima').value) || 0;
             const comportamentoSkin = document.getElementById('comportamento-skin').value;
-            const categoriaItem = document.getElementById('categoria-item').value; // CAPTURA DA CATEGORIA ESCOLHIDA
+            
+            // Aqui ele captura perfeitamente o gelo ou a skin que você selecionar
+            const categoriaItem = document.getElementById('categoria-item').value; 
 
             if(!token || !owner || !repo) return alert("Configure as credenciais!");
             if(!zipInput) return alert("Selecione o arquivo!");
@@ -381,7 +381,6 @@
                     const base64Data = await arquivosFila[idx].async("base64");
                     const filename = `img/${itemID}.x${numeroFrame}.png`;
 
-                    // Busca SHA via proxy do servidor (evita CORS)
                     let sha = null;
                     try {
                         let shaRes = await adminFetch(URL_SERVIDOR + '/proxy/github-get', {
@@ -392,7 +391,6 @@
                         if (shaData.sha) sha = shaData.sha;
                     } catch(err) {}
 
-                    // Upload via proxy do servidor (evita CORS)
                     let resPut = await adminFetch(URL_SERVIDOR + '/proxy/github-upload', {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ token, owner, repo, path: filename, content: base64Data, sha })
@@ -402,12 +400,11 @@
                         throw new Error(`Falha no frame ${numeroFrame}: ${errData.erro || resPut.status}`);
                     }
                     logConsole(`✅ Frame ${numeroFrame} enviado!`);
-                    // Pequena pausa para não sobrecarregar o servidor
                     await new Promise(r => setTimeout(r, 300));
                 }
 
                 const skinConfigCompleta = { 
-                    tipo: categoriaItem, // AGORA O SISTEMA SALVA SE É ROUPA, ARMA OU GELO
+                    tipo: categoriaItem, 
                     id: itemID, 
                     name: itemNome, 
                     price: precoOuro, 
@@ -430,7 +427,6 @@
                 localStorage.setItem('vitrine_salva', JSON.stringify(itensLocaisLoja));
                 renderizarBloquinhos();
 
-                // Tenta registrar no servidor — se falhar não para o processo
                 try {
                     await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
                     alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens enviadas ao GitHub e registradas no servidor!`);
