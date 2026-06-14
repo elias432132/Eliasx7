@@ -63,22 +63,6 @@
         "morrendo": "1-5",
         "fps": 12
       }
-    },
-    {
-      "id": "criminalwhite",
-      "name": "Criminalwhite",
-      "price": 20000,
-      "priceD": 499,
-      "comportamento": "custom_isolated",
-      "config_frames": {
-        "parado": "1-6",
-        "andando": "7-12",
-        "pulando": "13-18",
-        "atirando": "19-24",
-        "ataque": "19-24",
-        "morrendo": "25-30",
-        "fps": 12
-      }
     }
   ],
   "weapons": []
