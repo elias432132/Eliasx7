@@ -17,6 +17,38 @@
       }
     },
     {
+      "id": "topcrminalwhite",
+      "name": "CONJ CRIMINAL WHITE",
+      "price": 20000,
+      "priceD": 699,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "14-17",
+        "andando": "5-10",
+        "pulando": "18-21",
+        "atirando": "1-4",
+        "ataque": "1-4",
+        "morrendo": "11-13",
+        "fps": 12
+      }
+    },
+    {
+      "id": "gelo",
+      "name": "Maníaco",
+      "price": 20000,
+      "priceD": 299,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "14-17",
+        "andando": "5-10",
+        "pulando": "18-21",
+        "atirando": "1-4",
+        "ataque": "1-4",
+        "morrendo": "11-13",
+        "fps": 12
+      }
+    },
+    {
       "id": "topcriminald",
       "name": "TopDourado",
       "price": 25000,
@@ -49,34 +81,18 @@
       }
     },
     {
-      "id": "topcrminalwhite",
-      "name": "CONJ CRIMINAL WHITE",
-      "price": 20000,
-      "priceD": 699,
-      "comportamento": "custom_isolated",
-      "config_frames": {
-        "parado": "14-17",
-        "andando": "5-10",
-        "pulando": "18-21",
-        "atirando": "1-4",
-        "ataque": "1-4",
-        "morrendo": "11-13",
-        "fps": 12
-      }
-    },
-    {
-      "id": "gelo",
-      "name": "Maníaco",
+      "id": "criminalwhite",
+      "name": "Criminalwhite",
       "price": 20000,
       "priceD": 299,
       "comportamento": "custom_isolated",
       "config_frames": {
-        "parado": "14-17",
-        "andando": "5-10",
-        "pulando": "18-21",
-        "atirando": "1-4",
-        "ataque": "1-4",
-        "morrendo": "11-13",
+        "parado": "1-6",
+        "andando": "7-12",
+        "pulando": "13-18",
+        "atirando": "19-24",
+        "ataque": "19-24",
+        "morrendo": "25-30",
         "fps": 12
       }
     }
