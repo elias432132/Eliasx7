@@ -96,7 +96,16 @@
                 </div>
             </div>
 
+            <!-- OPÇÃO ADICIONADA AQUI COM SEGURANÇA -->
             <div class="flex-row">
+                <div style="flex: 1;">
+                    <label style="font-weight: bold; font-size: 13px;">Categoria na Loja:</label>
+                    <select id="categoria-item">
+                        <option value="skins">👕 Roupa / Personagem</option>
+                        <option value="armas">🔫 Arma</option>
+                        <option value="gelo">❄️ Skin de Gelo</option>
+                    </select>
+                </div>
                 <div style="flex: 1;">
                     <label style="font-weight: bold; font-size: 13px;">Comportamento no Jogo:</label>
                     <select id="comportamento-skin">
@@ -350,6 +359,7 @@
             const precoOuro = parseInt(document.getElementById('preco-ouro').value) || 0;
             const precoDima = parseInt(document.getElementById('preco-dima').value) || 0;
             const comportamentoSkin = document.getElementById('comportamento-skin').value;
+            const categoriaItem = document.getElementById('categoria-item').value; // CAPTURA DA CATEGORIA ESCOLHIDA
 
             if(!token || !owner || !repo) return alert("Configure as credenciais!");
             if(!zipInput) return alert("Selecione o arquivo!");
@@ -397,7 +407,7 @@
                 }
 
                 const skinConfigCompleta = { 
-                    tipo: 'skins', 
+                    tipo: categoriaItem, // AGORA O SISTEMA SALVA SE É ROUPA, ARMA OU GELO
                     id: itemID, 
                     name: itemNome, 
                     price: precoOuro, 
