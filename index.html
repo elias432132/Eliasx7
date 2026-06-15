@@ -366,7 +366,6 @@ document.addEventListener('click', (e) => {
 });
 // ==========================================
 
-
 const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
 somTiroEfeito.volume = 0.4;
 
@@ -1081,7 +1080,7 @@ function getGeloImage(skinId) {
     if (!skinId || skinId === 'gelo_padrao') return null;
     if (!geloSprites[skinId]) {
         const img = new Image();
-        img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${skinId}.png`;
+        img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${skinId}.x1.png`; // 🔥 CORREÇÃO
         geloSprites[skinId] = img;
     }
     return geloSprites[skinId];
