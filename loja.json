@@ -31,6 +31,22 @@
         "morrendo": "1-5",
         "fps": 12
       }
+    },
+    {
+      "id": "criminalwhite",
+      "name": "Top-Criminal 2.0",
+      "price": 250000,
+      "priceD": 599,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "1-6",
+        "andando": "7-12",
+        "pulando": "13-18",
+        "atirando": "19-24",
+        "ataque": "19-24",
+        "morrendo": "25-30",
+        "fps": 12
+      }
     }
   ],
   "weapons": [],
