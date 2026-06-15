@@ -15,12 +15,7 @@ const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } 
 
 // --- CONFIGURAÇÕES ---
 const MERCADOPG_TOKEN = process.env.MERCADOPG_TOKEN;
-
-// 🔐 SENHA DO PAINEL ADMIN
-// Defina a variável de ambiente ADMIN_SECRET no Render para proteger seu painel!
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'nexusmaster';
-
-// --- PERSISTÊNCIA EM ARQUIVO (Loja não some mais ao reiniciar) ---
 const LOJA_FILE = path.join(__dirname, 'loja_data.json');
 
 function carregarLoja() {
@@ -35,7 +30,8 @@ function carregarLoja() {
     } catch (e) {
         console.error('Erro ao carregar loja:', e.message);
     }
-    return { skins: [], weapons: [] };
+    // 🔥 CORREÇÃO: Adicionado o "ice" na memória inicial do servidor
+    return { skins: [], weapons: [], ice: [] };
 }
 
 function salvarLoja() {
@@ -46,20 +42,18 @@ function salvarLoja() {
     }
 }
 
-// --- ESTADO DO SERVIDOR ---
 let codigosValidos = {};
 let filas = { solo: [], duo: [], squad: [] };
 let lojaDinamica = carregarLoja();
 let jogadoresGlobais = {};
 
-// Carrega loja do GitHub automaticamente ao iniciar se estiver vazia
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'elias432132';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'Eliasx7';
 
 async function carregarLojaDoGitHub() {
     if (!GITHUB_TOKEN) return;
-    if (lojaDinamica.skins.length > 0) return; // já tem skins, não precisa
+    if (lojaDinamica.skins.length > 0) return; 
     try {
         const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/loja.json`;
         const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` } });
@@ -74,10 +68,8 @@ async function carregarLojaDoGitHub() {
     }
 }
 
-// Executa após 3 segundos para dar tempo do servidor iniciar
 setTimeout(carregarLojaDoGitHub, 3000);
 
-// --- MIDDLEWARE DE AUTENTICAÇÃO DO PAINEL ---
 function verificarAdmin(req, res, next) {
     const senhaRecebida = req.headers['x-admin-secret'] || req.body?.adminSecret;
     if (senhaRecebida !== ADMIN_SECRET) {
@@ -86,7 +78,6 @@ function verificarAdmin(req, res, next) {
     next();
 }
 
-// --- SOCKET.IO ---
 io.on('connection', (socket) => {
     socket.emit('atualizar_loja_dinamica', lojaDinamica);
 
@@ -144,8 +135,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- ROTAS ADMIN (protegidas por senha) ---
-
 app.get('/admin/jogadores', verificarAdmin, (req, res) => {
     res.json({ sucesso: true, lista: Object.values(jogadoresGlobais) });
 });
@@ -179,22 +168,25 @@ app.post('/admin/banir', verificarAdmin, (req, res) => {
     res.json({ sucesso: true });
 });
 
+// 🔥 CORREÇÃO PRINCIPAL: Aceitar Gelo e Armas
 app.post('/admin/add-loja', verificarAdmin, (req, res) => {
-    const { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
-    console.log('add-loja recebido:', { tipo, id, name, comportamento });
+    let { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
 
-    if (tipo !== 'skins' && tipo !== 'weapons') {
-        return res.status(400).json({ sucesso: false, erro: 'Tipo inválido. Use skins ou weapons.' });
-    }
-    if (comportamento === 'replace_default') {
-        return res.status(400).json({ sucesso: false, erro: 'Comportamento replace_default não é permitido.' });
+    // Traduz o que o Painel enviou para o que o Servidor entende
+    if (tipo === 'armas') tipo = 'weapons';
+    if (tipo === 'gelo') tipo = 'ice';
+
+    if (tipo !== 'skins' && tipo !== 'weapons' && tipo !== 'ice') {
+        return res.status(400).json({ sucesso: false, erro: 'Tipo inválido. Use skins, weapons ou ice.' });
     }
     if (!id || !name) {
         return res.status(400).json({ sucesso: false, erro: 'ID e nome são obrigatórios.' });
     }
 
+    if (!lojaDinamica[tipo]) lojaDinamica[tipo] = [];
+
     lojaDinamica[tipo] = lojaDinamica[tipo].filter(item => item.id !== id);
-    lojaDinamica[tipo].push({ id, name, price: price || 0, priceD: priceD || 0, comportamento: 'custom_isolated', config_frames });
+    lojaDinamica[tipo].push({ id, name, price: price || 0, priceD: priceD || 0, comportamento: comportamento || 'custom_isolated', config_frames });
 
     salvarLoja();
     io.emit('atualizar_loja_dinamica', lojaDinamica);
@@ -202,20 +194,23 @@ app.post('/admin/add-loja', verificarAdmin, (req, res) => {
 });
 
 app.get('/admin/loja', verificarAdmin, (req, res) => {
-    res.json({ sucesso: true, itens: lojaDinamica.skins.concat(lojaDinamica.weapons) });
+    let itens = [];
+    if(lojaDinamica.skins) itens = itens.concat(lojaDinamica.skins);
+    if(lojaDinamica.weapons) itens = itens.concat(lojaDinamica.weapons);
+    if(lojaDinamica.ice) itens = itens.concat(lojaDinamica.ice);
+    res.json({ sucesso: true, itens: itens });
 });
 
 app.post('/admin/remover-loja', verificarAdmin, (req, res) => {
     const { id } = req.body;
     if (!id) return res.status(400).json({ sucesso: false, erro: 'ID inválido.' });
-    lojaDinamica.skins = lojaDinamica.skins.filter(item => item.id !== id);
-    lojaDinamica.weapons = lojaDinamica.weapons.filter(item => item.id !== id);
+    if (lojaDinamica.skins) lojaDinamica.skins = lojaDinamica.skins.filter(item => item.id !== id);
+    if (lojaDinamica.weapons) lojaDinamica.weapons = lojaDinamica.weapons.filter(item => item.id !== id);
+    if (lojaDinamica.ice) lojaDinamica.ice = lojaDinamica.ice.filter(item => item.id !== id);
     salvarLoja();
     io.emit('atualizar_loja_dinamica', lojaDinamica);
     res.json({ sucesso: true });
 });
-
-// --- ROTAS DO JOGO ---
 
 app.post('/jogo/resgatar-codigo', (req, res) => {
     const { codigo } = req.body;
@@ -229,12 +224,7 @@ app.post('/jogo/resgatar-codigo', (req, res) => {
     }
 });
 
-// ==========================================
-// 💸 SISTEMA DE PAGAMENTO BLINDADO - MERCADO PAGO
-// ==========================================
-
 app.post('/gerar-pix', async (req, res) => {
-    // 1. Recebe APENAS a quantidade de diamantes e quem está comprando
     const { diamantes, nome, Nick, cpfCnpj, email } = req.body;
     const nomeComprador = nome || Nick || 'Sobrevivente';
     const qtdDiamantes = parseInt(diamantes);
@@ -243,8 +233,6 @@ app.post('/gerar-pix', async (req, res) => {
         return res.status(400).json({ sucesso: false, erro: 'Mínimo de 250 diamantes.' });
     }
 
-    // 2. O SERVIDOR CALCULA O PREÇO (Segurança Máxima contra hackers)
-    // Se 1 Dima custa R$ 0,02, o servidor faz a matemática:
     const valorRealCobrado = Number((qtdDiamantes * 0.02).toFixed(2));
 
     try {
@@ -260,7 +248,6 @@ app.post('/gerar-pix', async (req, res) => {
                 first_name: nomeComprador,
                 identification: { type: 'CPF', number: cpfGenerico }
             },
-            // A JOGADA DE MESTRE: Mandamos o Nick do jogador e a QTD de Dimas escondidos para o Banco
             external_reference: `${Nick}||${qtdDiamantes}` 
         };
 
@@ -284,37 +271,27 @@ app.post('/gerar-pix', async (req, res) => {
     }
 });
 
-// ==========================================
-// 📡 WEBHOOK: O Banco avisa o Servidor que o Pix foi pago!
-// ==========================================
-
 app.post('/notificacao-pagamento', async (req, res) => {
-    // O Mercado Pago exige que a gente responda "200 OK" imediatamente
     res.sendStatus(200); 
 
     const { action, type, data } = req.body;
     
-    // Se a notificação for de uma atualização de pagamento
     if (action === 'payment.updated' || type === 'payment') {
         try {
             const paymentId = data.id;
             
-            // Pergunta ao Mercado Pago o status oficial dessa cobrança
             const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
                 headers: { 'Authorization': `Bearer ${MERCADOPG_TOKEN}` }
             });
             
             const pagamento = mpRes.data;
             
-            // Se o status for "approved" (Pago com sucesso)
             if (pagamento.status === 'approved' && pagamento.external_reference) {
-                // Recupera os dados que escondemos lá no /gerar-pix
                 const [nickJogador, qtdDiamantesString] = pagamento.external_reference.split('||');
                 const dimasComprados = parseInt(qtdDiamantesString);
 
                 console.log(`🤑 PIX APROVADO! Enviando ${dimasComprados} Dimas para ${nickJogador}`);
 
-                // Procura na lista de Sockets qual ID pertence a esse Nick
                 let socketIdDoPagador = null;
                 for (const [idSocket, infoJogador] of Object.entries(jogadoresGlobais)) {
                     if (infoJogador.nick === nickJogador) {
@@ -323,7 +300,6 @@ app.post('/notificacao-pagamento', async (req, res) => {
                     }
                 }
 
-                // Se o cara ainda estiver com o jogo aberto, manda os dimas direto pra tela dele!
                 if (socketIdDoPagador) {
                     io.to(socketIdDoPagador).emit('pix_confirmado_automatico', { 
                         diamantesGanhos: dimasComprados 
@@ -337,10 +313,9 @@ app.post('/notificacao-pagamento', async (req, res) => {
 });
 
 app.get('/status', (req, res) => {
-    res.json({ status: 'online', skins: lojaDinamica.skins.length, weapons: lojaDinamica.weapons.length });
+    res.json({ status: 'online', skins: (lojaDinamica.skins || []).length, weapons: (lojaDinamica.weapons || []).length });
 });
 
-// Carrega loja do GitHub (chamado pelo painel após deploy)
 app.post('/proxy/carregar-loja-github', verificarAdmin, async (req, res) => {
     const { token, owner, repo } = req.body;
     try {
@@ -360,7 +335,6 @@ app.post('/proxy/carregar-loja-github', verificarAdmin, async (req, res) => {
     }
 });
 
-// Proxy de upload para o GitHub — evita bloqueio de CORS no navegador
 app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
     const { token, owner, repo, path: filePath, content, sha } = req.body;
     if (!token || !owner || !repo || !filePath || !content) {
@@ -380,7 +354,6 @@ app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
     }
 });
 
-// Proxy para salvar loja.json no GitHub (loja permanente)
 app.post('/proxy/salvar-loja-github', verificarAdmin, async (req, res) => {
     const { token, owner, repo } = req.body;
     if (!token || !owner || !repo) {
@@ -406,8 +379,6 @@ app.post('/proxy/salvar-loja-github', verificarAdmin, async (req, res) => {
     }
 });
 
-
-// Proxy para verificar SHA do arquivo no GitHub
 app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
     const { token, owner, repo, path: filePath } = req.body;
     try {
@@ -421,10 +392,8 @@ app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
     }
 });
 
-// Serve arquivos estáticos da raiz
 app.use(express.static(path.join(__dirname)));
 
-// Serve o painel direto pelo servidor
 app.get('/painel', (req, res) => {
     res.sendFile(path.join(__dirname, 'Painel.html'));
 });
