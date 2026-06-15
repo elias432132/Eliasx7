@@ -30,7 +30,6 @@ function carregarLoja() {
     } catch (e) {
         console.error('Erro ao carregar loja:', e.message);
     }
-    // 🔥 CORREÇÃO: Adicionado o "ice" na memória inicial do servidor
     return { skins: [], weapons: [], ice: [] };
 }
 
@@ -96,10 +95,7 @@ io.on('connection', (socket) => {
         io.emit('aviso_painel_admin', { id: socket.id, nick: nick, msg: texto });
     });
 
-    socket.on('resposta_do_dono', (dados) => {
-        io.to(dados.idDestino).emit('nova_mensagem_sistema', { msg: `👑 PROMOTOR RESPONDEU: ${dados.msg}` });
-    });
-
+    // SISTEMA DE FILA CORRIGIDO (30 segundos) COM CRIAÇÃO DE SALA
     socket.on('buscar_partida', (dados) => {
         const modo = dados.modo;
         if (!filas[modo]) return;
@@ -111,7 +107,13 @@ io.on('connection', (socket) => {
             const salaId = 'SALA_REAL_' + Date.now();
             const timeA = jogadoresSala.slice(0, maxPlayers / 2).map(p => p.id);
             const timeB = jogadoresSala.slice(maxPlayers / 2).map(p => p.id);
-            jogadoresSala.forEach(p => io.to(p.id).emit('partida_encontrada', { sala: salaId, modo, timeA, timeB }));
+            
+            // Coloca a dupla/squad dentro da mesma Sala Privada no Servidor
+            jogadoresSala.forEach(p => {
+                const clientSocket = io.sockets.sockets.get(p.id);
+                if (clientSocket) clientSocket.join(salaId);
+                io.to(p.id).emit('partida_encontrada', { sala: salaId, modo, timeA, timeB });
+            });
         } else {
             setTimeout(() => {
                 const index = filas[modo].findIndex(p => p.id === socket.id);
@@ -119,12 +121,29 @@ io.on('connection', (socket) => {
                     const p = filas[modo].splice(index, 1)[0];
                     io.to(p.id).emit('partida_encontrada', { sala: 'SALA_BOTS_' + Date.now(), modo, timeA: [p.id], timeB: [] });
                 }
-            }, 10000);
+            }, 30000); 
         }
     });
 
     socket.on('cancelar_busca', () => {
         ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id));
+    });
+
+    // 🔥 NOVAS FUNÇÕES MULTIPLAYER (MOVIMENTO E TIRO) 🔥
+    socket.on('atualizar_movimento', (dados) => {
+        socket.to(dados.sala).emit('movimento_inimigo', { id: socket.id, ...dados });
+    });
+
+    socket.on('atirar', (dados) => {
+        socket.to(dados.sala).emit('tiro_inimigo', { id: socket.id, ...dados });
+    });
+
+    socket.on('colocar_gelo', (dados) => {
+        socket.to(dados.sala).emit('gelo_inimigo', { id: socket.id, ...dados });
+    });
+
+    socket.on('sair_sala', (sala) => {
+        socket.leave(sala);
     });
 
     socket.on('enviar_mensagem', (msg) => { io.emit('nova_mensagem', msg); });
@@ -168,16 +187,14 @@ app.post('/admin/banir', verificarAdmin, (req, res) => {
     res.json({ sucesso: true });
 });
 
-// 🔥 CORREÇÃO PRINCIPAL: Aceitar Gelo e Armas
 app.post('/admin/add-loja', verificarAdmin, (req, res) => {
     let { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
 
-    // Traduz o que o Painel enviou para o que o Servidor entende
     if (tipo === 'armas') tipo = 'weapons';
     if (tipo === 'gelo') tipo = 'ice';
 
     if (tipo !== 'skins' && tipo !== 'weapons' && tipo !== 'ice') {
-        return res.status(400).json({ sucesso: false, erro: 'Tipo inválido. Use skins, weapons ou ice.' });
+        return res.status(400).json({ sucesso: false, erro: 'Tipo inválido.' });
     }
     if (!id || !name) {
         return res.status(400).json({ sucesso: false, erro: 'ID e nome são obrigatórios.' });
@@ -289,8 +306,6 @@ app.post('/notificacao-pagamento', async (req, res) => {
             if (pagamento.status === 'approved' && pagamento.external_reference) {
                 const [nickJogador, qtdDiamantesString] = pagamento.external_reference.split('||');
                 const dimasComprados = parseInt(qtdDiamantesString);
-
-                console.log(`🤑 PIX APROVADO! Enviando ${dimasComprados} Dimas para ${nickJogador}`);
 
                 let socketIdDoPagador = null;
                 for (const [idSocket, infoJogador] of Object.entries(jogadoresGlobais)) {
