@@ -27,23 +27,20 @@
         .btn-sub { background: #34495e; color: white; border: 3px solid #2c3e50; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #1a252f; margin: 4px; }
         .btn-danger { background: #c0392b !important; border-color: #962d22 !important; box-shadow: 0 4px #6d2018 !important; }
         
-        .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; max-width: 650px; }
-        
-        .logo-jogo-neon { color: #fff; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #fff, 0 0 10px #00ecff, 0 0 20px #00ecff, 0 0 40px #00ecff; margin: 0 0 5px 0; animation: pulsaGlow 2s infinite ease-in-out; }
+        .glass-panel { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(0, 236, 255, 0.3); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
+        .btn-icon { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; font-size: 18px; width: 45px; height: 45px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-icon:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.2); }
+        .btn-glass { background: rgba(20, 30, 48, 0.8); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px 20px; font-weight: bold; font-size: 13px; border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+        .btn-glass:active { transform: scale(0.95); background: rgba(40, 60, 80, 0.9); }
+        .btn-play-giant { background: linear-gradient(135deg, #e67e22, #d35400); color: white; border: 3px solid #f1c40f; padding: 20px 50px; font-size: 26px; font-weight: 900; border-radius: 15px; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 20px rgba(230, 126, 34, 0.6); animation: pulsePlay 1.5s infinite; transition: 0.2s; letter-spacing: 2px; }
+        .btn-play-giant:active { transform: scale(0.95); }
+        @keyframes pulsePlay { 0% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 126, 34, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(230, 126, 34, 0.9); } 100% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 126, 34, 0.6); } }
+
+        .logo-jogo-neon { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0; animation: pulsaGlow 2s infinite ease-in-out; }
         @keyframes pulsaGlow { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
 
-        .currency-display { font-size: 15px; color: #f1c40f; font-weight: bold; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-        .currency-display span { background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; }
         .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; background: rgba(0,0,0,0.5); }
-        
-        @keyframes chromaShift {
-            0% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
-            20% { background: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
-            40% { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
-            60% { background: #3498db; box-shadow: 0 0 10px #3498db; }
-            80% { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; }
-            100% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; }
-        }
+        @keyframes chromaShift { 0% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; } 20% { background: #f1c40f; box-shadow: 0 0 10px #f1c40f; } 40% { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; } 60% { background: #3498db; box-shadow: 0 0 10px #3498db; } 80% { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; } 100% { background: #ff3f34; box-shadow: 0 0 10px #ff3f34; } }
         .badge-vip-html { display: inline-flex; align-items: center; justify-content: center; color: #fff !important; font-weight: 900; font-family: sans-serif; font-size: 12px; width: 19px; height: 19px; border-radius: 50%; margin-right: 6px; border: 2px solid #fff; vertical-align: middle; animation: chromaShift 1.5s linear infinite; }
         
         @keyframes popVip { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
@@ -81,13 +78,6 @@
         #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 12px; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-
-        .lobby-chat-lateral { width: 260px; height: 85%; background: rgba(20, 27, 38, 0.85); border: 2px solid #34495e; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        .lobby-chat-header { background: #1f2833; padding: 8px; font-size: 12px; font-weight: bold; text-align: center; color: #3498db; border-bottom: 1px solid #34495e; }
-        .lobby-chat-box { flex-grow: 1; padding: 8px; overflow-y: auto; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
-        .lobby-chat-input-row { display: flex; border-top: 1px solid #34495e; background: #111; }
-        .lobby-chat-input-row input { flex-grow: 1; background: transparent; border: none; padding: 8px; color: #fff; font-size: 12px; }
-        .lobby-chat-input-row button { background: #3498db; border: none; color: white; padding: 0 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -103,7 +93,7 @@
 
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
-        <div class="logo-jogo-neon">NEXUS STRIKE</div>
+        <div class="logo-jogo-neon" style="font-size: 32px;">NEXUS STRIKE</div>
         <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
         <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
         <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
@@ -116,41 +106,44 @@
     </div>
 </div>
 
-<div id="start-menu" class="fullscreen-menu hidden" style="flex-direction: row; justify-content: center; align-items: center; gap: 30px; padding: 20px;">
-    
-    <div class="lobby-chat-lateral">
-        <div class="lobby-chat-header">💬 CHAT GLOBAL ONLINE</div>
-        <div class="lobby-chat-box" id="lobby-chat-mensagens-box"></div>
-        <div class="lobby-chat-input-row">
-            <input type="text" id="input-chat-lobby" placeholder="Escreva para o servidor..." onkeydown="if(event.key === 'Enter') enviarMensagemLobby()">
-            <button onclick="enviarMensagemLobby()">Mandar</button>
+<div id="start-menu" class="fullscreen-menu hidden" style="background: url('https://raw.githubusercontent.com/elias432132/Eliasx7/main/mapas/fundo5.png') center/cover no-repeat; padding: 15px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%); z-index: 0;"></div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; z-index: 1;">
+        <div class="glass-panel" style="padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 180px;">
+            <div id="player-welcome" style="color:#2ecc71; font-weight:900; font-size:16px; margin:0; text-shadow: 1px 1px 2px #000;"></div>
+            <div style="display: flex; gap: 10px; font-weight: bold; font-size: 14px;">
+                <span style="background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 5px; border: 1px solid rgba(241,196,15,0.5); color: #f1c40f; box-shadow: 0 0 5px rgba(241,196,15,0.3);">🪙 <span id="menu-gold">0</span></span>
+                <span style="background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 5px; border: 1px solid rgba(52,152,219,0.5); color: #3498db; box-shadow: 0 0 5px rgba(52,152,219,0.3);">💎 <span id="menu-frags">0</span></span>
+            </div>
+            <div id="badge-patente-menu" class="badge-patente" style="text-align: center; margin-top: 2px;">🏆 BRONZE ⭐1</div>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; max-width: 180px; justify-content: flex-end;">
+            <button class="btn-icon" onclick="verificarAtualizacaoDoJogo()" title="Atualizar">🔄<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; border-radius:50%; width:12px; height:12px;"></span></button>
+            <button class="btn-icon" onclick="abrirMenu('upgrade-menu')" title="Atributos">⚙️</button>
+            <button class="btn-icon" onclick="entrarModoEdicaoHUD('lobby')" title="HUD">🎛️</button>
+            <button class="btn-icon" onclick="abrirMenu('saveload-menu')" title="Recuperar Conta">💾</button>
+            <button class="btn-icon" style="border-color: rgba(231,76,60,0.5); color: #e74c3c; background: rgba(231,76,60,0.1);" onclick="fazerLogout()" title="Sair do Jogo">🚪</button>
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; max-width: 650px;">
-        <button class="btn-sub" id="btn-atualizar" onclick="verificarAtualizacaoDoJogo()" style="position:absolute; top:10px; right:10px; font-size:11px; background:#27ae60; border-color:#1e8449;">🔄 ATUALIZAR<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:16px; height:16px; font-size:10px; line-height:16px; text-align:center;">!</span></button>
-        
-        <div class="logo-jogo-neon" style="font-size: 26px;">NEXUS STRIKE <span style="color:#f1c40f;font-size:16px;">ONLINE</span></div>
-        <p id="player-welcome" style="color:#2ecc71;font-weight:bold;margin:-5px 0 8px 0;font-size:15px; display:flex; align-items:center; justify-content:center;"></p>
-        
-        <div class="currency-display">
-            <span>🪙 <span id="menu-gold">0</span></span>
-            <span>💎 <span id="menu-frags">0</span></span>
-            <span id="badge-patente-menu" class="badge-patente">🏆 🟫 BRONZE ⭐1</span>
+    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; z-index: 1;">
+        <div class="logo-jogo-neon" style="font-size: 55px; text-shadow: 0 0 20px #00ecff, 0 0 40px #00ecff, 0 0 60px #00ecff;">NEXUS STRIKE</div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; z-index: 1;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-glass" onclick="abrirMenu('shop-menu')">🛒 LOJA DO JOGO</button>
+            <button class="btn-glass" onclick="abrirMenu('resgatar-codigo-menu')">🎁 RESGATAR CÓDIGO</button>
+            <button class="btn-glass" style="border-color: rgba(241,196,15,0.5); color: #f1c40f;" onclick="resgatarPremioSemanalVip()">💎 VIP SEMANAL</button>
+            <button class="btn-glass" onclick="abrirMenu('chat-global-menu')">💬 CHAT GLOBAL</button>
+            <button class="btn-glass" style="border-color: rgba(231,76,60,0.5); color: #ff6b6b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
         </div>
-        
-        <div class="menu-buttons">
-            <button class="btn-main" style="font-size:18px;padding:14px 30px;" onclick="abrirServidores()">⚔️ JOGAR (CONTRA SQUAD)</button>
-            <button class="btn-sub" onclick="abrirMenu('shop-menu')">🛒 LOJA</button>
-            <button class="btn-sub" id="btn-toggle-control" onclick="mudarTipoControle()" style="color:#f1c40f; border-color:#f39c12;">🎮 CONTROLE: <span id="label-controle-menu">BOTÕES</span></button>
-            <button class="btn-sub" onclick="entrarModoEdicaoHUD('lobby')" style="color:#f1c40f; border-color:#f39c12;">🎛️ HUD</button>
-            <button class="btn-sub" style="color:#2ecc71; border-color:#27ae60;" onclick="abrirMenu('resgatar-codigo-menu')">🎁 CÓDIGO</button>
-            <button class="btn-sub" style="color:#9b59b6;border-color:#8e44ad;" onclick="abrirMenu('chat-global-menu')">💬 EXPANDIR CHAT</button>
-            <button class="btn-sub" style="color:#e74c3c;border-color:#c0392b;" onclick="falarComDono()">👑 FALE COM O DONO</button>
-            <button class="btn-sub" onclick="abrirMenu('upgrade-menu')">⚙️ ATRIBUTOS</button>
-            <button class="btn-sub" style="color:#3498db;" onclick="abrirMenu('saveload-menu')">💾 RECUPERAR</button>
-            <button class="btn-sub" id="btn-recompensa-semanal" style="color:#f1c40f; background: rgba(241,196,15,0.1); border-color:#f1c40f;" onclick="resgatarPremioSemanalVip()">💎 RECOMPENSA SEMANAL</button>
-            <button class="btn-sub btn-danger" onclick="fazerLogout()">🚪 SAIR</button>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 15px;">
+            <span style="color: #fff; font-size: 13px; font-weight: bold; text-shadow: 1px 1px 2px #000; background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 20px; border: 1px solid #555;">🎮 CONTROLE: <span id="label-controle-menu" style="color:#f1c40f; cursor:pointer;" onclick="mudarTipoControle()">BOTÕES</span></span>
+            <button class="btn-play-giant" onclick="abrirServidores()">⚔️ JOGAR</button>
         </div>
     </div>
 </div>
@@ -269,7 +262,7 @@
 
 <script>
 // ==========================================
-// 🔊 SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API)
+// 🔊 SISTEMA DE ÁUDIO SINTETIZADO
 // ==========================================
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
@@ -284,90 +277,29 @@ function playSound(type) {
 
     switch(type) {
         case 'click':
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, now);
-            osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(now);
-            osc.stop(now + 0.1);
-            break;
+            osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.05); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
         case 'jump':
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.exponentialRampToValueAtTime(350, now + 0.2);
-            gainNode.gain.setValueAtTime(0.05, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-            osc.start(now);
-            osc.stop(now + 0.2);
-            break;
+            osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(350, now + 0.2); gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
         case 'shoot':
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(now);
-            osc.stop(now + 0.1);
-            break;
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
         case 'hit': 
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(100, now);
-            osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
-            gainNode.gain.setValueAtTime(0.2, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-            osc.start(now);
-            osc.stop(now + 0.15);
-            break;
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.15); gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); osc.start(now); osc.stop(now + 0.15); break;
         case 'skill':
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(300, now);
-            osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
-            osc.start(now);
-            osc.stop(now + 0.3);
-            break;
+            osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(800, now + 0.3); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); break;
         case 'gelo':
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1200, now);
-            osc.frequency.exponentialRampToValueAtTime(2000, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(now);
-            osc.stop(now + 0.1);
-            break;
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(2000, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
         case 'buy': 
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, now);
-            osc.frequency.setValueAtTime(1200, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
-            osc.start(now);
-            osc.stop(now + 0.2);
-            break;
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(1200, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
         case 'error':
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
-            osc.start(now);
-            osc.stop(now + 0.2);
-            break;
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.2); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
     }
 }
 
-// Intercepta todos os cliques para botões
 document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SPAN' && e.target.onclick || e.target.classList.contains('server-bar')) {
-        playSound('click');
-    }
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SPAN' && e.target.onclick || e.target.classList.contains('server-bar') || e.target.classList.contains('btn-icon')) { playSound('click'); }
 });
-// ==========================================
 
-const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg');
-somTiroEfeito.volume = 0.4;
+const somTiroEfeito = new Audio('https://actions.google.com/sounds/v1/weapons/gun_shot.ogg'); somTiroEfeito.volume = 0.4;
 
 const URL_SERVIDOR = "https://eliasx7.onrender.com";
 let socket = null;
@@ -375,177 +307,120 @@ let socket = null;
 let dbUsuarios = JSON.parse(localStorage.getItem('ff2d_users_db')) || {};
 let meuEmail = localStorage.getItem('ff2d_current_user') || null;
 let meuPerfil = null; let currentShopTab = 'skins'; let meuTime = 'A'; 
+let salaAtual = ""; 
 
 let baseSkins = [{ id: 'padrao', name: '👕 Padrão', price: 0 }, { id: 'dourado', name: '🌟 Lendário', price: 800 }];
-let baseWeapons = [
-    { id: 'pistola', name: '🔫 Pistola', price: 0 }, 
-    { id: 'mp40', name: '🔫 MP40', price: 500 },
-    { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }
-];
-let baseIce = [
-    { id: 'gelo_padrao', name: '❄️ Gelo Padrão', price: 0 }
-];
+let baseWeapons = [{ id: 'pistola', name: '🔫 Pistola', price: 0 }, { id: 'mp40', name: '🔫 MP40', price: 500 }, { id: 'ump', name: '🔫 UMP', price: 1500, priceD: 200 }];
+let baseIce = [{ id: 'gelo_padrao', name: '❄️ Gelo Padrão', price: 0 }];
 
-let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || [];
-let skinsDB = [...baseSkins];
-_cachedShopSkins.forEach(nova => { 
-    if (nova.comportamento === 'replace_default') return;
-    if (!skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); 
-});
-
-let _cachedShopWeapons = JSON.parse(localStorage.getItem('ff2d_cache_loja_weapons')) || [];
-let weaponsDB = [...baseWeapons];
-_cachedShopWeapons.forEach(nova => {
-    if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova);
-});
-
-let _cachedShopIce = JSON.parse(localStorage.getItem('ff2d_cache_loja_ice')) || [];
-let iceDB = [...baseIce];
-_cachedShopIce.forEach(nova => {
-    if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova);
-});
+let _cachedShopSkins = JSON.parse(localStorage.getItem('ff2d_cache_loja_skins')) || []; let skinsDB = [...baseSkins]; _cachedShopSkins.forEach(nova => { if (nova.comportamento !== 'replace_default' && !skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); });
+let _cachedShopWeapons = JSON.parse(localStorage.getItem('ff2d_cache_loja_weapons')) || []; let weaponsDB = [...baseWeapons]; _cachedShopWeapons.forEach(nova => { if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova); });
+let _cachedShopIce = JSON.parse(localStorage.getItem('ff2d_cache_loja_ice')) || []; let iceDB = [...baseIce]; _cachedShopIce.forEach(nova => { if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova); });
 
 window.onload = function() { iniciarSistema(); };
 
 async function iniciarSistema() {
     try {
         const resposta = await fetch(`${URL_SERVIDOR}/status`);
-        if(resposta.ok) {
-            document.getElementById('login-msg').innerText = "";
-            if (!meuEmail) document.getElementById('login-screen').classList.remove('hidden'); 
-            else carregarLobby();
-            conectarSocket();
-        }
-    } catch(e) {
-        document.getElementById('login-msg').innerText = "Servidor acordando (O Render pode levar 1 minuto)...";
-        setTimeout(iniciarSistema, 4000);
-    }
+        if(resposta.ok) { document.getElementById('login-msg').innerText = ""; if (!meuEmail) document.getElementById('login-screen').classList.remove('hidden'); else carregarLobby(); conectarSocket(); }
+    } catch(e) { document.getElementById('login-msg').innerText = "Servidor acordando..."; setTimeout(iniciarSistema, 4000); }
 }
 
-function vincularJogadorAoServidor() {
-    if (meuPerfil && meuPerfil.email && socket && socket.connected) {
-        socket.emit('registrar_jogador', { email: meuPerfil.email });
-        socket.emit('registrar_nick', meuPerfil.nickOriginal);
-    }
-}
-
+function vincularJogadorAoServidor() { if (meuPerfil && meuPerfil.email && socket && socket.connected) { socket.emit('registrar_jogador', { email: meuPerfil.email }); socket.emit('registrar_nick', meuPerfil.nickOriginal); } }
 function fecharModalVip() { document.getElementById('modal-vip-lindo').classList.add('hidden'); }
 
 function conectarSocket() {
     try {
         socket = io(URL_SERVIDOR, { reconnection: true, reconnectionAttempts: 5, timeout: 5000 });
         
-        socket.on('connect', () => { 
-            vincularJogadorAoServidor(); 
-            socket.emit('pedir_loja_atualizada'); 
-        });
-
-        socket.on('historico_chat', (msgs) => { 
-            document.getElementById('chat-mensagens').innerHTML = ''; 
-            document.getElementById('lobby-chat-mensagens-box').innerHTML = '';
-            msgs.forEach(m => adicionarMensagemChat(m)); 
-        });
-        
+        socket.on('connect', () => { vincularJogadorAoServidor(); socket.emit('pedir_loja_atualizada'); });
+        socket.on('historico_chat', (msgs) => { document.getElementById('chat-mensagens').innerHTML = ''; msgs.forEach(m => adicionarMensagemChat(m)); });
         socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
         
         socket.on('partida_encontrada', (dados) => {
+            salaAtual = dados.sala;
             if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
             else { meuTime = 'B'; player.x = canvas.width - 100; player.facing = -1; }
             
             clearInterval(intervaloBusca);
-            let contagem = 3;
-            let elTimer = document.getElementById('match-timer');
-            let elTitulo = elTimer.previousElementSibling; 
+            let contagem = 3; let elTimer = document.getElementById('match-timer'); let elTitulo = elTimer.previousElementSibling; 
             
             if(elTitulo) elTitulo.innerText = "PARTIDA ENCONTRADA!";
-            elTimer.style.fontSize = "48px";
-            elTimer.style.color = "#2ecc71";
-            elTimer.innerText = contagem;
+            elTimer.style.fontSize = "48px"; elTimer.style.color = "#2ecc71"; elTimer.innerText = contagem;
             playSound('buy'); 
             
             let idContagem = setInterval(() => {
                 contagem--;
                 if(contagem <= 0) {
-                    clearInterval(idContagem);
-                    elTimer.style.fontSize = "";
-                    elTimer.style.color = "";
-                    if(elTitulo) elTitulo.innerText = "PROCURANDO...";
-                    iniciarArena(dados.sala, dados.modo);
+                    clearInterval(idContagem); elTimer.style.fontSize = ""; elTimer.style.color = "";
+                    if(elTitulo) elTitulo.innerText = "PROCURANDO..."; iniciarArena(dados.sala, dados.modo);
                 } else { elTimer.innerText = contagem; playSound('click');}
             }, 1000);
         }); 
 
+        // 🔥 O JOGO AGORA LÊ OS MOVIMENTOS DO SEU AMIGO DA REDE 🔥
+        socket.on('movimento_inimigo', (dados) => {
+            let inimigo = botsAtivos.find(b => b.id === dados.id);
+            if (!inimigo) {
+                botsAtivos.push({
+                    id: dados.id, isNetwork: true, x: dados.x, y: dados.y, hp: dados.hp,
+                    facing: dados.facing, state: dados.state, frameAtual: dados.frame,
+                    nick: dados.nick, isVIP: dados.isVIP, skinId: dados.skinId, time: dados.time
+                });
+            } else {
+                inimigo.x = dados.x; inimigo.y = dados.y; inimigo.facing = dados.facing;
+                inimigo.state = dados.state; inimigo.frameAtual = dados.frame; inimigo.hp = dados.hp;
+            }
+        });
+
+        socket.on('tiro_inimigo', (dados) => {
+            bullets.push({x: dados.x, y: dados.y, vx: dados.vx, owner: dados.id});
+            somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e=>{});
+        });
+
+        socket.on('gelo_inimigo', (dados) => {
+            obstaculosPartida.push({ x: dados.x, w: dados.w, h: dados.h, isGelo: true, hp: 150, skinId: dados.skinId });
+            playSound('gelo');
+        });
+
         socket.on('pix_confirmado_automatico', (dados) => {
             if (meuPerfil) {
                 meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + parseInt(dados.diamantesGanhos);
-                dbUsuarios[meuEmail].dimas = meuPerfil.dimas;
-                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-                atualizarLobby(); document.getElementById('tela-pix-gerado').style.display = "none"; fecharMenu('shop-menu');
-                playSound('buy');
+                dbUsuarios[meuEmail].dimas = meuPerfil.dimas; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+                atualizarLobby(); document.getElementById('tela-pix-gerado').style.display = "none"; fecharMenu('shop-menu'); playSound('buy');
                 alert(`🎉 PAGAMENTO CONFIRMADO PELO BANCO!\n${dados.diamantesGanhos} Diamantes creditados!`);
             }
         });
 
         socket.on('forcar_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                if(!meuPerfil.isVIP) {
-                    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; 
-                    playSound('buy');
-                    alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus de 1.000 Diamantes!");
-                }
-                meuPerfil.isVIP = true;
-                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = true; dbUsuarios[meuEmail].dimas = meuPerfil.dimas; }
-                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-                atualizarLobby(); document.getElementById('modal-vip-lindo').classList.remove('hidden');
-                playSound('skill');
+                if(!meuPerfil.isVIP) { meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + 1000; playSound('buy'); alert("👑 INCRÍVEL!\nVocê recebeu a Tag Verificado do Dono e ganhou um bônus de 1.000 Diamantes!"); }
+                meuPerfil.isVIP = true; if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = true; dbUsuarios[meuEmail].dimas = meuPerfil.dimas; }
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('modal-vip-lindo').classList.remove('hidden'); playSound('skill');
             }
         });
 
         socket.on('remover_vip', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                meuPerfil.isVIP = false;
-                if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = false; }
-                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-                atualizarLobby();
-                playSound('error');
-                alert("⚠️ Sua Tag de Verificado Oficial foi removida pelo Dono do Servidor.");
+                meuPerfil.isVIP = false; if(dbUsuarios[meuEmail]) { dbUsuarios[meuEmail].isVIP = false; }
+                localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); playSound('error'); alert("⚠️ Sua Tag de Verificado Oficial foi removida pelo Dono do Servidor.");
             }
         });
 
         socket.on('jogador_banido', (dados) => {
             if (meuPerfil && meuPerfil.nickOriginal === dados.nick) {
-                playSound('error');
-                alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
+                playSound('error'); alert("🚫 A SUA CONTA FOI BANIDA PERMANENTEMENTE!");
                 delete dbUsuarios[meuEmail]; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); localStorage.removeItem('ff2d_current_user'); window.location.reload(); 
             }
         });
 
         socket.on('atualizar_loja_dinamica', (itensNovos) => {
-            skinsDB = [...baseSkins];
-            weaponsDB = [...baseWeapons];
-            iceDB = [...baseIce];
-
+            skinsDB = [...baseSkins]; weaponsDB = [...baseWeapons]; iceDB = [...baseIce];
             let addSkin = (nova) => { if (nova.comportamento !== 'replace_default' && !skinsDB.find(s => s.id === nova.id)) skinsDB.push(nova); };
             let addWeapon = (nova) => { if (!weaponsDB.find(s => s.id === nova.id)) weaponsDB.push(nova); };
             let addIce = (nova) => { if (!iceDB.find(s => s.id === nova.id)) iceDB.push(nova); };
-
-            if (Array.isArray(itensNovos)) {
-                itensNovos.forEach(nova => {
-                    if (nova.categoria === 'skins' || nova.categoria === 'skin') addSkin(nova);
-                    else if (nova.categoria === 'weapons' || nova.categoria === 'arma') addWeapon(nova);
-                    else if (nova.categoria === 'gelo' || nova.categoria === 'ice') addIce(nova);
-                });
-            } else if (itensNovos) {
-                if (itensNovos.skins) itensNovos.skins.forEach(addSkin);
-                if (itensNovos.weapons) itensNovos.weapons.forEach(addWeapon);
-                if (itensNovos.gelo) itensNovos.gelo.forEach(addIce);
-                if (itensNovos.ice) itensNovos.ice.forEach(addIce);
-            }
-
-            localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsDB.filter(s => !baseSkins.find(b => b.id === s.id))));
-            localStorage.setItem('ff2d_cache_loja_weapons', JSON.stringify(weaponsDB.filter(s => !baseWeapons.find(b => b.id === s.id))));
-            localStorage.setItem('ff2d_cache_loja_ice', JSON.stringify(iceDB.filter(s => !baseIce.find(b => b.id === s.id))));
-
+            if (Array.isArray(itensNovos)) { itensNovos.forEach(nova => { if (nova.categoria === 'skins' || nova.categoria === 'skin') addSkin(nova); else if (nova.categoria === 'weapons' || nova.categoria === 'arma') addWeapon(nova); else if (nova.categoria === 'gelo' || nova.categoria === 'ice') addIce(nova); }); } else if (itensNovos) { if (itensNovos.skins) itensNovos.skins.forEach(addSkin); if (itensNovos.weapons) itensNovos.weapons.forEach(addWeapon); if (itensNovos.gelo) itensNovos.gelo.forEach(addIce); if (itensNovos.ice) itensNovos.ice.forEach(addIce); }
+            localStorage.setItem('ff2d_cache_loja_skins', JSON.stringify(skinsDB.filter(s => !baseSkins.find(b => b.id === s.id)))); localStorage.setItem('ff2d_cache_loja_weapons', JSON.stringify(weaponsDB.filter(s => !baseWeapons.find(b => b.id === s.id)))); localStorage.setItem('ff2d_cache_loja_ice', JSON.stringify(iceDB.filter(s => !baseIce.find(b => b.id === s.id))));
             if (!document.getElementById('shop-menu').classList.contains('hidden')) renderShopList();
         });
 
@@ -558,10 +433,9 @@ const PATENTES = [{ nome: '🟫 BRONZE', max: 3 }, { nome: '⬜ PRATA', max: 4 }
 function atualizarLobby() {
     if(!meuPerfil) return;
     let tagV = meuPerfil.isVIP ? `<span class="badge-vip-html">V</span> ` : "";
-    document.getElementById('player-welcome').innerHTML = "Bem-vindo, " + tagV + meuPerfil.nickOriginal + "!";
+    document.getElementById('player-welcome').innerHTML = tagV + meuPerfil.nickOriginal;
     document.getElementById('menu-gold').innerText = meuPerfil.ouro || 0;
     document.getElementById('menu-frags').innerText = meuPerfil.dimas || 0;
-    
     let p = meuPerfil.patente || { nome: '🟫 BRONZE', estrelas: 1 };
     document.getElementById('badge-patente-menu').innerText = `🏆 ${p.nome} ⭐${p.estrelas}`;
 }
@@ -570,32 +444,18 @@ function resgatarPremioSemanalVip() {
     if(!meuPerfil) return;
     if(!meuPerfil.isVIP) { playSound('error'); return alert("⚠️ Esta recompensa é exclusiva para jogadores com Tag Verificado!"); }
     let agora = Date.now(); let umaSemanaEmMs = 7 * 24 * 60 * 60 * 1000; let ultimoResgate = meuPerfil.ultimoResgateSemanal || 0;
-    if(agora - ultimoResgate < umaSemanaEmMs) {
-        playSound('error');
-        let diasRestantes = Math.ceil((umaSemanaEmMs - (agora - ultimoResgate)) / (24 * 60 * 60 * 1000));
-        return alert(`⏳ Calma Sobrevivente! Volte em ${diasRestantes} dias.`);
-    }
-    let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-    meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados; meuPerfil.ultimoResgateSemanal = agora;
-    dbUsuarios[meuEmail] = meuPerfil; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
-    atualizarLobby(); playSound('buy'); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
+    if(agora - ultimoResgate < umaSemanaEmMs) { playSound('error'); let diasRestantes = Math.ceil((umaSemanaEmMs - (agora - ultimoResgate)) / (24 * 60 * 60 * 1000)); return alert(`⏳ Calma Sobrevivente! Volte em ${diasRestantes} dias.`); }
+    let dimasSorteados = Math.floor(Math.random() * (100 - 50 + 1)) + 50; meuPerfil.dimas = (parseInt(meuPerfil.dimas) || 0) + dimasSorteados; meuPerfil.ultimoResgateSemanal = agora;
+    dbUsuarios[meuEmail] = meuPerfil; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); playSound('buy'); alert(`🎉 RECOMPENSA COLETADA!\nVocê resgatou 💎 ${dimasSorteados} Diamantes.`);
 }
 
 function processarFimDePartida(ganhou) {
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
-    let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome);
-    if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
-    if (ganhou) {
-        playSound('buy');
-        p.estrelas++;
-        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
-    } else {
-        playSound('error');
-        p.estrelas--;
-        if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
-    }
-    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby();
-    gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
+    let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome); if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
+    if (ganhou) { playSound('buy'); p.estrelas++; if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); } } 
+    else { playSound('error'); p.estrelas--; if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } } }
+    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
+    if (salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; }
 }
 
 function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) ? meuPerfil.pStats.lvlDmg : 1; }
@@ -649,7 +509,7 @@ function salvarConfiguracaoHUD() {
 function mostrarMensagemHUD(msg) { let el = document.getElementById('hud-editor-msg'); el.innerText = msg; el.style.display = 'block'; setTimeout(() => { if(!modoEdicaoHUDActive) el.style.display = 'none'; }, 2000); }
 function abrirMenuPartida() { document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
 function fecharMenuPartida() { document.getElementById('menu-partida-overlay').classList.add('hidden'); }
-function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); }
+function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); if(salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; } }
 
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
@@ -658,63 +518,35 @@ let gelosDisponiveis = 3;
 function trocarArma() { if(meuPerfil && meuPerfil.ownedWeapons && meuPerfil.ownedWeapons.length > 0) { currentWeaponIndex = (currentWeaponIndex + 1) % meuPerfil.ownedWeapons.length; mostrarMensagemHUD(`🔫 ARMA ${currentWeaponIndex + 1}`); playSound('click'); } }
 function usarSkillAlok() {
     if(Date.now() > skillCooldown) {
-        playSound('skill');
-        auraAtiva = true; player.hp = Math.min(100, player.hp + 30); document.getElementById('arena-hp').innerText = `❤️ ${player.hp}`;
+        playSound('skill'); auraAtiva = true; player.hp = Math.min(100, player.hp + 30); document.getElementById('arena-hp').innerText = `❤️ ${player.hp}`;
         mostrarMensagemHUD("🟢 ALOK ATIVADO!"); skillCooldown = Date.now() + 15000; setTimeout(() => { auraAtiva = false; }, 3000);
-    } else {
-        playSound('error');
-    }
+    } else { playSound('error'); }
 }
 
 function usarGelo() {
     if (gelosDisponiveis > 0 && player.hp > 0 && gameRunning && !modoEdicaoHUDActive) {
-        gelosDisponiveis--;
-        document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
+        gelosDisponiveis--; document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
+        let distanciaFrente = 60; let larguraGelo = 30; let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
+        obstaculosPartida.push({ x: posGeloX, w: larguraGelo, h: 85, isGelo: true, hp: 150, skinId: meuPerfil.equippedIce });
+        playSound('gelo'); mostrarMensagemHUD("❄️ GELO COLOCADO!");
         
-        let distanciaFrente = 60;
-        let larguraGelo = 30;
-        let posGeloX = player.facing === 1 ? player.x + distanciaFrente : player.x - distanciaFrente - larguraGelo;
-        
-        obstaculosPartida.push({
-            x: posGeloX, 
-            w: larguraGelo, 
-            h: 85, 
-            isGelo: true, 
-            hp: 150,
-            skinId: meuPerfil.equippedIce 
-        });
-        
-        playSound('gelo');
-        mostrarMensagemHUD("❄️ GELO COLOCADO!");
-    } else if (gelosDisponiveis <= 0) {
-        playSound('error');
-        mostrarMensagemHUD("❌ SEM GELOS!");
-    }
+        // EMITE O GELO PARA O PARCEIRO DA SALA
+        if (salaAtual && socket) {
+            socket.emit('colocar_gelo', { sala: salaAtual, x: posGeloX, w: larguraGelo, h: 85, skinId: meuPerfil.equippedIce });
+        }
+    } else if (gelosDisponiveis <= 0) { playSound('error'); mostrarMensagemHUD("❌ SEM GELOS!"); }
 }
 
 document.addEventListener('touchstart', (e) => { 
-    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.closest('.lobby-chat-lateral') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
+    if (e.target.closest('.fullscreen-menu') || e.target.closest('#menu-partida-overlay') || e.target.id === 'btn-menu-ingame' || e.target.closest('#hud-top')) return; 
 }, {passive: false});
 
 ['left','right','jump','fire','weapon','skill','gelo'].forEach(id => {
     let el = document.getElementById('btn-' + id);
     if(el) { 
-        el.addEventListener('touchstart', (e) => { 
-            e.stopPropagation(); 
-            if(e.cancelable) e.preventDefault(); 
-            if(!modoEdicaoHUDActive && id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = true; 
-        }, {passive:false}); 
-        el.addEventListener('touchend', (e) => { 
-            e.stopPropagation(); 
-            if(e.cancelable) e.preventDefault(); 
-            if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
-            if(id === 'weapon') trocarArma(); 
-            if(id === 'skill') usarSkillAlok(); 
-            if(id === 'gelo') usarGelo(); 
-        }, {passive:false});
-        el.addEventListener('touchcancel', (e) => { 
-            if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; 
-        }, {passive:false});
+        el.addEventListener('touchstart', (e) => { e.stopPropagation(); if(e.cancelable) e.preventDefault(); if(!modoEdicaoHUDActive && id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = true; }, {passive:false}); 
+        el.addEventListener('touchend', (e) => { e.stopPropagation(); if(e.cancelable) e.preventDefault(); if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; if(id === 'weapon') trocarArma(); if(id === 'skill') usarSkillAlok(); if(id === 'gelo') usarGelo(); }, {passive:false});
+        el.addEventListener('touchcancel', (e) => { if(id !== 'weapon' && id !== 'skill' && id !== 'gelo') keys[id] = false; }, {passive:false});
     }
 });
 
@@ -734,220 +566,45 @@ function loadUserGameProgress(emailChave) {
     meuPerfil = dbUsuarios[emailChave]; if (!meuPerfil) return;
     if(!meuPerfil.ownedSkins) meuPerfil.ownedSkins = ['padrao']; if(!meuPerfil.ownedWeapons) meuPerfil.ownedWeapons = ['pistola']; if(!meuPerfil.ownedIce) meuPerfil.ownedIce = ['gelo_padrao'];
     if(!meuPerfil.equippedSkin) meuPerfil.equippedSkin = 'padrao'; if(!meuPerfil.equippedIce) meuPerfil.equippedIce = 'gelo_padrao';
-    if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 };
-    if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
+    if(!meuPerfil.pStats) meuPerfil.pStats = { lvlDmg: 1, lvlDef: 1, lvlHp: 1 }; if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 }; atualizarLobby();
 }
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
-function mostrarCampoNick() {
-    document.getElementById('input-nick').style.display = 'block';
-    document.getElementById('btn-confirmar-cadastro').style.display = 'block';
-    document.getElementById('input-nick').focus();
-}
+function mostrarCampoNick() { document.getElementById('input-nick').style.display = 'block'; document.getElementById('btn-confirmar-cadastro').style.display = 'block'; document.getElementById('input-nick').focus(); }
 
 async function cadastrarConta() {
-    let email = document.getElementById('input-email').value.trim(); 
-    let senha = document.getElementById('input-senha').value.trim();
-    let nick = document.getElementById('input-nick').value.trim();
-    if (!email || !senha) return alert("Campos Vazios!"); 
-    if (dbUsuarios[email]) return alert("E-mail já cadastrado!");
-    if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
-    document.getElementById('login-msg').innerText = "Gerando Conta...";
-    dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], ownedIce: ['gelo_padrao'], equippedSkin: 'padrao', equippedIce: 'gelo_padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
+    let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim(); let nick = document.getElementById('input-nick').value.trim();
+    if (!email || !senha) return alert("Campos Vazios!"); if (dbUsuarios[email]) return alert("E-mail já cadastrado!"); if (!nick || nick.length < 2) return alert("Digite seu nome de Sobrevivente!");
+    document.getElementById('login-msg').innerText = "Gerando Conta..."; dbUsuarios[email] = { email, senha: btoa(senha), nickOriginal: nick, isVIP: false, ouro: 500, dimas: 0, ownedSkins: ['padrao'], ownedWeapons: ['pistola'], ownedIce: ['gelo_padrao'], equippedSkin: 'padrao', equippedIce: 'gelo_padrao', pStats: { lvlDmg:1, lvlDef:1, lvlHp:1 }, patente: {nome: '🟫 BRONZE', estrelas: 1} }; 
     localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); playSound('buy');
 }
 function entrarConta() {
     let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim();
     if (dbUsuarios[email] && atob(dbUsuarios[email].senha) === senha) { meuEmail = email; localStorage.setItem('ff2d_current_user', email); carregarLobby(); playSound('buy'); } else { document.getElementById('login-msg').innerText = "Senha incorreta!"; playSound('error'); }
 }
-function carregarLobby() { 
-    meuPerfil = dbUsuarios[meuEmail]; 
-    if (!meuPerfil) return fazerLogout(); 
-    loadUserGameProgress(meuEmail); 
-    document.getElementById('login-screen').classList.add('hidden'); 
-    document.getElementById('start-menu').classList.remove('hidden'); 
-    aplicarLayoutHUD(); vincularJogadorAoServidor(); 
-}
+function carregarLobby() { meuPerfil = dbUsuarios[meuEmail]; if (!meuPerfil) return fazerLogout(); loadUserGameProgress(meuEmail); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); aplicarLayoutHUD(); vincularJogadorAoServidor(); }
 function fazerLogout() { meuEmail = null; localStorage.removeItem('ff2d_current_user'); document.getElementById('start-menu').classList.add('hidden'); document.getElementById('login-screen').classList.remove('hidden'); }
-function upgradeStat(tipo) { 
-    let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; 
-    if ((meuPerfil.ouro || 0) < precos[tipo]) { playSound('error'); return alert("Ouro insuficiente!"); }
-    meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); 
-    playSound('buy'); alert("✅ Upgrade realizado!"); 
-}
+function upgradeStat(tipo) { let precos = { dmg: 500, def: 400, hp: 600 }; let chaves = { dmg: 'lvlDmg', def: 'lvlDef', hp: 'lvlHp' }; if ((meuPerfil.ouro || 0) < precos[tipo]) { playSound('error'); return alert("Ouro insuficiente!"); } meuPerfil.ouro -= precos[tipo]; meuPerfil.pStats[chaves[tipo]]++; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); playSound('buy'); alert("✅ Upgrade realizado!"); }
 
-const VERSAO_ATUAL = '1.0';
-const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
-
-async function checarVersaoNova() {
-    try {
-        const res = await fetch(VERSAO_JSON_URL + '?t=' + Date.now());
-        const dados = await res.json();
-        if (dados.versao && dados.versao !== VERSAO_ATUAL) {
-            const badge = document.getElementById('badge-update');
-            if (badge) badge.style.display = 'block';
-            const btn = document.getElementById('btn-atualizar');
-            if (btn) btn.style.background = '#e74c3c';
-        }
-    } catch(e) {}
-}
-
-function verificarAtualizacaoDoJogo() {
-    fetch(VERSAO_JSON_URL + '?t=' + Date.now())
-        .then(r => r.json())
-        .then(dados => {
-            if (dados.versao && dados.versao !== VERSAO_ATUAL) {
-                if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar a atualização.`)) {
-                    window.open(dados.apk_url || 'https://github.com/elias432132/Eliasx7/releases', '_blank');
-                }
-            } else {
-                alert('✅ Você já está na versão mais recente!');
-                if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
-                window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
-            }
-        })
-        .catch(() => {
-            if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); });
-            window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now());
-        });
-}
-
+const VERSAO_ATUAL = '1.0'; const VERSAO_JSON_URL = 'https://raw.githubusercontent.com/elias432132/Eliasx7/main/versao.json';
+async function checarVersaoNova() { try { const res = await fetch(VERSAO_JSON_URL + '?t=' + Date.now()); const dados = await res.json(); if (dados.versao && dados.versao !== VERSAO_ATUAL) { const badge = document.getElementById('badge-update'); if (badge) badge.style.display = 'block'; const btn = document.getElementById('btn-atualizar'); if (btn) btn.style.background = '#e74c3c'; } } catch(e) {} }
+function verificarAtualizacaoDoJogo() { fetch(VERSAO_JSON_URL + '?t=' + Date.now()).then(r => r.json()).then(dados => { if (dados.versao && dados.versao !== VERSAO_ATUAL) { if (confirm(`🆕 Nova versão ${dados.versao} disponível!\nClique OK para baixar a atualização.`)) { window.open(dados.apk_url || 'https://github.com/elias432132/Eliasx7/releases', '_blank'); } } else { alert('✅ Você já está na versão mais recente!'); if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); }); window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now()); } }).catch(() => { if('caches' in window) caches.keys().then(names => { for (let name of names) caches.delete(name); }); window.location.replace(window.location.origin + window.location.pathname + '?updateBuster=' + Date.now()); }); }
 setTimeout(checarVersaoNova, 5000);
 
-function gerarCodigoSalvar() { 
-    if (!meuEmail || !dbUsuarios[meuEmail]) return alert("⚠️ Erro: Nenhuma conta logada.");
-    try {
-        let dados = JSON.stringify(dbUsuarios[meuEmail]);
-        let codigoGerado = btoa(unescape(encodeURIComponent(dados)));
-        let inputArea = document.getElementById('save-code-input');
-        inputArea.value = codigoGerado; inputArea.select(); document.execCommand("copy");
-        playSound('skill');
-        alert("✅ Código gerado e COPIADO!"); 
-    } catch(e) { alert("Erro ao gerar: " + e.message); }
-}
+function gerarCodigoSalvar() { if (!meuEmail || !dbUsuarios[meuEmail]) return alert("⚠️ Erro: Nenhuma conta logada."); try { let dados = JSON.stringify(dbUsuarios[meuEmail]); let codigoGerado = btoa(unescape(encodeURIComponent(dados))); let inputArea = document.getElementById('save-code-input'); inputArea.value = codigoGerado; inputArea.select(); document.execCommand("copy"); playSound('skill'); alert("✅ Código gerado e COPIADO!"); } catch(e) { alert("Erro ao gerar: " + e.message); } }
+function carregarCodigo() { let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; try { let decodificado = decodeURIComponent(escape(atob(codigo))); let d = JSON.parse(decodificado); if (d && d.email) { dbUsuarios[d.email] = d; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); meuEmail = d.email; localStorage.setItem('ff2d_current_user', d.email); playSound('buy'); alert("✅ Conta recuperada! Entrando..."); fecharMenu('saveload-menu'); carregarLobby(); } } catch(e) { playSound('error'); alert("Erro no código. Verifique se copiou corretamente."); } }
 
-function carregarCodigo() { 
-    let codigo = document.getElementById('save-code-input').value.trim(); if (!codigo) return; 
-    try { 
-        let decodificado = decodeURIComponent(escape(atob(codigo))); let d = JSON.parse(decodificado); 
-        if (d && d.email) { 
-            dbUsuarios[d.email] = d; 
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); 
-            meuEmail = d.email;
-            localStorage.setItem('ff2d_current_user', d.email);
-            playSound('buy');
-            alert("✅ Conta recuperada! Entrando..."); 
-            fecharMenu('saveload-menu');
-            carregarLobby();
-        } 
-    } catch(e) { playSound('error'); alert("Erro no código. Verifique se copiou corretamente."); } 
-}
+function switchTab(tab) { currentShopTab = tab; document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); if(document.getElementById('tab-' + tab)) document.getElementById('tab-' + tab).classList.add('active'); if (tab !== 'diamonds') renderShopList(); }
+function renderShopList() { let container = document.getElementById('shop-items-list'); container.innerHTML = ''; let db; if (currentShopTab === 'skins') db = skinsDB; else if (currentShopTab === 'weapons') db = weaponsDB; else db = iceDB; db.forEach(item => { let isOwned = false; if (currentShopTab === 'skins') isOwned = meuPerfil.ownedSkins.includes(item.id); else if (currentShopTab === 'weapons') isOwned = meuPerfil.ownedWeapons.includes(item.id); else if (currentShopTab === 'ice') isOwned = meuPerfil.ownedIce.includes(item.id); let btnHTML = ''; if (isOwned) { let isEq = false; if (currentShopTab === 'skins') isEq = (meuPerfil.equippedSkin === item.id); else if (currentShopTab === 'ice') isEq = (meuPerfil.equippedIce === item.id); btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`; } else { if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } else { btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`; } } container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3>${btnHTML}</div>`); }); }
+function comprarItem(id, tipo, preco, moeda) { let owned; if (tipo === 'skins') owned = meuPerfil.ownedSkins; else if (tipo === 'weapons') owned = meuPerfil.ownedWeapons; else if (tipo === 'ice') owned = meuPerfil.ownedIce; if (!owned.includes(id)) { if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) { playSound('error'); return alert("Diamantes insuficientes!");} meuPerfil.dimas -= preco; } else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) { playSound('error'); return alert("Ouro insuficiente!"); } meuPerfil.ouro -= preco; } owned.push(id); } if (tipo === 'skins') meuPerfil.equippedSkin = id; if (tipo === 'ice') meuPerfil.equippedIce = id; playSound('buy'); localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby(); }
 
-function switchTab(tab) { 
-    currentShopTab = tab; 
-    document.getElementById('shop-items-list').style.display  = tab === 'diamonds' ? 'none' : 'flex'; 
-    document.getElementById('content-diamonds').style.display = tab === 'diamonds' ? 'block' : 'none'; 
-    
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(document.getElementById('tab-' + tab)) document.getElementById('tab-' + tab).classList.add('active');
-
-    if (tab !== 'diamonds') renderShopList(); 
-}
-
-function renderShopList() { 
-    let container = document.getElementById('shop-items-list'); container.innerHTML = ''; 
-    
-    let db;
-    if (currentShopTab === 'skins') db = skinsDB;
-    else if (currentShopTab === 'weapons') db = weaponsDB;
-    else db = iceDB;
-    
-    db.forEach(item => { 
-        let isOwned = false;
-        if (currentShopTab === 'skins') isOwned = meuPerfil.ownedSkins.includes(item.id);
-        else if (currentShopTab === 'weapons') isOwned = meuPerfil.ownedWeapons.includes(item.id);
-        else if (currentShopTab === 'ice') isOwned = meuPerfil.ownedIce.includes(item.id);
-
-        let btnHTML = '';
-        if (isOwned) {
-            let isEq = false;
-            if (currentShopTab === 'skins') isEq = (meuPerfil.equippedSkin === item.id);
-            else if (currentShopTab === 'ice') isEq = (meuPerfil.equippedIce === item.id);
-
-            btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',0,'none')">${isEq ? 'EQUIPADO' : 'USAR'}</button>`;
-        } else {
-            if (item.priceD) { btnHTML = `<div style="display:flex; gap:4px;"><button style="background:#e67e22;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button><button style="background:#3498db;" onclick="comprarItem('${item.id}','${currentShopTab}',${item.priceD}, 'dima')">💎 ${item.priceD}</button></div>`; } 
-            else { btnHTML = `<button onclick="comprarItem('${item.id}','${currentShopTab}',${item.price}, 'ouro')">🪙 ${item.price}</button>`; }
-        }
-        container.insertAdjacentHTML('beforeend', `<div class="shop-item"><h3>${item.name}</h3>${btnHTML}</div>`); 
-    }); 
-}
-
-function comprarItem(id, tipo, preco, moeda) { 
-    let owned;
-    if (tipo === 'skins') owned = meuPerfil.ownedSkins;
-    else if (tipo === 'weapons') owned = meuPerfil.ownedWeapons;
-    else if (tipo === 'ice') owned = meuPerfil.ownedIce;
-
-    if (!owned.includes(id)) { 
-        if (moeda === 'dima') { if((meuPerfil.dimas || 0) < preco) { playSound('error'); return alert("Diamantes insuficientes!");} meuPerfil.dimas -= preco; } 
-        else if (moeda === 'ouro') { if((meuPerfil.ouro || 0) < preco) { playSound('error'); return alert("Ouro insuficiente!"); } meuPerfil.ouro -= preco; }
-        owned.push(id); 
-    } 
-    if (tipo === 'skins') meuPerfil.equippedSkin = id; 
-    if (tipo === 'ice') meuPerfil.equippedIce = id;
-
-    playSound('buy');
-    localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); loadUserGameProgress(meuEmail); renderShopList(); atualizarLobby();
-}
-
-async function processarResgate() {
-    let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!");
-    try {
-        let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) });
-        let dados = await resp.json();
-        if (dados.sucesso) {
-            meuPerfil.dimas += dados.diamantesGanhos; playSound('buy'); alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`);
-            localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu');
-        } else { playSound('error'); alert("❌ " + (dados.erro || "Código Inválido")); }
-    } catch (e) { alert("❌ Servidor desligado."); }
-}
-
+async function processarResgate() { let input = document.getElementById('input-codigo-resgate').value.trim().toUpperCase(); if(!input) return alert("Digite um código!"); try { let resp = await fetch(`${URL_SERVIDOR}/jogo/resgatar-codigo`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo: input }) }); let dados = await resp.json(); if (dados.sucesso) { meuPerfil.dimas += dados.diamantesGanhos; playSound('buy'); alert(`🎉 Você ganhou ${dados.diamantesGanhos} Diamantes!`); localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); document.getElementById('input-codigo-resgate').value = ''; fecharMenu('resgatar-codigo-menu'); } else { playSound('error'); alert("❌ " + (dados.erro || "Código Inválido")); } } catch (e) { alert("❌ Servidor desligado."); } }
 function calcularPrecoDimaReal() { let qtd = parseInt(document.getElementById('input-qtd-dimas').value) || 0; document.getElementById('label-preco-dima').innerText = qtd >= 250 ? `Valor: R$ ${(qtd * 0.02).toFixed(2).replace('.',',')}` : 'Mínimo de 250'; }
-
-async function gerarPix(event) {
-    let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) { playSound('error'); return alert("Mínimo 250!"); }
-    let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true;
-    let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; };
-    try { 
-        let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); 
-        let dados = await resp.json(); 
-        if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); playSound('skill'); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); }
-    } catch(e) { playSound('error'); alert("⚠️ Erro ao gerar Pix: " + e.message); }
-    btnGerar.innerText = "⚡ GERAR PIX"; btnGerar.disabled = false;
-}
-
+async function gerarPix(event) { let qtd = parseInt(document.getElementById('input-qtd-dimas').value); if (!qtd || qtd < 250) { playSound('error'); return alert("Mínimo 250!"); } let btnGerar = event.target; btnGerar.innerText = "⏳ GERANDO..."; btnGerar.disabled = true; let mostraPix = (codigoPix) => { document.getElementById('tela-pix-gerado').style.display = "flex"; document.getElementById('output-chave-pix').value = codigoPix; }; try { let resp = await fetch(`${URL_SERVIDOR}/gerar-pix`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ Nick: meuPerfil.nickOriginal, email: meuPerfil.email, valor: (qtd * 0.02), diamantes: qtd }) }); let dados = await resp.json(); if (dados.copia_e_cola) { mostraPix(dados.copia_e_cola); vincularJogadorAoServidor(); playSound('skill'); } else { throw new Error(dados.erro || "Falha ao gerar Pix"); } } catch(e) { playSound('error'); alert("⚠️ Erro ao gerar Pix: " + e.message); } btnGerar.innerText = "⚡ GERAR PIX"; btnGerar.disabled = false; }
 function copiarPix() { let inputPix = document.getElementById('output-chave-pix'); inputPix.select(); document.execCommand("copy"); alert("✅ COPIADO!"); }
 
-function enviarMensagemGlobal() { 
-    let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
-    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
-}
-
-function enviarMensagemLobby() { 
-    let input = document.getElementById('input-chat-lobby'); let texto = input.value.trim(); if (!texto) return; 
-    if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado. Aguarde um instante."); }
-    socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; 
-}
-
-function adicionarMensagemChat(msg) { 
-    let container = document.getElementById('chat-mensagens'); let lobbyContainer = document.getElementById('lobby-chat-mensagens-box'); 
-    let cor = msg.isVIP ? '#f1c40f' : '#2ecc71'; let tagV = msg.isVIP ? '<span class="badge-vip-html" style="transform:scale(0.7); margin-right:2px;">V</span>' : ''; 
-    let htmlMsg = `<div style="margin-bottom:5px;"><span style="color:${cor};font-weight:bold;">${tagV}${msg.nick}:</span> <span style="color:#fff;">${msg.texto}</span></div>`;
-    if(container) { container.insertAdjacentHTML('beforeend', htmlMsg); container.scrollTop = container.scrollHeight; }
-    if(lobbyContainer) { lobbyContainer.insertAdjacentHTML('beforeend', htmlMsg); lobbyContainer.scrollTop = lobbyContainer.scrollHeight; }
-}
+function enviarMensagemGlobal() { let input = document.getElementById('input-chat-global'); let texto = input.value.trim(); if (!texto) return; if (!socket || !socket.connected) { return alert("⚠️ O Servidor está reiniciando ou desligado."); } socket.emit('enviar_mensagem', { nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, texto }); input.value = ''; }
+function adicionarMensagemChat(msg) { let container = document.getElementById('chat-mensagens'); let cor = msg.isVIP ? '#f1c40f' : '#2ecc71'; let tagV = msg.isVIP ? '<span class="badge-vip-html" style="transform:scale(0.7); margin-right:2px;">V</span>' : ''; let htmlMsg = `<div style="margin-bottom:5px;"><span style="color:${cor};font-weight:bold;">${tagV}${msg.nick}:</span> <span style="color:#fff;">${msg.texto}</span></div>`; if(container) { container.insertAdjacentHTML('beforeend', htmlMsg); container.scrollTop = container.scrollHeight; } }
 
 function abrirServidores() { document.getElementById('start-menu').classList.add('hidden'); document.getElementById('server-menu').classList.remove('hidden'); }
 function voltarLobby() { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
@@ -955,69 +612,50 @@ function voltarServidores() { document.getElementById('mode-menu').classList.add
 function abrirModos(servidor) { document.getElementById('server-menu').classList.add('hidden'); document.getElementById('mode-menu').classList.remove('hidden'); }
 
 let tempoBusca = 0, intervaloBusca = null;
-function procurarPartida(modo) {
-    document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden');
-    tempoBusca = 0; document.getElementById('match-timer').innerText = "0s";
-    intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000);
-    if (socket && socket.connected) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo });
-}
+function procurarPartida(modo) { document.getElementById('mode-menu').classList.add('hidden'); document.getElementById('matchmaking-screen').classList.remove('hidden'); tempoBusca = 0; document.getElementById('match-timer').innerText = "0s"; intervaloBusca = setInterval(() => { tempoBusca++; document.getElementById('match-timer').innerText = tempoBusca + "s"; }, 1000); if (socket && socket.connected) socket.emit('buscar_partida', { nick: meuPerfil.nickOriginal, modo: modo }); }
 function cancelarBusca() { clearInterval(intervaloBusca); if (socket && socket.connected) socket.emit('cancelar_busca'); fecharMenu('matchmaking-screen'); }
 
 const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
-let gameRunning = false, loopAtivo = false, salaAtual = "";
+let gameRunning = false, loopAtivo = false;
 let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: true };
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
-let placarCS = { A: 0, B: 0 }; let roundRodando = true;
+let placarCS = { A: 0, B: 0 }; let roundRodando = true; let lastSync = 0; // Controle de rede
 
-const bgImage = new Image(); 
-const chaoImage = new Image();
-
-const GITHUB_OWNER = "elias432132"; 
-const GITHUB_REPO = "Eliasx7";      
+const bgImage = new Image(); const chaoImage = new Image();
+const GITHUB_OWNER = "elias432132"; const GITHUB_REPO = "Eliasx7";      
 
 function criarBot(time, index) {
-    const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador", "Apelao99", "TremBala"];
-    let lvl = getSafeDmgLvl(); 
-    let multiplicador = 1 + (lvl * 0.12); 
-    let posX = time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
-    
-    return {
-        id: 'bot_' + time + '_' + index, x: posX, y: -20, vy: -15, 
-        hp: 100 * multiplicador, speed: (4.6 + Math.random()) * multiplicador, 
-        facing: time === 'A' ? 1 : -1, isGrounded: false, state: 'JUMP', 
-        nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99),
-        isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, 
-        taxaTiro: Math.max(250, 1000 - (lvl * 150)), 
-        frameAtual: 0, contadorAnim: 0,
-        skinId: 'padrao'
-    };
+    const nomes = ["MatadorBR", "Ghost_FF", "Lendario_X", "ProSniper", "Kauan_Zika", "Vingador"];
+    let lvl = getSafeDmgLvl(); let multiplicador = 1 + (lvl * 0.12); let posX = time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
+    return { id: 'bot_' + time + '_' + index, isNetwork: false, x: posX, y: -20, vy: -15, hp: 100 * multiplicador, speed: (4.6 + Math.random()) * multiplicador, facing: time === 'A' ? 1 : -1, isGrounded: false, state: 'JUMP', nick: nomes[Math.floor(Math.random() * nomes.length)] + Math.floor(Math.random() * 99), isVIP: Math.random() > 0.85, time: time, lastShot: Date.now() + Math.random()*400, taxaTiro: Math.max(250, 1000 - (lvl * 150)), frameAtual: 0, contadorAnim: 0, skinId: 'padrao' };
 }
 
 function iniciarArena(idSala, modo) {
     clearInterval(intervaloBusca); document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-    placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true; obstaculosPartida = []; 
+    placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true; obstaculosPartida = []; botsAtivos = [];
     
     let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
-    botsAtivos = []; 
     
     window.iniciarRound = function() {
         let fundoAleatorio = Math.floor(Math.random() * 25) + 1;
         bgImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/fundo${fundoAleatorio}.png`;
         chaoImage.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/mapas/chao${fundoAleatorio}.png`;
 
-        gelosDisponiveis = 3;
-        document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
-
+        gelosDisponiveis = 3; document.getElementById('hud-gelo').innerText = `❄️ GELO: ${gelosDisponiveis}`;
         bullets = []; player.hp = 100; player.x = 80; player.y = 0; player.isGrounded = true; player.vy = 0; document.getElementById('arena-hp').innerText = `❤️ 100`;
         obstaculosPartida = []; 
         
         if (botsAtivos.length === 0) {
-            for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
-            for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
+            // SE A SALA NÃO FOR DE REDE, CRIA BOTS LOCAIS. SENÃO, FICA VAZIO ATÉ A REDE MANDAR OS JOGADORES.
+            if (!idSala.startsWith('SALA_REAL')) {
+                for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
+                for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
+            }
         } else {
             let lvl = getSafeDmgLvl(); let multiplicador = 1 + (lvl * 0.1); 
             botsAtivos.forEach(bot => {
+                if (bot.isNetwork) return; // NÃO RESETA BOTS DE REDE! O CELULAR DELES QUE MANDA A POSIÇÃO NOVA
                 bot.hp = 100 * multiplicador; bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
                 bot.y = -20; bot.vy = -15; bot.isGrounded = false; bot.state = 'JUMP';
                 bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*400;
@@ -1031,17 +669,12 @@ function iniciarArena(idSala, modo) {
 }
 
 const playerSprites = {}; 
-
 function carregarImagensDaSkin(prefix) {
-    if (playerSprites[prefix]) return; 
-    playerSprites[prefix] = [];
+    if (playerSprites[prefix]) return; playerSprites[prefix] = [];
     for (let i = 1; i <= 100; i++) { 
         const img = new Image(); 
-        if (prefix === 'free' || prefix === 'padrao') {
-            img.src = `img/${prefix}.x${i}.png`; 
-        } else {
-            img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${prefix}.x${i}.png`; 
-        }
+        if (prefix === 'free' || prefix === 'padrao') { img.src = `img/${prefix}.x${i}.png`; } 
+        else { img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${prefix}.x${i}.png`; }
         playerSprites[prefix].push(img); 
     }
 }
@@ -1049,41 +682,17 @@ carregarImagensDaSkin('free');
 
 function getAnimFramesForSkin(skinId, state) {
     const padraoFallback = { 'RUN': [8,9,24,25,29,31,32,33,34,35,36,37,43,44,48].map(n=>n-1), 'IDLE': [81,82,83,84,85,86,87,88].map(n=>n-1), 'SHOOT': [26,30].map(n=>n-1), 'JUMP': [50,51,52].map(n=>n-1) };
-
     if (!skinId || skinId === 'padrao') return padraoFallback[state] || [0];
-
-    let traduzir = (str) => {
-        if(!str) return null;
-        let pts = str.split('-');
-        let inicio = parseInt(pts[0]);
-        let fim = pts.length > 1 ? parseInt(pts[1]) : inicio;
-        let arr = [];
-        for(let i = inicio; i <= fim; i++) arr.push(i - 1);
-        return arr;
-    };
-
+    let traduzir = (str) => { if(!str) return null; let pts = str.split('-'); let inicio = parseInt(pts[0]); let fim = pts.length > 1 ? parseInt(pts[1]) : inicio; let arr = []; for(let i = inicio; i <= fim; i++) arr.push(i - 1); return arr; };
     let infoDaLoja = skinsDB.find(s => s.id === skinId);
-    if (infoDaLoja && infoDaLoja.config_frames) {
-        let cf = infoDaLoja.config_frames;
-        if (state === 'IDLE' && cf.parado) return traduzir(cf.parado) || [0];
-        if (state === 'RUN' && cf.andando) return traduzir(cf.andando) || [0,1,2,3,4,5,6,7,8];
-        if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando) || [3];
-        if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando) || [5];
-    }
-
-    const customFallback = { 'RUN': [0,1,2,3,4,5,6,7,8], 'IDLE': [0], 'SHOOT': [5], 'JUMP': [3] };
-    return customFallback[state] || [0];
+    if (infoDaLoja && infoDaLoja.config_frames) { let cf = infoDaLoja.config_frames; if (state === 'IDLE' && cf.parado) return traduzir(cf.parado) || [0]; if (state === 'RUN' && cf.andando) return traduzir(cf.andando) || [0,1,2,3,4,5,6,7,8]; if (state === 'JUMP' && cf.pulando) return traduzir(cf.pulando) || [3]; if (state === 'SHOOT' && cf.atirando) return traduzir(cf.atirando) || [5]; }
+    const customFallback = { 'RUN': [0,1,2,3,4,5,6,7,8], 'IDLE': [0], 'SHOOT': [5], 'JUMP': [3] }; return customFallback[state] || [0];
 }
 
 const geloSprites = {};
 function getGeloImage(skinId) {
     if (!skinId || skinId === 'gelo_padrao') return null;
-    if (!geloSprites[skinId]) {
-        const img = new Image();
-        img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${skinId}.x1.png`; // 🔥 CORREÇÃO
-        geloSprites[skinId] = img;
-    }
-    return geloSprites[skinId];
+    if (!geloSprites[skinId]) { const img = new Image(); img.src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/img/${skinId}.x1.png`; geloSprites[skinId] = img; } return geloSprites[skinId];
 }
 
 let frameAtual = 0, contadorAnim = 0, playerState = 'IDLE';
@@ -1100,94 +709,78 @@ function gameLoop() {
         
         let chaoAtual = 0; let colidiuLateral = false;
         for (let obs of obstaculosPartida) {
-            if (player.x + 15 > obs.x && player.x - 15 < obs.x + obs.w) {
-                if (player.y <= -obs.h || (player.y - player.vy <= -obs.h)) { if (-obs.h < chaoAtual) chaoAtual = -obs.h; }
-            }
+            if (player.x + 15 > obs.x && player.x - 15 < obs.x + obs.w) { if (player.y <= -obs.h || (player.y - player.vy <= -obs.h)) { if (-obs.h < chaoAtual) chaoAtual = -obs.h; } }
             if (nextX + 15 > obs.x && nextX - 15 < obs.x + obs.w) { if (player.y > -obs.h + 5) colidiuLateral = true; }
         }
         
         if (!colidiuLateral) player.x = nextX;
-        if (player.y >= chaoAtual) { 
-            player.y = chaoAtual; player.vy = 0; player.isGrounded = true; 
-            if (keys.jump) { player.vy = -14; player.isGrounded = false; playSound('jump'); } 
-        } else { player.isGrounded = false; }
+        if (player.y >= chaoAtual) { player.y = chaoAtual; player.vy = 0; player.isGrounded = true; if (keys.jump) { player.vy = -14; player.isGrounded = false; playSound('jump'); } } else { player.isGrounded = false; }
 
         let novoEstado = 'IDLE';
-        if (!player.isGrounded) novoEstado = 'JUMP';
-        else if (keys.fire) novoEstado = 'SHOOT';
-        else if (keys.left || keys.right) novoEstado = 'RUN';
+        if (!player.isGrounded) novoEstado = 'JUMP'; else if (keys.fire) novoEstado = 'SHOOT'; else if (keys.left || keys.right) novoEstado = 'RUN';
 
-        if (playerState !== novoEstado) {
-            playerState = novoEstado;
-            frameAtual = 0;
-            contadorAnim = 0;
-        }
+        if (playerState !== novoEstado) { playerState = novoEstado; frameAtual = 0; contadorAnim = 0; }
         
         if (keys.fire && Date.now() - lastShotTime > 350) { 
-            bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: 20 * player.facing, owner: 'local'}); 
+            let vx = 20 * player.facing;
+            bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: vx, owner: 'local'}); 
             lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); playSound('shoot');
+            
+            // EMITE O TIRO PARA A REDE
+            if (salaAtual && socket) {
+                socket.emit('atirar', { sala: salaAtual, x: player.x + (40 * player.facing), y: player.y + 40, vx: vx });
+            }
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
-        contadorAnim++; 
-        if(contadorAnim > 5) { 
-            frameAtual = (frameAtual + 1) % framesDoJogador.length; 
-            contadorAnim = 0; 
+        contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % framesDoJogador.length; contadorAnim = 0; }
+        
+        // 🔥 ATUALIZA A REDE COM A SUA POSIÇÃO 🔥
+        let now = Date.now();
+        if (salaAtual && socket && socket.connected && now - lastSync > 50) {
+            socket.emit('atualizar_movimento', {
+                sala: salaAtual, time: meuTime, x: player.x, y: player.y, facing: player.facing, 
+                state: playerState, frame: frameAtual, hp: player.hp, 
+                nick: meuPerfil.nickOriginal, isVIP: meuPerfil.isVIP, skinId: meuPerfil.equippedSkin
+            });
+            lastSync = now;
         }
+
     } else { playerState = 'IDLE'; }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); 
-    else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
-    
-    if (chaoImage.complete && chaoImage.naturalWidth > 0) ctx.drawImage(chaoImage, 0, gy, canvas.width, canvas.height - gy);
-    else { ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy); }
+    if (bgImage.complete && bgImage.naturalWidth > 0) ctx.drawImage(bgImage, 0, 0, canvas.width, gy); else { ctx.fillStyle = "#2c3e50"; ctx.fillRect(0, 0, canvas.width, gy); }
+    if (chaoImage.complete && chaoImage.naturalWidth > 0) ctx.drawImage(chaoImage, 0, gy, canvas.width, canvas.height - gy); else { ctx.fillStyle = "#1a252f"; ctx.fillRect(0, gy, canvas.width, canvas.height - gy); }
 
     obstaculosPartida.forEach(obs => { 
-        if(obs.isGelo) {
-            let imgGelo = getGeloImage(obs.skinId);
-            if (imgGelo && imgGelo.complete && imgGelo.naturalWidth > 0) {
-                ctx.drawImage(imgGelo, obs.x, gy - obs.h, obs.w, obs.h);
-            } else {
-                ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; 
-                ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-                ctx.strokeStyle = "#fff"; 
-                ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h);
-            }
-        } else {
-            ctx.fillStyle = "#3e2723"; 
-            ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); 
-            ctx.strokeStyle = "#000"; 
-            ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); 
-        }
+        if(obs.isGelo) { let imgGelo = getGeloImage(obs.skinId); if (imgGelo && imgGelo.complete && imgGelo.naturalWidth > 0) { ctx.drawImage(imgGelo, obs.x, gy - obs.h, obs.w, obs.h); } else { ctx.fillStyle = "rgba(0, 236, 255, 0.6)"; ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#fff"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); }
+        } else { ctx.fillStyle = "#3e2723"; ctx.fillRect(obs.x, gy - obs.h, obs.w, obs.h); ctx.strokeStyle = "#000"; ctx.strokeRect(obs.x, gy - obs.h, obs.w, obs.h); }
     });
 
     botsAtivos.forEach(bot => {
         if(bot.hp <= 0) return;
+        
+        // SE FOR UM JOGADOR DE REDE, APENAS DESENHA NA TELA! NÃO CHAMA INTELIGÊNCIA ARTIFICIAL (IA)
+        if (bot.isNetwork) {
+            desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, bot.frameAtual, bot.time !== meuTime, false, false);
+            return; 
+        }
+
+        // --- CÓDIGO DA INTELIGÊNCIA ARTIFICIAL PARA BOT LOCAL ---
         if (!bot.isGrounded) { bot.vy += 0.6; bot.y += bot.vy; }
         
         let alvo = null; let menorDist = Infinity;
         if (bot.time === 'B' && player.hp > 0) { let d = Math.abs(player.x - bot.x); if(d < menorDist){ menorDist = d; alvo = player; } }
-        botsAtivos.forEach(outroBot => { if (outroBot.hp > 0 && outroBot.time !== bot.time) { let d = Math.abs(outroBot.x - bot.x); if (d < menorDist) { menorDist = d; alvo = outroBot; } } });
+        botsAtivos.forEach(outroBot => { if (outroBot.hp > 0 && outroBot.time !== bot.time && !outroBot.isNetwork) { let d = Math.abs(outroBot.x - bot.x); if (d < menorDist) { menorDist = d; alvo = outroBot; } } });
 
         let nextBotX = bot.x;
         if (alvo) {
             let distToAlvo = alvo.x - bot.x; let distAbs = Math.abs(distToAlvo);
-            if (distAbs > 450) { 
-                bot.facing = distToAlvo > 0 ? 1 : -1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; 
-            } else if (distAbs < 60) { 
-                bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
-            } else { 
-                bot.state = 'IDLE'; 
-                if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } 
-                if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } 
-                bot.facing = distToAlvo > 0 ? 1 : -1; 
-            }
-            if (Date.now() > bot.lastShot + bot.taxaTiro) { 
-                bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); 
-                bot.lastShot = Date.now(); bot.state = 'SHOOT'; 
-            }
+            if (distAbs > 450) { bot.facing = distToAlvo > 0 ? 1 : -1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; 
+            } else if (distAbs < 60) { bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
+            } else { bot.state = 'IDLE'; if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } bot.facing = distToAlvo > 0 ? 1 : -1; }
+            if (Date.now() > bot.lastShot + bot.taxaTiro) { bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); bot.lastShot = Date.now(); bot.state = 'SHOOT'; }
         }
         
         let chaoAtualBot = 0; let colidiuLateralBot = false;
@@ -1201,11 +794,7 @@ function gameLoop() {
         if (!bot.isGrounded) bot.state = 'JUMP';
         
         let framesDoBot = getAnimFramesForSkin(bot.skinId, bot.state);
-        bot.contadorAnim++; 
-        if(bot.contadorAnim > 5) { 
-            bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; 
-            bot.contadorAnim = 0; 
-        }
+        bot.contadorAnim++; if(bot.contadorAnim > 5) { bot.frameAtual = (bot.frameAtual + 1) % framesDoBot.length; bot.contadorAnim = 0; }
         let botFrameReal = framesDoBot[bot.frameAtual] !== undefined ? framesDoBot[bot.frameAtual] : 0;
 
         desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, botFrameReal, bot.time !== meuTime, false, false);
@@ -1220,21 +809,22 @@ function gameLoop() {
             let obs = obstaculosPartida[j];
             if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { 
                 removeBala = true; playSound('hit');
-                if(obs.isGelo) {
-                    obs.hp -= 25; 
-                    if(obs.hp <= 0) obstaculosPartida.splice(j, 1); 
-                }
-                break; 
+                if(obs.isGelo) { obs.hp -= 25; if(obs.hp <= 0) obstaculosPartida.splice(j, 1); } break; 
             } 
         }
         
+        // Se eu tomar um tiro (Seja da IA ou do amigo na rede)
         if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
             player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true; playSound('hit');
         }
+
+        // Tiros pegando nos Bots/Inimigos
         if (!removeBala) {
             for (let bot of botsAtivos) {
                 if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
-                    let danoLocal = 25 + ((getSafeDmgLvl()-1) * 5); bot.hp -= (b.owner === 'local') ? danoLocal : 15; removeBala = true; playSound('hit'); break;
+                    // Dano se for bot da IA e você acertou (a rede gerencia o próprio dano)
+                    if(!bot.isNetwork && b.owner === 'local') { bot.hp -= (25 + ((getSafeDmgLvl()-1) * 5)); } 
+                    removeBala = true; playSound('hit'); break;
                 }
             }
         }
@@ -1243,10 +833,8 @@ function gameLoop() {
 
     if (player.hp > 0) {
         let localPlayerTitan = meuPerfil.patente && meuPerfil.patente.nome && meuPerfil.patente.nome.includes('TITAN');
-        
         let arrayDeFramesPlayer = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
         let playerFrameReal = arrayDeFramesPlayer[frameAtual] !== undefined ? arrayDeFramesPlayer[frameAtual] : 0;
-
         desJogador(player.x, gy+player.y, player.facing, meuPerfil.nickOriginal, meuPerfil.isVIP, meuPerfil.equippedSkin, playerFrameReal, false, auraAtiva, localPlayerTitan);
     }
     
@@ -1263,54 +851,25 @@ function gameLoop() {
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
 
-    if (isTitan) {
-        ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-    }
+    if (isTitan) { ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
     
     ctx.save(); ctx.scale(facing, 1); 
     
-    let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId;
-    carregarImagensDaSkin(prefixoSkin);
+    let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId; carregarImagensDaSkin(prefixoSkin);
+    let img = null; let usarFallback = false;
 
-    let img = null;
-    let usarFallback = false;
+    if (prefixoSkin === 'free') { img = playerSprites['free'] ? playerSprites['free'][fIdx] : null; } 
+    else { let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null; if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) { img = frameCustom; } else { usarFallback = true; } }
 
-    if (prefixoSkin === 'free') {
-        img = playerSprites['free'] ? playerSprites['free'][fIdx] : null;
-    } else {
-        let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null;
-        if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) {
-            img = frameCustom;
-        } else {
-            usarFallback = true;
-        }
-    }
-
-    if (usarFallback) {
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(-37.5, -75, 75, 75);
-    } else if (img && img.complete && img.naturalWidth > 0) {
-        if (img.naturalWidth > img.naturalHeight * 1.5) {
-            let totalFrames = 9;
-            let larguraFrame = img.naturalWidth / totalFrames;
-            let alturaFrame = img.naturalHeight;
-            let frameRecorte = fIdx % totalFrames;
-            ctx.drawImage(img, frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, -37.5, -75, 75, 75);
-        } else {
-            ctx.drawImage(img, -37.5, -75, 75, 75);
-        }
-    } else {
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(-37.5, -75, 75, 75);
-    }
+    if (usarFallback) { ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-37.5, -75, 75, 75); } 
+    else if (img && img.complete && img.naturalWidth > 0) {
+        if (img.naturalWidth > img.naturalHeight * 1.5) { let totalFrames = 9; let larguraFrame = img.naturalWidth / totalFrames; let alturaFrame = img.naturalHeight; let frameRecorte = fIdx % totalFrames; ctx.drawImage(img, frameRecorte * larguraFrame, 0, larguraFrame, alturaFrame, -37.5, -75, 75, 75); } 
+        else { ctx.drawImage(img, -37.5, -75, 75, 75); }
+    } else { ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(-37.5, -75, 75, 75); }
     ctx.restore(); 
     
-    if (isVIP) { 
-        ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; ctx.beginPath(); ctx.arc(0, -112, 9, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 11px Arial"; ctx.fillStyle = "#ffffff"; ctx.fillText("V", 0, -112); 
-    }
-    
+    if (isVIP) { ctx.fillStyle = 'hsl(' + (Date.now() / 2.5) % 360 + ', 100%, 50%)'; ctx.beginPath(); ctx.arc(0, -112, 9, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "900 11px Arial"; ctx.fillStyle = "#ffffff"; ctx.fillText("V", 0, -112); }
     ctx.textAlign = "center"; ctx.font = "bold 13px Arial"; ctx.fillStyle = isInimigo ? "#e74c3c" : "#ffffff"; ctx.fillText(nick, 0, -95); ctx.restore();
 }
 
@@ -1318,32 +877,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let shopContainer = document.getElementById('shop-items-list');
     if (shopContainer) {
         let startX, scrollLeft;
-        shopContainer.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].pageX - shopContainer.offsetLeft;
-            scrollLeft = shopContainer.scrollLeft;
-        }, {passive: true});
-        shopContainer.addEventListener('touchmove', (e) => {
-            if (!startX) return;
-            const x = e.touches[0].pageX - shopContainer.offsetLeft;
-            const walk = (startX - x);
-            shopContainer.scrollLeft = scrollLeft + walk;
-        }, {passive: true});
+        shopContainer.addEventListener('touchstart', (e) => { startX = e.touches[0].pageX - shopContainer.offsetLeft; scrollLeft = shopContainer.scrollLeft; }, {passive: true});
+        shopContainer.addEventListener('touchmove', (e) => { if (!startX) return; const x = e.touches[0].pageX - shopContainer.offsetLeft; const walk = (startX - x); shopContainer.scrollLeft = scrollLeft + walk; }, {passive: true});
     }
 });
 
-function falarComDono() {
-    let msg = prompt("Digite sua mensagem para o Dono do jogo:"); 
-    if(msg && msg.trim() !== '') { 
-        if (socket && socket.connected) { 
-            socket.emit('mensagem_para_dono', msg); 
-            playSound('skill');
-            alert("Mensagem enviada!"); 
-        } else { 
-            playSound('error');
-            alert("⚠️ O Servidor está reiniciando ou desligado. Tente novamente em alguns segundos."); 
-        } 
-    } 
-}
+function falarComDono() { let msg = prompt("Digite sua mensagem para o Dono do jogo:"); if(msg && msg.trim() !== '') { if (socket && socket.connected) { socket.emit('mensagem_para_dono', msg); playSound('skill'); alert("Mensagem enviada!"); } else { playSound('error'); alert("⚠️ O Servidor está reiniciando ou desligado."); } } }
 </script>
 
 </body>
