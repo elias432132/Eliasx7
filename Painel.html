@@ -160,10 +160,8 @@
         const URL_SERVIDOR = "https://eliasx7.onrender.com";
         let itensLocaisLoja = JSON.parse(localStorage.getItem('vitrine_salva')) || [];
 
-        // 🔐 Senha fixa do painel restaurada
         const ADMIN_SECRET = localStorage.getItem('admin_secret') || 'nexusmaster';
 
-        // Conexão com o backend devolvida 100%
         function adminFetch(url, options = {}) {
             options.headers = options.headers || {};
             options.headers['x-admin-secret'] = ADMIN_SECRET;
@@ -192,7 +190,6 @@
             alert("✅ Credenciais salvas!");
         }
 
-        // SISTEMA DE JOGADORES ONLINE (Funcionando novamente)
         async function carregarJogadores() {
             try {
                 let res = await adminFetch(URL_SERVIDOR + '/admin/jogadores');
@@ -357,8 +354,6 @@
             const precoOuro = parseInt(document.getElementById('preco-ouro').value) || 0;
             const precoDima = parseInt(document.getElementById('preco-dima').value) || 0;
             const comportamentoSkin = document.getElementById('comportamento-skin').value;
-            
-            // Aqui ele captura perfeitamente o gelo ou a skin que você selecionar
             const categoriaItem = document.getElementById('categoria-item').value; 
 
             if(!token || !owner || !repo) return alert("Configure as credenciais!");
@@ -428,10 +423,25 @@
                 renderizarBloquinhos();
 
                 try {
-                    await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
-                    alert(`✅ ENGENHARIA CONCLUÍDA!\nImagens enviadas ao GitHub e registradas no servidor!`);
+                    let resServer = await adminFetch(URL_SERVIDOR + '/admin/add-loja', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(skinConfigCompleta) });
+                    
+                    if (!resServer.ok) {
+                        let erroData = await resServer.json().catch(() => ({}));
+                        throw new Error(erroData.erro || "Falha ao registrar no servidor");
+                    }
+
+                    // 🔥 NOVIDADE: Força o backup imediato no GitHub! (A prova de falhas do Render)
+                    if (token && owner && repo) {
+                        logConsole(`Salvando backup final na nuvem (loja.json)...`);
+                        await adminFetch(URL_SERVIDOR + '/proxy/salvar-loja-github', {
+                            method: 'POST', headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ token, owner, repo })
+                        });
+                    }
+
+                    alert(`✅ ENGENHARIA CONCLUÍDA!\nItem registrado na loja e salvo na nuvem permanentemente!`);
                 } catch(serverErr) {
-                    alert(`✅ IMAGENS ENVIADAS AO GITHUB!\n⚠️ Servidor offline — use o botão RESTAURAR SERVIDOR depois que ele voltar.`);
+                    alert(`⚠️ ATENÇÃO: As imagens subiram para o GitHub, mas houve um erro:\n${serverErr.message}`);
                 }
             } catch(e) { alert("Erro: " + e.message); }
             
