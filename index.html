@@ -261,9 +261,6 @@
 </div>
 
 <script>
-// ==========================================
-// 🔊 SISTEMA DE ÁUDIO SINTETIZADO
-// ==========================================
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
@@ -276,22 +273,14 @@ function playSound(type) {
     const now = audioCtx.currentTime;
 
     switch(type) {
-        case 'click':
-            osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.05); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
-        case 'jump':
-            osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(350, now + 0.2); gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
-        case 'shoot':
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
-        case 'hit': 
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.15); gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); osc.start(now); osc.stop(now + 0.15); break;
-        case 'skill':
-            osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(800, now + 0.3); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); break;
-        case 'gelo':
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(2000, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
-        case 'buy': 
-            osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(1200, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
-        case 'error':
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.2); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
+        case 'click': osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.05); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
+        case 'jump': osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(350, now + 0.2); gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
+        case 'shoot': osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
+        case 'hit': osc.type = 'triangle'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.15); gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); osc.start(now); osc.stop(now + 0.15); break;
+        case 'skill': osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(800, now + 0.3); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); break;
+        case 'gelo': osc.type = 'triangle'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(2000, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
+        case 'buy': osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(1200, now + 0.1); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
+        case 'error': osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.2); gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
     }
 }
 
@@ -358,7 +347,6 @@ function conectarSocket() {
             }, 1000);
         }); 
 
-        // 🔥 O JOGO AGORA LÊ OS MOVIMENTOS DO SEU AMIGO DA REDE 🔥
         socket.on('movimento_inimigo', (dados) => {
             let inimigo = botsAtivos.find(b => b.id === dados.id);
             if (!inimigo) {
@@ -530,10 +518,7 @@ function usarGelo() {
         obstaculosPartida.push({ x: posGeloX, w: larguraGelo, h: 85, isGelo: true, hp: 150, skinId: meuPerfil.equippedIce });
         playSound('gelo'); mostrarMensagemHUD("❄️ GELO COLOCADO!");
         
-        // EMITE O GELO PARA O PARCEIRO DA SALA
-        if (salaAtual && socket) {
-            socket.emit('colocar_gelo', { sala: salaAtual, x: posGeloX, w: larguraGelo, h: 85, skinId: meuPerfil.equippedIce });
-        }
+        if (salaAtual && socket) { socket.emit('colocar_gelo', { sala: salaAtual, x: posGeloX, w: larguraGelo, h: 85, skinId: meuPerfil.equippedIce }); }
     } else if (gelosDisponiveis <= 0) { playSound('error'); mostrarMensagemHUD("❌ SEM GELOS!"); }
 }
 
@@ -619,7 +604,7 @@ const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getCont
 let gameRunning = false, loopAtivo = false;
 let player = { x: 100, y: 0, vy: 0, hp: 100, speed: 5, facing: 1, isGrounded: true };
 let bullets = []; let botsAtivos = []; let obstaculosPartida = [];
-let placarCS = { A: 0, B: 0 }; let roundRodando = true; let lastSync = 0; // Controle de rede
+let placarCS = { A: 0, B: 0 }; let roundRodando = true; let lastSync = 0; 
 
 const bgImage = new Image(); const chaoImage = new Image();
 const GITHUB_OWNER = "elias432132"; const GITHUB_REPO = "Eliasx7";      
@@ -647,15 +632,31 @@ function iniciarArena(idSala, modo) {
         obstaculosPartida = []; 
         
         if (botsAtivos.length === 0) {
-            // SE A SALA NÃO FOR DE REDE, CRIA BOTS LOCAIS. SENÃO, FICA VAZIO ATÉ A REDE MANDAR OS JOGADORES.
             if (!idSala.startsWith('SALA_REAL')) {
                 for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
                 for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
+            } else {
+                // 🔥 SISTEMA DE RESGATE (FAILSAFE) 🔥
+                // Se em 4 segundos o amigo real não conectar, injeta bot na sala para não ficar vazio!
+                setTimeout(() => {
+                    if (gameRunning && roundRodando) {
+                        let temInimigo = botsAtivos.some(b => b.time !== meuTime);
+                        if (!temInimigo) {
+                            mostrarMensagemHUD("⚠️ Oponente caiu! Injetando Bots...");
+                            let timeInimigo = meuTime === 'A' ? 'B' : 'A';
+                            for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot(timeInimigo, i + 50));
+                        }
+                        let temAliado = botsAtivos.some(b => b.time === meuTime && b.id !== socket.id);
+                        if (!temAliado && qAliados > 0) {
+                            for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot(meuTime, i + 60));
+                        }
+                    }
+                }, 4000);
             }
         } else {
             let lvl = getSafeDmgLvl(); let multiplicador = 1 + (lvl * 0.1); 
             botsAtivos.forEach(bot => {
-                if (bot.isNetwork) return; // NÃO RESETA BOTS DE REDE! O CELULAR DELES QUE MANDA A POSIÇÃO NOVA
+                if (bot.isNetwork) return; 
                 bot.hp = 100 * multiplicador; bot.x = bot.time === 'A' ? 50 + (Math.random()*100) : canvas.width - 150 - (Math.random()*100);
                 bot.y = -20; bot.vy = -15; bot.isGrounded = false; bot.state = 'JUMP';
                 bot.facing = bot.time === 'A' ? 1 : -1; bot.lastShot = Date.now() + Math.random()*400;
@@ -725,17 +726,12 @@ function gameLoop() {
             let vx = 20 * player.facing;
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: vx, owner: 'local'}); 
             lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); playSound('shoot');
-            
-            // EMITE O TIRO PARA A REDE
-            if (salaAtual && socket) {
-                socket.emit('atirar', { sala: salaAtual, x: player.x + (40 * player.facing), y: player.y + 40, vx: vx });
-            }
+            if (salaAtual && socket) { socket.emit('atirar', { sala: salaAtual, x: player.x + (40 * player.facing), y: player.y + 40, vx: vx }); }
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
         contadorAnim++; if(contadorAnim > 5) { frameAtual = (frameAtual + 1) % framesDoJogador.length; contadorAnim = 0; }
         
-        // 🔥 ATUALIZA A REDE COM A SUA POSIÇÃO 🔥
         let now = Date.now();
         if (salaAtual && socket && socket.connected && now - lastSync > 50) {
             socket.emit('atualizar_movimento', {
@@ -745,7 +741,6 @@ function gameLoop() {
             });
             lastSync = now;
         }
-
     } else { playerState = 'IDLE'; }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -761,15 +756,12 @@ function gameLoop() {
     botsAtivos.forEach(bot => {
         if(bot.hp <= 0) return;
         
-        // SE FOR UM JOGADOR DE REDE, APENAS DESENHA NA TELA! NÃO CHAMA INTELIGÊNCIA ARTIFICIAL (IA)
         if (bot.isNetwork) {
             desJogador(bot.x, gy+bot.y, bot.facing, bot.nick, bot.isVIP, bot.skinId, bot.frameAtual, bot.time !== meuTime, false, false);
             return; 
         }
 
-        // --- CÓDIGO DA INTELIGÊNCIA ARTIFICIAL PARA BOT LOCAL ---
         if (!bot.isGrounded) { bot.vy += 0.6; bot.y += bot.vy; }
-        
         let alvo = null; let menorDist = Infinity;
         if (bot.time === 'B' && player.hp > 0) { let d = Math.abs(player.x - bot.x); if(d < menorDist){ menorDist = d; alvo = player; } }
         botsAtivos.forEach(outroBot => { if (outroBot.hp > 0 && outroBot.time !== bot.time && !outroBot.isNetwork) { let d = Math.abs(outroBot.x - bot.x); if (d < menorDist) { menorDist = d; alvo = outroBot; } } });
@@ -801,28 +793,17 @@ function gameLoop() {
     });
 
     for(let i = bullets.length - 1; i >= 0; i--) {
-        let b = bullets[i]; b.x += b.vx;
-        ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
+        let b = bullets[i]; b.x += b.vx; ctx.fillStyle = "#f1c40f"; ctx.fillRect(b.x, gy - b.y, 14, 4);
         let donoTime = b.owner === 'local' ? meuTime : (b.owner.includes('_A_') ? 'A' : 'B'); let removeBala = false;
         
         for (let j = obstaculosPartida.length - 1; j >= 0; j--) { 
             let obs = obstaculosPartida[j];
-            if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { 
-                removeBala = true; playSound('hit');
-                if(obs.isGelo) { obs.hp -= 25; if(obs.hp <= 0) obstaculosPartida.splice(j, 1); } break; 
-            } 
+            if (b.x > obs.x && b.x < obs.x + obs.w && b.y > 0 && b.y < obs.h) { removeBala = true; playSound('hit'); if(obs.isGelo) { obs.hp -= 25; if(obs.hp <= 0) obstaculosPartida.splice(j, 1); } break; } 
         }
-        
-        // Se eu tomar um tiro (Seja da IA ou do amigo na rede)
-        if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) {
-            player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true; playSound('hit');
-        }
-
-        // Tiros pegando nos Bots/Inimigos
+        if (!removeBala && donoTime !== meuTime && player.hp > 0 && Math.abs(b.x - player.x) < 30 && b.y > -player.y && b.y < -player.y + 75) { player.hp -= 10; document.getElementById('arena-hp').innerText = `❤️ ${Math.max(0, player.hp)}`; removeBala = true; playSound('hit'); }
         if (!removeBala) {
             for (let bot of botsAtivos) {
                 if (bot.hp > 0 && bot.time !== donoTime && Math.abs(b.x - bot.x) < 30 && b.y > -bot.y && b.y < -bot.y + 75) {
-                    // Dano se for bot da IA e você acertou (a rede gerencia o próprio dano)
                     if(!bot.isNetwork && b.owner === 'local') { bot.hp -= (25 + ((getSafeDmgLvl()-1) * 5)); } 
                     removeBala = true; playSound('hit'); break;
                 }
@@ -850,15 +831,12 @@ function gameLoop() {
 
 function desJogador(x, baseY, facing, nick, isVIP, skinId, fIdx, isInimigo, hasAura, isTitan) {
     ctx.save(); ctx.translate(x, baseY); 
-
     if (isTitan) { ctx.save(); ctx.beginPath(); ctx.ellipse(0, -35, 45, 55, 0, 0, Math.PI * 2); ctx.shadowBlur = 25; ctx.shadowColor = "#f39c12"; ctx.fillStyle = "rgba(230, 126, 34, 0.4)"; ctx.fill(); ctx.strokeStyle = "#f1c40f"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
     if (hasAura) { ctx.beginPath(); ctx.ellipse(0, -10, 45, 15, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(46, 204, 113, 0.4)"; ctx.fill(); ctx.strokeStyle = "#2ecc71"; ctx.lineWidth = 2; ctx.stroke(); }
     
     ctx.save(); ctx.scale(facing, 1); 
-    
     let prefixoSkin = (skinId === 'padrao' || !skinId) ? 'free' : skinId; carregarImagensDaSkin(prefixoSkin);
     let img = null; let usarFallback = false;
-
     if (prefixoSkin === 'free') { img = playerSprites['free'] ? playerSprites['free'][fIdx] : null; } 
     else { let frameCustom = playerSprites[prefixoSkin] ? playerSprites[prefixoSkin][fIdx] : null; if (frameCustom && frameCustom.complete && frameCustom.naturalWidth > 0) { img = frameCustom; } else { usarFallback = true; } }
 
