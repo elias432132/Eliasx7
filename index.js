@@ -104,7 +104,6 @@ io.on('connection', (socket) => {
         let amigoEncontrado = false;
         let meuNick = jogadoresGlobais[socket.id] ? jogadoresGlobais[socket.id].nick : 'Sobrevivente';
         
-        // Procura no servidor quem tem o nick digitado
         io.sockets.sockets.forEach(s => {
             if (jogadoresGlobais[s.id] && jogadoresGlobais[s.id].nick === dados.para) {
                 amigoEncontrado = true;
@@ -119,10 +118,10 @@ io.on('connection', (socket) => {
 
     socket.on('aceitar_convite', (dados) => {
         const salaId = 'SALA_PRIVADA_' + Date.now();
-        socket.join(salaId); // Quem aceitou entra na sala privativa
+        socket.join(salaId); 
         const host = io.sockets.sockets.get(dados.idDe);
         if (host) {
-            host.join(salaId); // O dono do convite entra também
+            host.join(salaId); 
             io.to(salaId).emit('partida_iniciada', { 
                 sala: salaId, 
                 modo: 'solo', 
@@ -132,7 +131,21 @@ io.on('connection', (socket) => {
         }
     });
 
-    // SISTEMA DE FILA CORRIGIDO E RÁPIDO (12 segundos para Bots)
+    // --- SISTEMA DE VOZ (WebRTC) INJETADO ---
+    socket.on('entrar_call', (sala) => {
+        socket.to(sala).emit('novo_participante_voz', { id: socket.id });
+    });
+    socket.on('webrtc_offer', (dados) => {
+        socket.to(dados.target).emit('webrtc_offer', { sender: socket.id, sdp: dados.sdp });
+    });
+    socket.on('webrtc_answer', (dados) => {
+        socket.to(dados.target).emit('webrtc_answer', { sender: socket.id, sdp: dados.sdp });
+    });
+    socket.on('webrtc_ice_candidate', (dados) => {
+        socket.to(dados.target).emit('webrtc_ice_candidate', { sender: socket.id, candidate: dados.candidate });
+    });
+    // ---------------------------------------
+
     socket.on('buscar_partida', (dados) => {
         const modo = dados.modo;
         if (!filas[modo]) return;
@@ -151,7 +164,6 @@ io.on('connection', (socket) => {
                 io.to(p.id).emit('partida_encontrada', { sala: salaId, modo, timeA, timeB });
             });
         } else {
-            // Se passar 12 segundos sem player real, solta a sala com bots!
             setTimeout(() => {
                 const index = filas[modo].findIndex(p => p.id === socket.id);
                 if (index !== -1) {
