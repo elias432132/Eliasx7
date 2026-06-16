@@ -17,10 +17,10 @@
         .fullscreen-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0d1b2a, #1b263b); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; overflow-y: auto; touch-action: auto; }
         .hidden { display: none !important; }
         
-        .login-box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; border: 3px solid #00ecff; box-shadow: 0 0 20px #00ecff; width: 95%; max-width: 420px; }
-        .login-box input { width: 100%; padding: 10px; margin-bottom: 12px; background: #222; color: #fff; border: 2px solid #555; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center; touch-action: auto; }
-        .login-box input:focus { border-color: #00ecff; outline: none; }
-        .login-box button { touch-action: auto; pointer-events: auto; }
+        /* NOVO VISUAL DO LOGIN */
+        .login-box { background: rgba(0,0,0,0.85); padding: 30px; border-radius: 20px; border: 2px solid #00ecff; box-shadow: 0 0 40px rgba(0, 236, 255, 0.2); width: 95%; max-width: 400px; }
+        .login-box input, .login-box textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #444; border-radius: 10px; font-size: 14px; font-weight: bold; text-align: center; touch-action: auto; }
+        .login-box input:focus, .login-box textarea:focus { border-color: #00ecff; outline: none; background: rgba(0,0,0,0.5); }
         
         .btn-main { background: #e67e22; color: white; border: 3px solid #d35400; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; box-shadow: 0 4px #a83f00; cursor: pointer; margin: 4px; }
         .btn-main:hover { transform: scale(1.02); }
@@ -36,7 +36,7 @@
         .btn-play-giant:active { transform: scale(0.95); }
         @keyframes pulsePlay { 0% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 126, 34, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(230, 126, 34, 0.9); } 100% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 126, 34, 0.6); } }
 
-        .logo-jogo-neon { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0; animation: pulsaGlow 2s infinite ease-in-out; }
+        .logo-jogo-neon { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0; animation: pulsaGlow 2s infinite ease-in-out; text-shadow: 0 0 10px #00ecff; }
         @keyframes pulsaGlow { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
 
         .badge-patente { padding: 5px 15px; border-radius: 20px; border: 2px solid; color: white; font-weight: bold; font-size: 14px; background: rgba(0,0,0,0.5); }
@@ -93,15 +93,27 @@
 
 <div id="login-screen" class="fullscreen-menu">
     <div class="login-box" id="box-login-main">
-        <div class="logo-jogo-neon" style="font-size: 32px;">NEXUS STRIKE</div>
-        <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
-        <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
-        <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
-        <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (cadastro)" style="touch-action:auto;">
-        <div style="display:flex;gap:10px;margin-bottom:8px;">
-            <button class="btn-main" onclick="entrarConta()" style="width:50%;">ENTRAR</button>
-            <button class="btn-sub" onclick="cadastrarConta()" style="width:50%;background:#2ecc71;border-color:#27ae60;">CADASTRAR</button>
+        <div class="logo-jogo-neon" style="font-size: 32px; margin-bottom: 20px;">NEXUS STRIKE</div>
+        
+        <div id="login-normal">
+            <h1 style="font-size:16px; color:#00ecff; margin-top:0; margin-bottom:15px;">LOGIN DO SOBREVIVENTE</h1>
+            <input type="email" id="input-email" placeholder="E-mail" style="touch-action:auto;">
+            <input type="password" id="input-senha" placeholder="Senha" style="touch-action:auto;">
+            <input type="text" id="input-nick" placeholder="Nome do Sobrevivente (cadastro)" style="touch-action:auto;">
+            <div style="display:flex;gap:10px;margin-bottom:8px;">
+                <button class="btn-main" onclick="entrarConta()" style="width:50%; margin:0;">ENTRAR</button>
+                <button class="btn-main" onclick="cadastrarConta()" style="width:50%; background:#2ecc71; border-color:#27ae60; margin:0;">CADASTRAR</button>
+            </div>
+            <button class="btn-sub" onclick="mostrarTelaRecuperacao()" style="width:100%; background:#8e44ad; border-color:#732d91; margin: 10px 0 0 0; color: white;">🔄 RECUPERAR CONTA VIA CÓDIGO</button>
         </div>
+
+        <div id="login-recuperar" style="display:none;">
+            <h1 style="font-size:16px; color:#f1c40f; margin-top:0; margin-bottom:15px;">INJETAR CÓDIGO DE RECUPERAÇÃO</h1>
+            <textarea id="input-codigo-recuperacao-login" placeholder="Cole seu código aqui..." style="height:100px; font-size:12px;"></textarea>
+            <button class="btn-main" onclick="recuperarViaCodigoLogin()" style="width:100%; background:#2ecc71; border-color:#27ae60; margin:0 0 8px 0;">✅ INJETAR E ENTRAR</button>
+            <button class="btn-sub btn-danger" onclick="voltarParaLoginNormal()" style="width:100%; margin:0;">VOLTAR</button>
+        </div>
+
         <p id="login-msg" style="color:#e74c3c;font-size:13px;margin-top:8px;font-weight:bold;min-height:15px;"></p>
     </div>
 </div>
@@ -123,7 +135,7 @@
             <button class="btn-icon" onclick="verificarAtualizacaoDoJogo()" title="Atualizar">🔄<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; border-radius:50%; width:12px; height:12px;"></span></button>
             <button class="btn-icon" onclick="abrirMenu('upgrade-menu')" title="Atributos">⚙️</button>
             <button class="btn-icon" onclick="entrarModoEdicaoHUD('lobby')" title="HUD">🎛️</button>
-            <button class="btn-icon" onclick="abrirMenu('saveload-menu')" title="Recuperar Conta">💾</button>
+            <button class="btn-icon" onclick="abrirMenu('saveload-menu')" title="Recuperar Conta / Salvar">💾</button>
             <button class="btn-icon" style="border-color: rgba(231,76,60,0.5); color: #e74c3c; background: rgba(231,76,60,0.1);" onclick="fazerLogout()" title="Sair do Jogo">🚪</button>
         </div>
     </div>
@@ -201,10 +213,10 @@
 </div>
 
 <div id="saveload-menu" class="fullscreen-menu hidden">
-    <h2>RECUPERAR CONTA</h2>
+    <h2>RECUPERAR CONTA E SALVAR</h2>
     <textarea id="save-code-input" style="width:80%;height:80px;touch-action:auto;" placeholder="Cole aqui seu código..."></textarea><br>
-    <button class="btn-main" onclick="gerarCodigoSalvar()">GERAR MEU CÓDIGO</button>
-    <button class="btn-main" style="background:#2ecc71; border-color:#27ae60;" onclick="carregarCodigo()">INJETAR CÓDIGO</button>
+    <button class="btn-main" onclick="gerarCodigoSalvar()">GERAR MEU CÓDIGO (SALVAR)</button>
+    <button class="btn-main" style="background:#2ecc71; border-color:#27ae60;" onclick="carregarCodigo()">INJETAR CÓDIGO (RECUPERAR)</button>
     <button class="btn-sub btn-danger" onclick="fecharMenu('saveload-menu')" style="margin-top:10px;">VOLTAR</button>
 </div>
 
@@ -440,9 +452,26 @@ function resgatarPremioSemanalVip() {
 function processarFimDePartida(ganhou) {
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome); if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
-    if (ganhou) { playSound('buy'); p.estrelas++; if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); } } 
-    else { playSound('error'); p.estrelas--; if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } } }
-    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
+    
+    // --- LÓGICA DE OURO (25 a 75 se ganhou, 5 a 20 se perdeu) ---
+    let ouroGanho = 0;
+    if (ganhou) {
+        ouroGanho = Math.floor(Math.random() * (75 - 25 + 1)) + 25;
+        p.estrelas++; 
+        if (p.estrelas > PATENTES[idx].max && idx < PATENTES.length - 1) { p.nome = PATENTES[idx + 1].nome; p.estrelas = 1; alert(`🎉 PARABÉNS! VOCÊ SUBIU PARA ${p.nome}!`); }
+        playSound('buy');
+    } else {
+        ouroGanho = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
+        p.estrelas--; 
+        if (p.estrelas < 0) { if (idx > 0) { p.nome = PATENTES[idx - 1].nome; p.estrelas = PATENTES[idx - 1].max - 1; alert(`💀 QUE PENA! VOCÊ CAIU PARA ${p.nome}!`); } else { p.estrelas = 0; } }
+        playSound('error');
+    }
+    
+    meuPerfil.ouro = (parseInt(meuPerfil.ouro) || 0) + ouroGanho;
+    alert(`💰 PARTIDA FINALIZADA!\nVocê ganhou ${ouroGanho} moedas de Ouro.`);
+
+    meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); 
+    gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
     if (salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; }
 }
 
@@ -518,7 +547,9 @@ function usarGelo() {
         obstaculosPartida.push({ x: posGeloX, w: larguraGelo, h: 85, isGelo: true, hp: 150, skinId: meuPerfil.equippedIce });
         playSound('gelo'); mostrarMensagemHUD("❄️ GELO COLOCADO!");
         
-        if (salaAtual && socket) { socket.emit('colocar_gelo', { sala: salaAtual, x: posGeloX, w: larguraGelo, h: 85, skinId: meuPerfil.equippedIce }); }
+        if (salaAtual && socket) {
+            socket.emit('colocar_gelo', { sala: salaAtual, x: posGeloX, w: larguraGelo, h: 85, skinId: meuPerfil.equippedIce });
+        }
     } else if (gelosDisponiveis <= 0) { playSound('error'); mostrarMensagemHUD("❌ SEM GELOS!"); }
 }
 
@@ -555,7 +586,35 @@ function loadUserGameProgress(emailChave) {
 }
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
-function mostrarCampoNick() { document.getElementById('input-nick').style.display = 'block'; document.getElementById('btn-confirmar-cadastro').style.display = 'block'; document.getElementById('input-nick').focus(); }
+
+// --- NOVAS FUNÇÕES DA UI DE LOGIN E RECUPERAÇÃO ---
+function mostrarTelaRecuperacao() { 
+    document.getElementById('login-normal').style.display = 'none'; 
+    document.getElementById('login-recuperar').style.display = 'block'; 
+    document.getElementById('login-msg').innerText = ''; 
+    playSound('click'); 
+}
+
+function voltarParaLoginNormal() { 
+    document.getElementById('login-recuperar').style.display = 'none'; 
+    document.getElementById('login-normal').style.display = 'block'; 
+    document.getElementById('login-msg').innerText = ''; 
+    playSound('click'); 
+}
+
+function recuperarViaCodigoLogin() {
+    let codigo = document.getElementById('input-codigo-recuperacao-login').value.trim();
+    if (!codigo) { document.getElementById('login-msg').innerText = "Cole o código primeiro!"; playSound('error'); return; }
+    try {
+        let decodificado = decodeURIComponent(escape(atob(codigo)));
+        let d = JSON.parse(decodificado);
+        if (d && d.email) {
+            dbUsuarios[d.email] = d; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios));
+            meuEmail = d.email; localStorage.setItem('ff2d_current_user', d.email);
+            playSound('buy'); carregarLobby(); voltarParaLoginNormal(); document.getElementById('input-codigo-recuperacao-login').value = '';
+        }
+    } catch(e) { playSound('error'); document.getElementById('login-msg').innerText = "Código inválido ou corrompido!"; }
+}
 
 async function cadastrarConta() {
     let email = document.getElementById('input-email').value.trim(); let senha = document.getElementById('input-senha').value.trim(); let nick = document.getElementById('input-nick').value.trim();
@@ -636,8 +695,6 @@ function iniciarArena(idSala, modo) {
                 for(let i=0; i<qInimigos; i++) botsAtivos.push(criarBot('B', i));
                 for(let i=0; i<qAliados; i++) botsAtivos.push(criarBot('A', i+10));
             } else {
-                // 🔥 SISTEMA DE RESGATE (FAILSAFE) 🔥
-                // Se em 4 segundos o amigo real não conectar, injeta bot na sala para não ficar vazio!
                 setTimeout(() => {
                     if (gameRunning && roundRodando) {
                         let temInimigo = botsAtivos.some(b => b.time !== meuTime);
@@ -722,11 +779,12 @@ function gameLoop() {
 
         if (playerState !== novoEstado) { playerState = novoEstado; frameAtual = 0; contadorAnim = 0; }
         
+        // CORREÇÃO DA MIRA: Agora y + 55
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             let vx = 20 * player.facing;
-            bullets.push({x: player.x + (40 * player.facing), y: player.y + 40, vx: vx, owner: 'local'}); 
+            bullets.push({x: player.x + (40 * player.facing), y: player.y + 55, vx: vx, owner: 'local'}); 
             lastShotTime = Date.now(); somTiroEfeito.currentTime = 0; somTiroEfeito.play().catch(e => {}); playSound('shoot');
-            if (salaAtual && socket) { socket.emit('atirar', { sala: salaAtual, x: player.x + (40 * player.facing), y: player.y + 40, vx: vx }); }
+            if (salaAtual && socket) { socket.emit('atirar', { sala: salaAtual, x: player.x + (40 * player.facing), y: player.y + 55, vx: vx }); }
         }
         
         let framesDoJogador = getAnimFramesForSkin(meuPerfil.equippedSkin, playerState);
@@ -772,7 +830,9 @@ function gameLoop() {
             if (distAbs > 450) { bot.facing = distToAlvo > 0 ? 1 : -1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; 
             } else if (distAbs < 60) { bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
             } else { bot.state = 'IDLE'; if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } bot.facing = distToAlvo > 0 ? 1 : -1; }
-            if (Date.now() > bot.lastShot + bot.taxaTiro) { bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 40, vx: 20 * bot.facing, owner: bot.id}); bot.lastShot = Date.now(); bot.state = 'SHOOT'; }
+            
+            // CORREÇÃO DA MIRA DO BOT: Agora y + 55
+            if (Date.now() > bot.lastShot + bot.taxaTiro) { bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 55, vx: 20 * bot.facing, owner: bot.id}); bot.lastShot = Date.now(); bot.state = 'SHOOT'; }
         }
         
         let chaoAtualBot = 0; let colidiuLateralBot = false;
