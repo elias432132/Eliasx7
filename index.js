@@ -46,17 +46,22 @@ let filas = { solo: [], duo: [], squad: [] };
 let lojaDinamica = carregarLoja();
 let jogadoresGlobais = {};
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+// NOVA VARIÁVEL GLOBAL DO MAPA
+let cenarioAtualGlobal = { fundo: '', chao: '', obstaculos: [] }; 
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'elias432132';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'Eliasx7';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 async function carregarLojaDoGitHub() {
     if (!GITHUB_TOKEN) return;
     if (lojaDinamica.skins.length > 0) return; 
+    
     try {
         const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/loja.json`;
         const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` } });
         const dados = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf8'));
+        
         if (dados.skins && dados.skins.length > 0) {
             lojaDinamica = dados;
             salvarLoja();
@@ -71,14 +76,19 @@ setTimeout(carregarLojaDoGitHub, 3000);
 
 function verificarAdmin(req, res, next) {
     const senhaRecebida = req.headers['x-admin-secret'] || req.body?.adminSecret;
+    
     if (senhaRecebida !== ADMIN_SECRET) {
         return res.status(403).json({ sucesso: false, erro: 'Acesso negado. Senha incorreta.' });
     }
+    
     next();
 }
 
 io.on('connection', (socket) => {
     socket.emit('atualizar_loja_dinamica', lojaDinamica);
+    
+    // ENVIA O MAPA ATUAL AO CONECTAR
+    socket.emit('atualizar_cenario', cenarioAtualGlobal); 
 
     socket.on('pedir_loja_atualizada', () => {
         socket.emit('atualizar_loja_dinamica', lojaDinamica);
@@ -95,7 +105,6 @@ io.on('connection', (socket) => {
         io.emit('aviso_painel_admin', { id: socket.id, nick: nick, msg: texto });
     });
 
-    // --- INTEGRADO: SISTEMA DE AMIGOS E CONVITES PARA EQUIPE ---
     socket.on('adicionar_amigo', (nickAmigo) => {
         socket.emit('nova_mensagem_sistema', { msg: `Solicitação de amizade enviada para ${nickAmigo}!` });
     });
@@ -120,6 +129,7 @@ io.on('connection', (socket) => {
         const salaId = 'SALA_PRIVADA_' + Date.now();
         socket.join(salaId); 
         const host = io.sockets.sockets.get(dados.idDe);
+        
         if (host) {
             host.join(salaId); 
             io.to(salaId).emit('partida_iniciada', { 
@@ -131,24 +141,28 @@ io.on('connection', (socket) => {
         }
     });
 
-    // --- SISTEMA DE VOZ (WebRTC) INJETADO ---
-    socket.on('entrar_call', (sala) => {
-        socket.to(sala).emit('novo_participante_voz', { id: socket.id });
+    // --- WEBRTC - SISTEMA DE VOZ ---
+    socket.on('entrar_call', (sala) => { 
+        socket.to(sala).emit('novo_participante_voz', { id: socket.id }); 
     });
-    socket.on('webrtc_offer', (dados) => {
-        socket.to(dados.target).emit('webrtc_offer', { sender: socket.id, sdp: dados.sdp });
+    
+    socket.on('webrtc_offer', (dados) => { 
+        socket.to(dados.target).emit('webrtc_offer', { sender: socket.id, sdp: dados.sdp }); 
     });
-    socket.on('webrtc_answer', (dados) => {
-        socket.to(dados.target).emit('webrtc_answer', { sender: socket.id, sdp: dados.sdp });
+    
+    socket.on('webrtc_answer', (dados) => { 
+        socket.to(dados.target).emit('webrtc_answer', { sender: socket.id, sdp: dados.sdp }); 
     });
-    socket.on('webrtc_ice_candidate', (dados) => {
-        socket.to(dados.target).emit('webrtc_ice_candidate', { sender: socket.id, candidate: dados.candidate });
+    
+    socket.on('webrtc_ice_candidate', (dados) => { 
+        socket.to(dados.target).emit('webrtc_ice_candidate', { sender: socket.id, candidate: dados.candidate }); 
     });
-    // ---------------------------------------
 
+    // --- MATCHMAKING E PARTIDAS ---
     socket.on('buscar_partida', (dados) => {
         const modo = dados.modo;
         if (!filas[modo]) return;
+        
         const maxPlayers = modo === 'solo' ? 2 : (modo === 'duo' ? 4 : 8);
         filas[modo].push({ id: socket.id, nick: dados.nick });
 
@@ -168,50 +182,77 @@ io.on('connection', (socket) => {
                 const index = filas[modo].findIndex(p => p.id === socket.id);
                 if (index !== -1) {
                     const p = filas[modo].splice(index, 1)[0];
-                    io.to(p.id).emit('partida_encontrada', { sala: 'SALA_BOTS_' + Date.now(), modo, timeA: [p.id], timeB: [] });
+                    io.to(p.id).emit('partida_encontrada', { 
+                        sala: 'SALA_BOTS_' + Date.now(), 
+                        modo, 
+                        timeA: [p.id], 
+                        timeB: [] 
+                    });
                 }
             }, 12000); 
         }
     });
 
-    socket.on('cancelar_busca', () => {
-        ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id));
+    socket.on('cancelar_busca', () => { 
+        ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id)); 
     });
-
-    socket.on('atualizar_movimento', (dados) => {
-        socket.to(dados.sala).emit('movimento_inimigo', { id: socket.id, ...dados });
+    
+    socket.on('atualizar_movimento', (dados) => { 
+        socket.to(dados.sala).emit('movimento_inimigo', { id: socket.id, ...dados }); 
     });
-
-    socket.on('atirar', (dados) => {
-        socket.to(dados.sala).emit('tiro_inimigo', { id: socket.id, ...dados });
+    
+    socket.on('atirar', (dados) => { 
+        socket.to(dados.sala).emit('tiro_inimigo', { id: socket.id, ...dados }); 
     });
-
-    socket.on('colocar_gelo', (dados) => {
-        socket.to(dados.sala).emit('gelo_inimigo', { id: socket.id, ...dados });
+    
+    socket.on('colocar_gelo', (dados) => { 
+        socket.to(dados.sala).emit('gelo_inimigo', { id: socket.id, ...dados }); 
     });
-
-    socket.on('sair_sala', (sala) => {
-        socket.leave(sala);
+    
+    socket.on('sair_sala', (sala) => { 
+        socket.leave(sala); 
     });
-
-    socket.on('enviar_mensagem', (msg) => { io.emit('nova_mensagem', msg); });
-
+    
+    socket.on('enviar_mensagem', (msg) => { 
+        io.emit('nova_mensagem', msg); 
+    });
+    
     socket.on('disconnect', () => {
         ['solo', 'duo', 'squad'].forEach(m => filas[m] = filas[m].filter(p => p.id !== socket.id));
         delete jogadoresGlobais[socket.id];
     });
 });
 
-app.get('/admin/jogadores', verificarAdmin, (req, res) => {
-    res.json({ sucesso: true, lista: Object.values(jogadoresGlobais) });
+// --- ROTAS DO PAINEL ADMIN ---
+
+app.get('/admin/jogadores', verificarAdmin, (req, res) => { 
+    res.json({ sucesso: true, lista: Object.values(jogadoresGlobais) }); 
 });
 
 app.post('/admin/gerar-codigo', verificarAdmin, (req, res) => {
     const { diamantes } = req.body;
-    if (!diamantes || diamantes <= 0) return res.status(400).json({ sucesso: false, erro: 'Quantidade inválida.' });
+    
+    if (!diamantes || diamantes <= 0) {
+        return res.status(400).json({ sucesso: false, erro: 'Quantidade inválida.' });
+    }
+    
     const codigo = 'X7-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     codigosValidos[codigo] = diamantes;
     res.json({ sucesso: true, codigo });
+});
+
+// 🔥 NOVA ROTA: RECEBE O NOVO CENÁRIO DO PAINEL E REPASSA PARA O JOGO
+app.post('/admin/definir-cenario', verificarAdmin, (req, res) => {
+    const { fundo, chao, obstaculos } = req.body;
+    
+    cenarioAtualGlobal = { 
+        fundo: fundo || '', 
+        chao: chao || '', 
+        obstaculos: obstaculos || [] 
+    };
+    
+    io.emit('atualizar_cenario', cenarioAtualGlobal);
+    res.json({ sucesso: true });
 });
 
 app.post('/admin/dar-vip', verificarAdmin, (req, res) => {
@@ -235,18 +276,37 @@ app.post('/admin/banir', verificarAdmin, (req, res) => {
     res.json({ sucesso: true });
 });
 
+// --- ROTAS DE LOJA ---
+
 app.post('/admin/add-loja', verificarAdmin, (req, res) => {
     let { tipo, id, name, price, priceD, comportamento, config_frames } = req.body;
+    
     if (tipo === 'armas') tipo = 'weapons';
     if (tipo === 'gelo') tipo = 'ice';
-    if (tipo !== 'skins' && tipo !== 'weapons' && tipo !== 'ice') { return res.status(400).json({ sucesso: false, erro: 'Tipo inválido.' }); }
-    if (!id || !name) { return res.status(400).json({ sucesso: false, erro: 'ID e nome são obrigatórios.' }); }
-
+    
+    if (tipo !== 'skins' && tipo !== 'weapons' && tipo !== 'ice') { 
+        return res.status(400).json({ sucesso: false, erro: 'Tipo inválido.' }); 
+    }
+    
+    if (!id || !name) { 
+        return res.status(400).json({ sucesso: false, erro: 'ID e nome são obrigatórios.' }); 
+    }
+    
     if (!lojaDinamica[tipo]) lojaDinamica[tipo] = [];
+    
     lojaDinamica[tipo] = lojaDinamica[tipo].filter(item => item.id !== id);
-    lojaDinamica[tipo].push({ id, name, price: price || 0, priceD: priceD || 0, comportamento: comportamento || 'custom_isolated', config_frames });
-
-    salvarLoja(); io.emit('atualizar_loja_dinamica', lojaDinamica); res.json({ sucesso: true });
+    lojaDinamica[tipo].push({ 
+        id, 
+        name, 
+        price: price || 0, 
+        priceD: priceD || 0, 
+        comportamento: comportamento || 'custom_isolated', 
+        config_frames 
+    });
+    
+    salvarLoja(); 
+    io.emit('atualizar_loja_dinamica', lojaDinamica); 
+    res.json({ sucesso: true });
 });
 
 app.get('/admin/loja', verificarAdmin, (req, res) => {
@@ -259,66 +319,125 @@ app.get('/admin/loja', verificarAdmin, (req, res) => {
 
 app.post('/admin/remover-loja', verificarAdmin, (req, res) => {
     const { id } = req.body;
+    
     if (!id) return res.status(400).json({ sucesso: false, erro: 'ID inválido.' });
+    
     if (lojaDinamica.skins) lojaDinamica.skins = lojaDinamica.skins.filter(item => item.id !== id);
     if (lojaDinamica.weapons) lojaDinamica.weapons = lojaDinamica.weapons.filter(item => item.id !== id);
     if (lojaDinamica.ice) lojaDinamica.ice = lojaDinamica.ice.filter(item => item.id !== id);
-    salvarLoja(); io.emit('atualizar_loja_dinamica', lojaDinamica); res.json({ sucesso: true });
+    
+    salvarLoja(); 
+    io.emit('atualizar_loja_dinamica', lojaDinamica); 
+    res.json({ sucesso: true });
 });
+
+// --- ROTAS DO JOGO E PAGAMENTOS ---
 
 app.post('/jogo/resgatar-codigo', (req, res) => {
     const { codigo } = req.body;
+    
     if (!codigo) return res.status(400).json({ sucesso: false, erro: 'Código inválido!' });
-    if (codigosValidos[codigo]) { const dimas = codigosValidos[codigo]; delete codigosValidos[codigo]; res.json({ sucesso: true, diamantesGanhos: dimas }); } 
-    else { res.json({ sucesso: false, erro: 'Código inválido!' }); }
+    
+    if (codigosValidos[codigo]) { 
+        const dimas = codigosValidos[codigo]; 
+        delete codigosValidos[codigo]; 
+        res.json({ sucesso: true, diamantesGanhos: dimas }); 
+    } else { 
+        res.json({ sucesso: false, erro: 'Código inválido!' }); 
+    }
 });
 
 app.post('/gerar-pix', async (req, res) => {
     const { diamantes, nome, Nick, cpfCnpj, email } = req.body;
     const nomeComprador = nome || Nick || 'Sobrevivente';
     const qtdDiamantes = parseInt(diamantes);
-
-    if (!qtdDiamantes || qtdDiamantes < 250) { return res.status(400).json({ sucesso: false, erro: 'Mínimo de 250 diamantes.' }); }
+    
+    if (!qtdDiamantes || qtdDiamantes < 250) { 
+        return res.status(400).json({ sucesso: false, erro: 'Mínimo de 250 diamantes.' }); 
+    }
+    
     const valorRealCobrado = Number((qtdDiamantes * 0.02).toFixed(2));
-
+    
     try {
         const emailGenerico = email || 'jogador@freex7.com';
         const cpfGenerico = (cpfCnpj || '01234567890').replace(/\D/g, '');
-        const dadosPagamento = { transaction_amount: valorRealCobrado, description: `Pacote de ${qtdDiamantes} Diamantes - Nexus Strike`, payment_method_id: 'pix', payer: { email: emailGenerico, first_name: nomeComprador, identification: { type: 'CPF', number: cpfGenerico } }, external_reference: `${Nick}||${qtdDiamantes}` };
-        const mpResponse = await axios.post('https://api.mercadopago.com/v1/payments', dadosPagamento, { headers: { 'Authorization': `Bearer ${MERCADOPG_TOKEN}`, 'X-Idempotency-Key': `pix-nexus-${Date.now()}` } });
-
+        
+        const dadosPagamento = { 
+            transaction_amount: valorRealCobrado, 
+            description: `Pacote de ${qtdDiamantes} Diamantes - Nexus Strike`, 
+            payment_method_id: 'pix', 
+            payer: { 
+                email: emailGenerico, 
+                first_name: nomeComprador, 
+                identification: { type: 'CPF', number: cpfGenerico } 
+            }, 
+            external_reference: `${Nick}||${qtdDiamantes}` 
+        };
+        
+        const mpResponse = await axios.post('https://api.mercadopago.com/v1/payments', dadosPagamento, { 
+            headers: { 
+                'Authorization': `Bearer ${MERCADOPG_TOKEN}`, 
+                'X-Idempotency-Key': `pix-nexus-${Date.now()}` 
+            } 
+        });
+        
         const copiaECola = mpResponse.data.point_of_interaction?.transaction_data?.qr_code;
         const qrCodeBase64 = mpResponse.data.point_of_interaction?.transaction_data?.qr_code_base64;
         const cobrancaId = mpResponse.data.id;
-
+        
         if (!copiaECola) throw new Error('Mercado Pago não retornou a chave PIX.');
+        
         res.json({ sucesso: true, copia_e_cola: copiaECola, qrcode_base64: qrCodeBase64, cobranca_id: cobrancaId });
     } catch (error) {
-        console.error('Erro ao gerar PIX:', error.response?.data || error.message); res.status(500).json({ sucesso: false, erro: 'Erro interno no Mercado Pago.' });
+        console.error('Erro ao gerar PIX:', error.response?.data || error.message); 
+        res.status(500).json({ sucesso: false, erro: 'Erro interno no Mercado Pago.' });
     }
 });
 
 app.post('/notificacao-pagamento', async (req, res) => {
     res.sendStatus(200); 
     const { action, type, data } = req.body;
+    
     if (action === 'payment.updated' || type === 'payment') {
         try {
             const paymentId = data.id;
-            const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, { headers: { 'Authorization': `Bearer ${MERCADOPG_TOKEN}` } });
+            const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, { 
+                headers: { 'Authorization': `Bearer ${MERCADOPG_TOKEN}` } 
+            });
+            
             const pagamento = mpRes.data;
             
             if (pagamento.status === 'approved' && pagamento.external_reference) {
                 const [nickJogador, qtdDiamantesString] = pagamento.external_reference.split('||');
                 const dimasComprados = parseInt(qtdDiamantesString);
                 let socketIdDoPagador = null;
-                for (const [idSocket, infoJogador] of Object.entries(jogadoresGlobais)) { if (infoJogador.nick === nickJogador) { socketIdDoPagador = idSocket; break; } }
-                if (socketIdDoPagador) { io.to(socketIdDoPagador).emit('pix_confirmado_automatico', { diamantesGanhos: dimasComprados }); }
+                
+                for (const [idSocket, infoJogador] of Object.entries(jogadoresGlobais)) { 
+                    if (infoJogador.nick === nickJogador) { 
+                        socketIdDoPagador = idSocket; 
+                        break; 
+                    } 
+                }
+                
+                if (socketIdDoPagador) { 
+                    io.to(socketIdDoPagador).emit('pix_confirmado_automatico', { diamantesGanhos: dimasComprados }); 
+                }
             }
-        } catch(error) { console.error('Erro ao processar notificação:', error.message); }
+        } catch(error) { 
+            console.error('Erro ao processar notificação:', error.message); 
+        }
     }
 });
 
-app.get('/status', (req, res) => { res.json({ status: 'online', skins: (lojaDinamica.skins || []).length, weapons: (lojaDinamica.weapons || []).length }); });
+app.get('/status', (req, res) => { 
+    res.json({ 
+        status: 'online', 
+        skins: (lojaDinamica.skins || []).length, 
+        weapons: (lojaDinamica.weapons || []).length 
+    }); 
+});
+
+// --- INTEGRAÇÃO COM GITHUB (PROXY) ---
 
 app.post('/proxy/carregar-loja-github', verificarAdmin, async (req, res) => {
     const { token, owner, repo } = req.body;
@@ -326,33 +445,71 @@ app.post('/proxy/carregar-loja-github', verificarAdmin, async (req, res) => {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/loja.json`;
         const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
         const dados = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf8'));
-        if (dados.skins && dados.skins.length > 0) { lojaDinamica = dados; salvarLoja(); io.emit('atualizar_loja_dinamica', lojaDinamica); res.json({ sucesso: true, skins: lojaDinamica.skins.length }); } 
-        else { res.json({ sucesso: false, erro: 'Loja vazia no GitHub' }); }
-    } catch (err) { res.status(500).json({ sucesso: false, erro: err.message }); }
+        
+        if (dados.skins && dados.skins.length > 0) { 
+            lojaDinamica = dados; 
+            salvarLoja(); 
+            io.emit('atualizar_loja_dinamica', lojaDinamica); 
+            res.json({ sucesso: true, skins: lojaDinamica.skins.length }); 
+        } else { 
+            res.json({ sucesso: false, erro: 'Loja vazia no GitHub' }); 
+        }
+    } catch (err) { 
+        res.status(500).json({ sucesso: false, erro: err.message }); 
+    }
 });
 
 app.post('/proxy/github-upload', verificarAdmin, async (req, res) => {
     const { token, owner, repo, path: filePath, content, sha } = req.body;
-    if (!token || !owner || !repo || !filePath || !content) { return res.status(400).json({ sucesso: false, erro: 'Campos faltando.' }); }
+    
+    if (!token || !owner || !repo || !filePath || !content) { 
+        return res.status(400).json({ sucesso: false, erro: 'Campos faltando.' }); 
+    }
+    
     try {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
-        const payload = { message: `Upload ${filePath}`, content }; if (sha) payload.sha = sha;
-        const response = await axios.put(url, payload, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, timeout: 30000 });
+        const payload = { message: `Upload ${filePath}`, content }; 
+        if (sha) payload.sha = sha;
+        
+        const response = await axios.put(url, payload, { 
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+            timeout: 30000 
+        });
+        
         res.json({ sucesso: true, data: response.data });
-    } catch (err) { res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message }); }
+    } catch (err) { 
+        res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message }); 
+    }
 });
 
 app.post('/proxy/salvar-loja-github', verificarAdmin, async (req, res) => {
     const { token, owner, repo } = req.body;
-    if (!token || !owner || !repo) { return res.status(400).json({ sucesso: false, erro: 'Campos faltando.' }); }
+    
+    if (!token || !owner || !repo) { 
+        return res.status(400).json({ sucesso: false, erro: 'Campos faltando.' }); 
+    }
+    
     try {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/loja.json`;
         const content = Buffer.from(JSON.stringify(lojaDinamica, null, 2)).toString('base64');
-        let sha = null; try { const getRes = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } }); sha = getRes.data.sha; } catch(e) {}
-        const payload = { message: 'Atualizar loja.json', content }; if (sha) payload.sha = sha;
-        await axios.put(url, payload, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, timeout: 30000 });
+        let sha = null; 
+        
+        try { 
+            const getRes = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } }); 
+            sha = getRes.data.sha; 
+        } catch(e) {}
+        
+        const payload = { message: 'Atualizar loja.json', content }; 
+        if (sha) payload.sha = sha;
+        
+        await axios.put(url, payload, { 
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+            timeout: 30000 
+        });
         res.json({ sucesso: true });
-    } catch (err) { res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message }); }
+    } catch (err) { 
+        res.status(500).json({ sucesso: false, erro: err.response?.data?.message || err.message }); 
+    }
 });
 
 app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
@@ -361,11 +518,16 @@ app.post('/proxy/github-get', verificarAdmin, async (req, res) => {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
         const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
         res.json({ sucesso: true, sha: response.data.sha });
-    } catch (err) { res.json({ sucesso: false, sha: null }); }
+    } catch (err) { 
+        res.json({ sucesso: false, sha: null }); 
+    }
 });
 
 app.use(express.static(path.join(__dirname)));
-app.get('/painel', (req, res) => { res.sendFile(path.join(__dirname, 'Painel.html')); });
+
+app.get('/painel', (req, res) => { 
+    res.sendFile(path.join(__dirname, 'Painel.html')); 
+});
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`🚀 Servidor Nexus Strike online na porta ${PORT}`));
