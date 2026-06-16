@@ -95,7 +95,44 @@ io.on('connection', (socket) => {
         io.emit('aviso_painel_admin', { id: socket.id, nick: nick, msg: texto });
     });
 
-    // SISTEMA DE FILA CORRIGIDO E MAIS RÁPIDO (12 segundos)
+    // --- INTEGRADO: SISTEMA DE AMIGOS E CONVITES PARA EQUIPE ---
+    socket.on('adicionar_amigo', (nickAmigo) => {
+        socket.emit('nova_mensagem_sistema', { msg: `Solicitação de amizade enviada para ${nickAmigo}!` });
+    });
+
+    socket.on('convidar_para_equipe', (dados) => {
+        let amigoEncontrado = false;
+        let meuNick = jogadoresGlobais[socket.id] ? jogadoresGlobais[socket.id].nick : 'Sobrevivente';
+        
+        // Procura no servidor quem tem o nick digitado
+        io.sockets.sockets.forEach(s => {
+            if (jogadoresGlobais[s.id] && jogadoresGlobais[s.id].nick === dados.para) {
+                amigoEncontrado = true;
+                s.emit('receber_convite', { de: meuNick, idDe: socket.id, tipo: dados.tipo });
+            }
+        });
+        
+        if (!amigoEncontrado) {
+            socket.emit('nova_mensagem_sistema', { msg: `⚠️ O jogador ${dados.para} está offline ou não existe.` });
+        }
+    });
+
+    socket.on('aceitar_convite', (dados) => {
+        const salaId = 'SALA_PRIVADA_' + Date.now();
+        socket.join(salaId); // Quem aceitou entra na sala privativa
+        const host = io.sockets.sockets.get(dados.idDe);
+        if (host) {
+            host.join(salaId); // O dono do convite entra também
+            io.to(salaId).emit('partida_iniciada', { 
+                sala: salaId, 
+                modo: 'solo', 
+                timeA: [socket.id], 
+                timeB: [dados.idDe] 
+            });
+        }
+    });
+
+    // SISTEMA DE FILA CORRIGIDO E RÁPIDO (12 segundos para Bots)
     socket.on('buscar_partida', (dados) => {
         const modo = dados.modo;
         if (!filas[modo]) return;
@@ -114,7 +151,7 @@ io.on('connection', (socket) => {
                 io.to(p.id).emit('partida_encontrada', { sala: salaId, modo, timeA, timeB });
             });
         } else {
-            // Fila de espera reduzida de 30s para 12s para soltar os BOTS mais rápido!
+            // Se passar 12 segundos sem player real, solta a sala com bots!
             setTimeout(() => {
                 const index = filas[modo].findIndex(p => p.id === socket.id);
                 if (index !== -1) {
