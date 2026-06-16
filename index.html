@@ -79,7 +79,6 @@
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
-        /* MICROFONE CSS (INJETADO) */
         #btn-mic { position: absolute; top: 80px; left: 15px; width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid #fff; border-radius: 50%; z-index: 50; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; transition: 0.3s; pointer-events: auto !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .active-mic { background: #e74c3c !important; border-color: #ff9f43 !important; animation: pulseMic 1.5s infinite; }
         @keyframes pulseMic { 0% { box-shadow: 0 0 5px #e74c3c; } 50% { box-shadow: 0 0 20px #e74c3c; } 100% { box-shadow: 0 0 5px #e74c3c; } }
@@ -297,16 +296,21 @@
 </div>
 
 <script>
-// --- FUNÇÕES INJETADAS AQUI (Microfone e Convites) ---
 let localStream = null;
+let peerConnections = {};
+const webrtcConfig = { 'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}] };
+
 async function toggleMic() {
     const btn = document.getElementById('btn-mic');
     if (!localStream) {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             btn.classList.add('active-mic');
             playSound('skill');
             mostrarMensagemHUD("🎙️ Microfone Ligado!");
+            if(salaAtual && socket && socket.connected) {
+                socket.emit('entrar_call', salaAtual);
+            }
         } catch (err) { alert("Permissão negada ou erro no microfone. O site precisa estar em HTTPS."); }
     } else {
         localStream.getTracks().forEach(track => track.stop());
@@ -314,7 +318,50 @@ async function toggleMic() {
         btn.classList.remove('active-mic');
         playSound('error');
         mostrarMensagemHUD("🔇 Microfone Desligado!");
+        fecharTodasCalls();
     }
+}
+
+function fecharTodasCalls() {
+    for (let id in peerConnections) {
+        if(peerConnections[id]) peerConnections[id].close();
+        let audio = document.getElementById('audio-' + id);
+        if(audio) audio.remove();
+    }
+    peerConnections = {};
+}
+
+function criarPeerConnection(peerId) {
+    const pc = new RTCPeerConnection(webrtcConfig);
+    peerConnections[peerId] = pc;
+    if(localStream) { localStream.getTracks().forEach(track => pc.addTrack(track, localStream)); }
+
+    pc.onicecandidate = event => {
+        if(event.candidate && socket) {
+            socket.emit('webrtc_ice_candidate', { target: peerId, candidate: event.candidate });
+        }
+    };
+
+    pc.ontrack = event => {
+        let audio = document.getElementById('audio-' + peerId);
+        if(!audio) {
+            audio = document.createElement('audio');
+            audio.id = 'audio-' + peerId;
+            audio.autoplay = true;
+            document.body.appendChild(audio);
+        }
+        audio.srcObject = event.streams[0];
+    };
+
+    pc.oniceconnectionstatechange = () => {
+        if(pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+            pc.close();
+            delete peerConnections[peerId];
+            let audio = document.getElementById('audio-' + peerId);
+            if(audio) audio.remove();
+        }
+    };
+    return pc;
 }
 
 function adicionarAmigo() {
@@ -394,7 +441,7 @@ function conectarSocket() {
         socket.on('historico_chat', (msgs) => { document.getElementById('chat-mensagens').innerHTML = ''; msgs.forEach(m => adicionarMensagemChat(m)); });
         socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
         
-        // --- OUVINTES DE CONVITE INJETADOS AQUI ---
+        // --- OUVINTES WEBRTC E EQUIPE INJETADOS AQUI ---
         socket.on('receber_convite', (dados) => {
             if(confirm(`⚔️ O jogador ${dados.de} te convidou para uma partida ${dados.tipo}. Aceitar?`)) {
                 socket.emit('aceitar_convite', { de: dados.de, idDe: dados.idDe });
@@ -408,6 +455,36 @@ function conectarSocket() {
             document.getElementById('matchmaking-screen').classList.add('hidden');
             iniciarArena(dados.sala, 'solo');
         });
+
+        socket.on('novo_participante_voz', async (dados) => {
+            if(!localStream) return;
+            const peerId = dados.id;
+            const pc = criarPeerConnection(peerId);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socket.emit('webrtc_offer', { target: peerId, sdp: pc.localDescription });
+        });
+
+        socket.on('webrtc_offer', async (dados) => {
+            if(!localStream) return;
+            const peerId = dados.sender;
+            const pc = criarPeerConnection(peerId);
+            await pc.setRemoteDescription(new RTCSessionDescription(dados.sdp));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit('webrtc_answer', { target: peerId, sdp: pc.localDescription });
+        });
+
+        socket.on('webrtc_answer', async (dados) => {
+            const pc = peerConnections[dados.sender];
+            if(pc) await pc.setRemoteDescription(new RTCSessionDescription(dados.sdp));
+        });
+
+        socket.on('webrtc_ice_candidate', async (dados) => {
+            const pc = peerConnections[dados.sender];
+            if(pc && dados.candidate) await pc.addIceCandidate(new RTCIceCandidate(dados.candidate));
+        });
+        // -----------------------------------------------
 
         socket.on('partida_encontrada', (dados) => {
             salaAtual = dados.sala;
@@ -524,7 +601,6 @@ function processarFimDePartida(ganhou) {
     if(!meuPerfil.patente) meuPerfil.patente = { nome: '🟫 BRONZE', estrelas: 1 };
     let p = meuPerfil.patente; let idx = PATENTES.findIndex(pt => pt.nome === p.nome); if(idx === -1) { idx = 0; p = { nome: '🟫 BRONZE', estrelas: 1 }; }
     
-    // --- LÓGICA DE OURO (25 a 75 se ganhou, 5 a 20 se perdeu) ---
     let ouroGanho = 0;
     if (ganhou) {
         ouroGanho = Math.floor(Math.random() * (75 - 25 + 1)) + 25;
@@ -544,6 +620,7 @@ function processarFimDePartida(ganhou) {
     meuPerfil.patente = p; localStorage.setItem('ff2d_users_db', JSON.stringify(dbUsuarios)); atualizarLobby(); 
     gameRunning = false; document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden');
     if (salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; }
+    fecharTodasCalls();
 }
 
 function getSafeDmgLvl() { return (meuPerfil && meuPerfil.pStats && meuPerfil.pStats.lvlDmg) ? meuPerfil.pStats.lvlDmg : 1; }
@@ -597,7 +674,7 @@ function salvarConfiguracaoHUD() {
 function mostrarMensagemHUD(msg) { let el = document.getElementById('hud-editor-msg'); el.innerText = msg; el.style.display = 'block'; setTimeout(() => { if(!modoEdicaoHUDActive) el.style.display = 'none'; }, 2000); }
 function abrirMenuPartida() { document.getElementById('menu-partida-overlay').classList.remove('hidden'); }
 function fecharMenuPartida() { document.getElementById('menu-partida-overlay').classList.add('hidden'); }
-function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); if(salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; } }
+function sairDaPartida() { gameRunning = false; botsAtivos = []; document.getElementById('menu-partida-overlay').classList.add('hidden'); document.getElementById('game-ui').style.display = 'none'; document.getElementById('start-menu').classList.remove('hidden'); if(salaAtual && socket) { socket.emit('sair_sala', salaAtual); salaAtual = ""; } fecharTodasCalls(); }
 
 let keys = { left: false, right: false, jump: false, fire: false };
 let currentWeaponIndex = 0; let skillCooldown = 0; let auraAtiva = false; let lastShotTime = 0; 
@@ -658,7 +735,6 @@ function loadUserGameProgress(emailChave) {
 function abrirMenu(id) { document.getElementById('start-menu').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if (id === 'shop-menu') { if(socket && socket.connected) socket.emit('pedir_loja_atualizada'); renderShopList(); } }
 function fecharMenu(id) { document.getElementById(id).classList.add('hidden'); document.getElementById('start-menu').classList.remove('hidden'); }
 
-// --- NOVAS FUNÇÕES DA UI DE LOGIN E RECUPERAÇÃO ---
 function mostrarTelaRecuperacao() { 
     document.getElementById('login-normal').style.display = 'none'; 
     document.getElementById('login-recuperar').style.display = 'block'; 
@@ -749,6 +825,10 @@ function iniciarArena(idSala, modo) {
     clearInterval(intervaloBusca); document.getElementById('matchmaking-screen').classList.add('hidden'); document.getElementById('game-ui').style.display = 'block';
     canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
     placarCS = { A: 0, B: 0 }; roundRodando = true; gameRunning = true; obstaculosPartida = []; botsAtivos = [];
+    
+    if (localStream && socket && socket.connected) {
+        socket.emit('entrar_call', idSala);
+    }
     
     let qInimigos = modo === 'solo' ? 1 : (modo === 'duo' ? 2 : 4); let qAliados = modo === 'solo' ? 0 : (modo === 'duo' ? 1 : 3);
     
@@ -850,7 +930,6 @@ function gameLoop() {
 
         if (playerState !== novoEstado) { playerState = novoEstado; frameAtual = 0; contadorAnim = 0; }
         
-        // CORREÇÃO DA MIRA: Agora y + 55
         if (keys.fire && Date.now() - lastShotTime > 350) { 
             let vx = 20 * player.facing;
             bullets.push({x: player.x + (40 * player.facing), y: player.y + 55, vx: vx, owner: 'local'}); 
@@ -902,7 +981,6 @@ function gameLoop() {
             } else if (distAbs < 60) { bot.facing = distToAlvo > 0 ? -1 : 1; nextBotX += bot.speed * bot.facing; bot.state = 'RUN'; bot.facing = distToAlvo > 0 ? 1 : -1; 
             } else { bot.state = 'IDLE'; if (Math.random() < 0.08 && bot.isGrounded) { bot.vy = -14; bot.isGrounded = false; } if (Math.random() < 0.4) { nextBotX += (Math.random() > 0.5 ? bot.speed : -bot.speed); bot.state = 'RUN'; } bot.facing = distToAlvo > 0 ? 1 : -1; }
             
-            // CORREÇÃO DA MIRA DO BOT: Agora y + 55
             if (Date.now() > bot.lastShot + bot.taxaTiro) { bot.facing = distToAlvo > 0 ? 1 : -1; bullets.push({x: bot.x + (40 * bot.facing), y: bot.y + 55, vx: 20 * bot.facing, owner: bot.id}); bot.lastShot = Date.now(); bot.state = 'SHOOT'; }
         }
         
