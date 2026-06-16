@@ -78,6 +78,11 @@
         #btn-gelo { width: 65px; height: 65px; border: 2px solid #00ecff; color: #00ecff; background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(0,236,255,0.4); z-index: 30; font-size: 12px; }
         
         #menu-partida-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+        /* MICROFONE CSS (INJETADO) */
+        #btn-mic { position: absolute; top: 80px; left: 15px; width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid #fff; border-radius: 50%; z-index: 50; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; transition: 0.3s; pointer-events: auto !important; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .active-mic { background: #e74c3c !important; border-color: #ff9f43 !important; animation: pulseMic 1.5s infinite; }
+        @keyframes pulseMic { 0% { box-shadow: 0 0 5px #e74c3c; } 50% { box-shadow: 0 0 20px #e74c3c; } 100% { box-shadow: 0 0 5px #e74c3c; } }
     </style>
 </head>
 <body>
@@ -132,6 +137,7 @@
         </div>
 
         <div style="display: flex; gap: 8px; flex-wrap: wrap; max-width: 180px; justify-content: flex-end;">
+            <button class="btn-icon" onclick="abrirMenu('amigos-menu')" title="Amigos e Equipe">👥</button>
             <button class="btn-icon" onclick="verificarAtualizacaoDoJogo()" title="Atualizar">🔄<span id="badge-update" style="display:none; position:absolute; top:-5px; right:-5px; background:red; border-radius:50%; width:12px; height:12px;"></span></button>
             <button class="btn-icon" onclick="abrirMenu('upgrade-menu')" title="Atributos">⚙️</button>
             <button class="btn-icon" onclick="entrarModoEdicaoHUD('lobby')" title="HUD">🎛️</button>
@@ -158,6 +164,21 @@
             <button class="btn-play-giant" onclick="abrirServidores()">⚔️ JOGAR</button>
         </div>
     </div>
+</div>
+
+<div id="amigos-menu" class="fullscreen-menu hidden">
+    <h2 style="color:#3498db;">👥 LISTA DE AMIGOS E SQUAD</h2>
+    <div style="background:#222; padding:15px; border-radius:10px; border:2px solid #555; width:90%; max-width:400px; text-align:center; margin-bottom:15px;">
+        <input type="text" id="input-nick-amigo" placeholder="Nick do jogador" style="width:100%; padding:10px; margin-bottom:10px; text-align:center; border-radius:5px; touch-action:auto;">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-main" style="width:50%; background:#2ecc71; border-color:#27ae60;" onclick="adicionarAmigo()">➕ ADICIONAR</button>
+            <button class="btn-main" style="width:50%; background:#9b59b6; border-color:#8e44ad;" onclick="convidarParaSala()">⚔️ CHAMAR X1</button>
+        </div>
+    </div>
+    <div id="lista-amigos-ui" style="width:90%; max-width:400px; height:150px; background:#111; border:1px solid #444; border-radius:8px; overflow-y:auto; padding:10px; text-align:left; font-size:14px; color:#ccc;">
+        <i>Sua lista de amigos aparecerá aqui...</i>
+    </div>
+    <button class="btn-sub btn-danger" style="margin-top:15px;" onclick="fecharMenu('amigos-menu')">VOLTAR</button>
 </div>
 
 <div id="resgatar-codigo-menu" class="fullscreen-menu hidden">
@@ -252,6 +273,9 @@
         <span class="hud-item" style="color:#00ecff;" id="hud-gelo">❄️ GELO: 3</span>
         <span class="hud-item" id="btn-menu-ingame" onclick="abrirMenuPartida()">⚙️ MENU</span>
     </div>
+    
+    <button id="btn-mic" onclick="toggleMic()" title="Ligar/Desligar Microfone">🎙️</button>
+    
     <canvas id="gameCanvas"></canvas>
     <div id="controls">
         <div id="analog-mode-ui" class="hidden"><div id="joystick-base"><div id="joystick-knob"></div></div></div>
@@ -273,6 +297,38 @@
 </div>
 
 <script>
+// --- FUNÇÕES INJETADAS AQUI (Microfone e Convites) ---
+let localStream = null;
+async function toggleMic() {
+    const btn = document.getElementById('btn-mic');
+    if (!localStream) {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            btn.classList.add('active-mic');
+            playSound('skill');
+            mostrarMensagemHUD("🎙️ Microfone Ligado!");
+        } catch (err) { alert("Permissão negada ou erro no microfone. O site precisa estar em HTTPS."); }
+    } else {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+        btn.classList.remove('active-mic');
+        playSound('error');
+        mostrarMensagemHUD("🔇 Microfone Desligado!");
+    }
+}
+
+function adicionarAmigo() {
+    let nick = document.getElementById('input-nick-amigo').value.trim();
+    if(!nick) return alert("Digite o nick do jogador!");
+    if(socket && socket.connected) { socket.emit('adicionar_amigo', nick); alert(`Convite de amizade enviado para ${nick}!`); document.getElementById('input-nick-amigo').value = ''; }
+}
+
+function convidarParaSala() {
+    let nick = document.getElementById('input-nick-amigo').value.trim();
+    if(!nick) return alert("Digite o nick de quem você quer chamar para o X1!");
+    if(socket && socket.connected) { socket.emit('convidar_para_equipe', { para: nick, tipo: '1v1' }); alert(`Convite de X1 enviado para ${nick}! Aguardando...`); }
+}
+
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
@@ -338,6 +394,21 @@ function conectarSocket() {
         socket.on('historico_chat', (msgs) => { document.getElementById('chat-mensagens').innerHTML = ''; msgs.forEach(m => adicionarMensagemChat(m)); });
         socket.on('nova_mensagem', (msg) => adicionarMensagemChat(msg));
         
+        // --- OUVINTES DE CONVITE INJETADOS AQUI ---
+        socket.on('receber_convite', (dados) => {
+            if(confirm(`⚔️ O jogador ${dados.de} te convidou para uma partida ${dados.tipo}. Aceitar?`)) {
+                socket.emit('aceitar_convite', { de: dados.de, idDe: dados.idDe });
+            }
+        });
+
+        socket.on('partida_iniciada', (dados) => {
+            salaAtual = dados.sala;
+            if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
+            else { meuTime = 'B'; player.x = canvas.width - 100; player.facing = -1; }
+            document.getElementById('matchmaking-screen').classList.add('hidden');
+            iniciarArena(dados.sala, 'solo');
+        });
+
         socket.on('partida_encontrada', (dados) => {
             salaAtual = dados.sala;
             if(dados.timeA && dados.timeA.includes(socket.id)) { meuTime = 'A'; player.x = 100; player.facing = 1; }
