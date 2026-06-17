@@ -63,6 +63,22 @@
         "morrendo": "9-9",
         "fps": 12
       }
+    },
+    {
+      "id": "2.0criminal",
+      "name": "2.0-criminal",
+      "price": 15000,
+      "priceD": 699,
+      "comportamento": "custom_isolated",
+      "config_frames": {
+        "parado": "6-9",
+        "andando": "14-18",
+        "pulando": "10-13",
+        "atirando": "19-22",
+        "ataque": "19-22",
+        "morrendo": "1-5",
+        "fps": 12
+      }
     }
   ],
   "weapons": [],
